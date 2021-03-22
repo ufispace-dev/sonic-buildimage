@@ -1,0 +1,12 @@
+#install pytest
+apt-get install python3-pip
+pip3 install -U pytest
+
+#run pytest recursively under current folder
+pytest
+pytest -v (suggested)
+pytest -vv
+
+#run pytest in parallel
+pip3 install pytest-parallel
+pytest -v --workers 2 --tests-per-worker 1 (update parameter for your need)

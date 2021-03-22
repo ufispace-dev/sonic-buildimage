@@ -436,6 +436,19 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'scapy
 # Install GCC, needed for building/installing some Python packages
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install gcc
 
+## ipmitool for bmc access
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install ipmitool
+
+## install smbus-cffi
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install python3-setuptools python3-pip python3-dev libffi-dev
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'smbus-cffi'
+
+## install portio
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'portio==0.5'
+
+## install pyusb
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'pyusb'
+
 ## Create /var/run/redis folder for docker-database to mount
 sudo mkdir -p $FILESYSTEM_ROOT/var/run/redis
 

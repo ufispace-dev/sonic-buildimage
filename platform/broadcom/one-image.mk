@@ -1,4 +1,4 @@
-# sonic broadcom one image installer
+9200_64X
 
 SONIC_ONE_IMAGE = sonic-broadcom.bin
 $(SONIC_ONE_IMAGE)_MACHINE = broadcom
@@ -19,6 +19,7 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(INGRASYS_S9100_PLATFORM_MODULE) \
                                $(INGRASYS_S8810_32Q_PLATFORM_MODULE) \
                                $(INGRASYS_S9200_64X_PLATFORM_MODULE) \
+                               $(UFISPACE_S9700_53DX_PLATFORM_MODULE) \
                                $(ACCTON_AS7712_32X_PLATFORM_MODULE) \
                                $(ACCTON_AS5712_54X_PLATFORM_MODULE) \
                                $(ACCTON_AS7816_64X_PLATFORM_MODULE) \
