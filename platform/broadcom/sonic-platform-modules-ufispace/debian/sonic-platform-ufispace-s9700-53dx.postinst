@@ -1,0 +1,5 @@
+# postinst script for s9700-53dx 
+
+depmod -a
+
+#DEBHELPER#

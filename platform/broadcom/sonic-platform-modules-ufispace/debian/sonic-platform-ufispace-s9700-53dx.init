@@ -1,0 +1,41 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          setup-board
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Setup S9700-53DX board.
+### END INIT INFO
+
+case "$1" in
+start)
+    echo -n "Setting up board... "
+
+    depmod -a
+
+    echo "done."
+    ;;
+
+stop)
+    
+    platform_utility.py deinit
+
+    echo "done."
+
+    ;;
+
+force-reload|restart)
+    echo "Not supported"
+    ;;
+
+*)
+    echo "Usage: /etc/init.d/sonic-platform-ufispace-s9700-53dx.init {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0

@@ -1,0 +1,77 @@
+#!/usr/bin/make -f
+
+export INSTALL_MOD_DIR:=extra
+
+PYTHON     ?= python3
+PACKAGE_PRE_NAME := sonic-platform-ufispace
+KVERSION   ?= $(shell uname -r)
+KERNEL_SRC :=  /lib/modules/$(KVERSION)
+MOD_SRC_DIR:= $(shell pwd)
+MODULE_DIRS:= s9700-53dx
+MODULE_DIR := modules
+UTILS_DIR := utils
+SERVICE_DIR := service
+
+%:
+	dh $@ --with systemd,python2,python3 --buildsystem=pybuild
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+	(for mod in $(MODULE_DIRS); do \
+	    make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules clean; \
+	done)
+
+
+
+build:
+	(for mod in $(MODULE_DIRS); do \
+		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
+		cd $(MOD_SRC_DIR)/$${mod} && python3 bsp/setup.py build; \
+		cd -; \
+	done)
+
+binary: binary-arch binary-indep
+
+binary-arch:
+
+binary-indep:
+	dh_testdir
+	dh_installdirs
+	(for mod in $(MODULE_DIRS); do \
+		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} \
+			$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
+		cp $(MOD_SRC_DIR)/$${mod}/$(MODULE_DIR)/*.ko \
+			debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
+		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} usr/sbin; \
+		cp $(MOD_SRC_DIR)/$${mod}/$(UTILS_DIR)/* \
+			debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/sbin; \
+		cp $(MOD_SRC_DIR)/$${mod}/bsp/ut/bsp_ut.py \
+			debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/sbin; \
+		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} lib/systemd/system; \
+		cp $(MOD_SRC_DIR)/$${mod}/$(SERVICE_DIR)/*.service \
+			debian/$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system; \
+		cd $(MOD_SRC_DIR)/$${mod}; \
+		$(PYTHON) bsp/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME)-$${mod} --install-layout=deb; \
+		cd -; \
+	done)
+
+	# Resuming debhelper scripts
+	dh_testroot
+	dh_install
+	dh_installchangelogs
+	dh_installdocs
+	dh_systemd_enable
+	dh_installinit
+	dh_systemd_start
+	dh_link
+	dh_fixperms
+	dh_compress
+	dh_strip
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+.PHONY: build binary binary-arch binary-indep clean
