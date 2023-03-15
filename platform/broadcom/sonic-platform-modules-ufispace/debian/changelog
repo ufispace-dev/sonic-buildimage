@@ -1,0 +1,17 @@
+sonic-ufispace-platform-modules (1.0.0) unstable; urgency=low
+
+  * Add support for S9700-53DX.
+
+ -- Ufispace <leo.yt.lin@ufispace.com>  Tue, 19 Apr 2022 17:10:58 +0800
+
+sonic-ufispace-platform-modules (1.0.0) unstable; urgency=low
+
+  * Add support for S9300-32D.
+
+ -- Ufispace <leo.yt.lin@ufispace.com>  Tue, 19 Apr 2022 17:10:58 +0800
+
+sonic-ufispace-platform-modules (1.0.0) unstable; urgency=low
+
+  * Add support for S9301-32D.
+
+ -- Ufispace <leo.yt.lin@ufispace.com>  Tue, 19 Apr 2022 17:10:58 +0800
