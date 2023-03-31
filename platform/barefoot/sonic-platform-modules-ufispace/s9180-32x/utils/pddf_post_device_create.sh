@@ -93,3 +93,7 @@ i2cset -f -y -r 8 0x22 0x21 ${rov_reg} w 2>/dev/null
 #echo "Setting mac vdd ${mac_vdd_val} with rov register value ${rov_reg}"
 
 echo "PDDF device post-create completed"
+
+service swss restart
+
+echo "Restart swss/syncd to sync devices"

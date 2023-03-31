@@ -46,7 +46,7 @@
         {
             "bmc":
             {
-                "valmap": {"0": "UNKNOW", "1":"INTAKE", "2":"EXHAUST"}
+                "valmap": {"0": "UNKNOWN", "1":"INTAKE", "2":"EXHAUST"}
             }
         },
 
