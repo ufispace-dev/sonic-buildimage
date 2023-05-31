@@ -22,6 +22,7 @@ MOD_SRC_DIR:= $(shell pwd)
 MODULE_DIRS:= s9700-53dx
 MODULE_DIRS += s9300-32d
 MODULE_DIRS += s9301-32d
+MODULE_DIRS += s8901-54xc
 MODULE_DIR := modules
 UTILS_DIR := utils
 SERVICE_DIR := service
