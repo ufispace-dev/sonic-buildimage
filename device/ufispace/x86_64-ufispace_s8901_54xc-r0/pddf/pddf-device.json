@@ -43,7 +43,6 @@
         ],
         "custom_kos": [
             "x86-64-ufispace-s8901-54xc-lpc",
-            "x86-64-ufispace-s8901-54xc-cpld",
             "x86-64-ufispace-s8901-54xc-sys-eeprom",
             "pddf_custom_gpio_module"
         ]
@@ -7187,7 +7186,7 @@
             "topo_info": {
                 "parent_bus": "0x4a",
                 "dev_addr": "0x50",
-                "dev_type": "optoe3"
+                "dev_type": "optoe1"
             },
             "attr_list": [
                 {
@@ -7286,7 +7285,7 @@
             "topo_info": {
                 "parent_bus": "0x4b",
                 "dev_addr": "0x50",
-                "dev_type": "optoe3"
+                "dev_type": "optoe1"
             },
             "attr_list": [
                 {
@@ -7385,7 +7384,7 @@
             "topo_info": {
                 "parent_bus": "0x4c",
                 "dev_addr": "0x50",
-                "dev_type": "optoe3"
+                "dev_type": "optoe1"
             },
             "attr_list": [
                 {
@@ -7484,7 +7483,7 @@
             "topo_info": {
                 "parent_bus": "0x4d",
                 "dev_addr": "0x50",
-                "dev_type": "optoe3"
+                "dev_type": "optoe1"
             },
             "attr_list": [
                 {
@@ -7583,7 +7582,7 @@
             "topo_info": {
                 "parent_bus": "0x4e",
                 "dev_addr": "0x50",
-                "dev_type": "optoe3"
+                "dev_type": "optoe1"
             },
             "attr_list": [
                 {
@@ -7682,7 +7681,7 @@
             "topo_info": {
                 "parent_bus": "0x4f",
                 "dev_addr": "0x50",
-                "dev_type": "optoe3"
+                "dev_type": "optoe1"
             },
             "attr_list": [
                 {

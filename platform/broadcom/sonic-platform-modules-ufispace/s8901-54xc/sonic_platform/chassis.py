@@ -48,9 +48,6 @@ class Chassis(PddfChassis):
     def get_status_led(self):
         return self.get_system_led(self.SYSLED_DEV_NAME)
 
-    def set_status_led(self, color):
-        return self.set_system_led(self.SYSLED_DEV_NAME, color)
-
     def get_change_event(self, timeout=0):
         """
         Returns a nested dictionary containing all devices which have
