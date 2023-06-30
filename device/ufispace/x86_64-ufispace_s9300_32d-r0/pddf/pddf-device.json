@@ -1469,7 +1469,8 @@
             "device_name": "SYS_LED"
         },
         "dev_attr": {
-            "index": "0"
+            "index": "0",
+            "flag": "ro"
         },
         "i2c": {
             "attr_list": [
@@ -1522,7 +1523,8 @@
             "device_name": "FAN_LED"
         },
         "dev_attr": {
-            "index": "0"
+            "index": "0",
+            "flag": "ro"
         },
         "i2c": {
             "attr_list": [
@@ -1575,7 +1577,8 @@
             "device_name": "PSU_LED"
         },
         "dev_attr": {
-            "index": "0"
+            "index": "0",
+            "flag": "ro"
         },
         "i2c": {
             "attr_list": [
@@ -1628,7 +1631,8 @@
             "device_name": "PSU_LED"
         },
         "dev_attr": {
-            "index": "1"
+            "index": "1",
+            "flag": "ro"
         },
         "i2c": {
             "attr_list": [
@@ -1681,7 +1685,8 @@
             "device_name": "LOC_LED"
         },
         "dev_attr": {
-            "index": "0"
+            "index": "0",
+            "flag": "rw"
         },
         "i2c": {
             "attr_list": [

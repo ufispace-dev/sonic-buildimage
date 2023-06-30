@@ -79,14 +79,6 @@
         "FAN_F_MAX_SPEED":"36200"
     },
 
-    "LED":
-    {
-        "capability":
-        {
-            "ro": ["SYS_LED", "FAN_LED", "PSU1_LED", "PSU2_LED"],
-            "rw": ["ID_LED"]
-        }
-    },
     "REBOOT_CAUSE":
     {
         "reboot_cause_file": "/host/reboot-cause/reboot-cause.txt"
