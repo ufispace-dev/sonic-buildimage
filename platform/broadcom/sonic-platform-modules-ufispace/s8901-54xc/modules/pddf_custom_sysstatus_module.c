@@ -68,28 +68,40 @@ static struct attribute *sysstatus_addr_attributes[] = {
     NULL
 };
 
-PDDF_DATA_ATTR(board_info,    S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld1_version, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld2_version, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(mac_reset,     S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(mux_reset,     S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(psu_status,    S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(system_led_0,  S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(system_led_1,  S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(beacon_led,    S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(port_led_clr_ctrl, S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(board_sku_id   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(board_hw_id    , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(board_deph_id  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(board_build_id , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld1_major_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld1_minor_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld1_build    , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_major_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_minor_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_build    , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(psu_status     , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_psu , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_sys , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_sync, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_fan , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_id  , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 
 static struct attribute *sysstatus_data_attributes[] = {
-    &attr_board_info.dev_attr.attr,
-    &attr_cpld1_version.dev_attr.attr,
-    &attr_cpld2_version.dev_attr.attr,
-    &attr_mac_reset.dev_attr.attr,
-    &attr_mux_reset.dev_attr.attr,
+    &attr_board_sku_id.dev_attr.attr,
+    &attr_board_hw_id.dev_attr.attr,
+    &attr_board_deph_id.dev_attr.attr,
+    &attr_board_build_id.dev_attr.attr,
+    &attr_cpld1_major_ver.dev_attr.attr,
+    &attr_cpld1_minor_ver.dev_attr.attr,
+    &attr_cpld1_build.dev_attr.attr,
+    &attr_cpld2_major_ver.dev_attr.attr,
+    &attr_cpld2_minor_ver.dev_attr.attr,
+    &attr_cpld2_build.dev_attr.attr,
     &attr_psu_status.dev_attr.attr,
-    &attr_system_led_0.dev_attr.attr,
-    &attr_system_led_1.dev_attr.attr,
-    &attr_beacon_led.dev_attr.attr,
-    &attr_port_led_clr_ctrl.dev_attr.attr,
+    &attr_system_led_psu.dev_attr.attr,
+    &attr_system_led_sys.dev_attr.attr,
+    &attr_system_led_sync.dev_attr.attr,
+    &attr_system_led_fan.dev_attr.attr,
+    &attr_system_led_id.dev_attr.attr,
     NULL
 };
 

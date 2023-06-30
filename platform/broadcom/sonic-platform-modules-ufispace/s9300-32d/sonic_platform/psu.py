@@ -35,4 +35,4 @@ class Psu(PddfPsu):
         """
 
         # power is returned in micro watts
-        return float(self.get_voltage()*self.get_current())
+        return round(float(self.get_voltage()*self.get_current()), 2)

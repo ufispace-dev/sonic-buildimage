@@ -12,3 +12,10 @@ class Eeprom(PddfEeprom):
         PddfEeprom.__init__(self, pddf_data, pddf_plugin_data)
 
     # Provide the functions/variables below for which implementation is to be overwritten
+
+    def platform_name_str(self):
+        (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_PLATFORM_NAME)
+        if not is_valid:
+            return "N/A"
+
+        return results[2].decode('ascii')

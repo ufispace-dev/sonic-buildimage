@@ -28,7 +28,9 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(UFISPACE_S9700_53DX_PLATFORM_MODULE) \
                                $(UFISPACE_S9300_32D_PLATFORM_MODULE) \
                                $(UFISPACE_S9301_32D_PLATFORM_MODULE) \
+                               $(UFISPACE_S9110_32X_PLATFORM_MODULE) \
                                $(UFISPACE_S8901_54XC_PLATFORM_MODULE) \
+                               $(UFISPACE_S6301_56ST_PLATFORM_MODULE) \
                                $(ACCTON_AS7712_32X_PLATFORM_MODULE) \
                                $(ACCTON_AS5712_54X_PLATFORM_MODULE) \
                                $(ACCTON_AS7816_64X_PLATFORM_MODULE) \

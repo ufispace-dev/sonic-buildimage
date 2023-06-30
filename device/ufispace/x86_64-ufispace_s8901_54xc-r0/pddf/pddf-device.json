@@ -38,13 +38,13 @@
             "pddf_psu_module",
             "pddf_fan_driver_module",
             "pddf_fan_module",
-            "pddf_led_module",
-            "pddf_sysstatus_module"
+            "pddf_led_module"
         ],
         "custom_kos": [
             "x86-64-ufispace-s8901-54xc-lpc",
             "x86-64-ufispace-s8901-54xc-sys-eeprom",
-            "pddf_custom_gpio_module"
+            "pddf_custom_gpio_module",
+            "pddf_custom_sysstatus_module"
         ]
     },
     "SYSTEM": {
@@ -619,18 +619,117 @@
             "device_name": "SYSSTATUS"
         },
         "dev_attr": {},
-        "attr_list": [
+        "attr_list":
+        [
             {
-                "attr_name": "cpld1_version",
+                "attr_name": "board_sku_id",
                 "attr_devaddr": "0x30",
-                "attr_offset": "0x2",
+                "attr_offset": "0x0",
                 "attr_mask": "0xff",
                 "attr_len": "0x1"
             },
             {
-                "attr_name": "cpld2_version",
+                "attr_name": "board_hw_id",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x1",
+                "attr_mask": "0x03",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "board_deph_id",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x1",
+                "attr_mask": "0x4",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "board_build_id",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x1",
+                "attr_mask": "0x18",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "cpld1_major_ver",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x2",
+                "attr_mask": "0xc0",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "cpld1_minor_ver",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x2",
+                "attr_mask": "0x3f",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "cpld1_build",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x4",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "cpld2_major_ver",
                 "attr_devaddr": "0x31",
                 "attr_offset": "0x2",
+                "attr_mask": "0xc0",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "cpld2_minor_ver",
+                "attr_devaddr": "0x31",
+                "attr_offset": "0x2",
+                "attr_mask": "0x3f",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "cpld2_build",
+                "attr_devaddr": "0x31",
+                "attr_offset": "0x4",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "psu_status",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x51",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "system_led_psu",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x80",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "system_led_sys",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x81",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "system_led_sync",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x82",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "system_led_fan",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x83",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "system_led_id",
+                "attr_devaddr": "0x30",
+                "attr_offset": "0x84",
                 "attr_mask": "0xff",
                 "attr_len": "0x1"
             }
