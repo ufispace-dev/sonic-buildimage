@@ -127,6 +127,27 @@
                         "raw": "0",
                         "field_name": "TEMP_CPU_PECI",
                         "field_pos": "3"
+                    },
+                    {
+                        "attr_name": "temp1_high_crit_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_PECI",
+                        "field_pos": "20"
+                    },
+                    {
+                        "attr_name": "temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_PECI",
+                        "field_pos": "18"
+                    },
+                    {
+                        "attr_name": "temp1_low_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_PECI",
+                        "field_pos": "16"
                     }                
                 ]
             }
@@ -150,6 +171,27 @@
                         "raw": "0",
                         "field_name": "TEMP_CPU_ENV",
                         "field_pos": "3"
+                    },
+                    {
+                        "attr_name": "temp1_high_crit_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_ENV",
+                        "field_pos": "20"
+                    },
+                    {
+                        "attr_name": "temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_ENV",
+                        "field_pos": "18"
+                    },
+                    {
+                        "attr_name": "temp1_low_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_ENV",
+                        "field_pos": "16"
                     }                
                 ]
             }
@@ -173,6 +215,27 @@
                         "raw": "0",
                         "field_name": "TEMP_CPU_ENV_2",
                         "field_pos": "3"
+                    },
+                    {
+                        "attr_name": "temp1_high_crit_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_ENV_2",
+                        "field_pos": "20"
+                    },
+                    {
+                        "attr_name": "temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_ENV_2",
+                        "field_pos": "18"
+                    },
+                    {
+                        "attr_name": "temp1_low_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CPU_ENV_2",
+                        "field_pos": "16"
                     }                
                 ]
             }
@@ -196,6 +259,27 @@
                         "raw": "0",
                         "field_name": "TEMP_MAC_ENV",
                         "field_pos": "3"
+                    },
+                    {
+                        "attr_name": "temp1_high_crit_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_MAC_ENV",
+                        "field_pos": "20"
+                    },
+                    {
+                        "attr_name": "temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_MAC_ENV",
+                        "field_pos": "18"
+                    },
+                    {
+                        "attr_name": "temp1_low_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_MAC_ENV",
+                        "field_pos": "16"
                     }                
                 ]
             }
@@ -219,6 +303,27 @@
                         "raw": "0",
                         "field_name": "TEMP_MAC_DIE",
                         "field_pos": "3"
+                    },
+                    {
+                        "attr_name": "temp1_high_crit_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_MAC_DIE",
+                        "field_pos": "20"
+                    },
+                    {
+                        "attr_name": "temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_MAC_DIE",
+                        "field_pos": "18"
+                    },
+                    {
+                        "attr_name": "temp1_low_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_MAC_DIE",
+                        "field_pos": "16"
                     }                
                 ]
             }
@@ -242,6 +347,27 @@
                         "raw": "0",
                         "field_name": "TEMP_CAGE",
                         "field_pos": "3"
+                    },
+                    {
+                        "attr_name": "temp1_high_crit_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CAGE",
+                        "field_pos": "20"
+                    },
+                    {
+                        "attr_name": "temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CAGE",
+                        "field_pos": "18"
+                    },
+                    {
+                        "attr_name": "temp1_low_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_CAGE",
+                        "field_pos": "16"
                     }                
                 ]
             }
@@ -265,6 +391,27 @@
                         "raw": "0",
                         "field_name": "TEMP_PSU_CONN",
                         "field_pos": "3"
+                    },
+                    {
+                        "attr_name": "temp1_high_crit_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_PSU_CONN",
+                        "field_pos": "20"
+                    },
+                    {
+                        "attr_name": "temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_PSU_CONN",
+                        "field_pos": "18"
+                    },
+                    {
+                        "attr_name": "temp1_low_threshold",
+                        "bmc_cmd": "ipmitool sensor",
+                        "raw": "0",
+                        "field_name": "TEMP_PSU_CONN",
+                        "field_pos": "16"
                     }                
                 ]
             }
@@ -1327,23 +1474,39 @@
         "i2c": {
             "attr_list": [
                 {
-                    "attr_name": "STATUS_LED_COLOR_GREEN",
+                    "attr_name": "green",
                     "bits": "7:4",
                     "descr": "Green",
-                    "value": "0x09",
+                    "value": "0x09;0x0b",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x80"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_AMBER_BLINK",
+                    "attr_name": "green_blink",
+                    "bits": "7:4",
+                    "descr": "Green Blinking",
+                    "value": "0x0d;0x0f",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x80"
+                },
+                {
+                    "attr_name": "yellow",
                     "bits": "7:4",
                     "descr": "Yellow",
-                    "value": "0x0c",
+                    "value": "0x08;0x0a",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x80"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_OFF",
+                    "attr_name": "yellow_blink",
+                    "bits": "7:4",
+                    "descr": "Yellow Blinking",
+                    "value": "0x0c;0x0e",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x80"
+                },
+                {
+                    "attr_name": "off",
                     "bits": "7",
                     "descr": "Off",
                     "value": "0x0",
@@ -1364,23 +1527,39 @@
         "i2c": {
             "attr_list": [
                 {
-                    "attr_name": "STATUS_LED_COLOR_GREEN",
+                    "attr_name": "green",
                     "bits": "3:0",
                     "descr": "Green",
-                    "value": "0x09",
+                    "value": "0x09;0x0b",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x80"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_AMBER_BLINK",
+                    "attr_name": "green_blink",
+                    "bits": "3:0",
+                    "descr": "Green Blinking",
+                    "value": "0x0d;0x0f",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x80"
+                },
+                {
+                    "attr_name": "yellow",
                     "bits": "3:0",
                     "descr": "Yellow",
-                    "value": "0x0c",
+                    "value": "0x08;0x0a",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x80"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_OFF",
+                    "attr_name": "yellow_blink",
+                    "bits": "3:0",
+                    "descr": "Yellow Blinking",
+                    "value": "0x0c;0x0e",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x80"
+                },
+                {
+                    "attr_name": "off",
                     "bits": "3",
                     "descr": "Off",
                     "value": "0x0",
@@ -1390,7 +1569,7 @@
             ]
         }
     },
-    "PSU_LED_0": {
+    "PSU1_LED": {
         "dev_info": {
             "device_type": "LED",
             "device_name": "PSU_LED"
@@ -1401,23 +1580,39 @@
         "i2c": {
             "attr_list": [
                 {
-                    "attr_name": "STATUS_LED_COLOR_GREEN",
+                    "attr_name": "green",
                     "bits": "3:0",
                     "descr": "Green",
-                    "value": "0x09",
+                    "value": "0x09;0x0b",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x81"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_AMBER_BLINK",
+                    "attr_name": "green_blink",
+                    "bits": "3:0",
+                    "descr": "Green Blinking",
+                    "value": "0x0d;0x0f",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x81"
+                },
+                {
+                    "attr_name": "yellow",
                     "bits": "3:0",
                     "descr": "Yellow",
-                    "value": "0x0c",
+                    "value": "0x08;0x0a",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x81"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_OFF",
+                    "attr_name": "yellow_blink",
+                    "bits": "3:0",
+                    "descr": "Yellow Blinking",
+                    "value": "0x0c;0x0e",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x81"
+                },
+                {
+                    "attr_name": "off",
                     "bits": "3",
                     "descr": "Off",
                     "value": "0x0",
@@ -1427,7 +1622,7 @@
             ]
         }
     },
-    "PSU_LED_1": {
+    "PSU2_LED": {
         "dev_info": {
             "device_type": "LED",
             "device_name": "PSU_LED"
@@ -1438,23 +1633,39 @@
         "i2c": {
             "attr_list": [
                 {
-                    "attr_name": "STATUS_LED_COLOR_GREEN",
+                    "attr_name": "green",
                     "bits": "7:4",
                     "descr": "Green",
-                    "value": "0x09",
+                    "value": "0x09;0x0b",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x81"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_AMBER_BLINK",
+                    "attr_name": "green_blink",
+                    "bits": "7:4",
+                    "descr": "Green Blinking",
+                    "value": "0x0d;0x0f",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x81"
+                },
+                {
+                    "attr_name": "yellow",
                     "bits": "7:4",
                     "descr": "Yellow",
-                    "value": "0x0c",
+                    "value": "0x08;0x0a",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x81"
                 },
                 {
-                    "attr_name": "STATUS_LED_COLOR_OFF",
+                    "attr_name": "yellow_blink",
+                    "bits": "7:4",
+                    "descr": "Yellow Blinking",
+                    "value": "0x0c;0x0e",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x81"
+                },
+                {
+                    "attr_name": "off",
                     "bits": "7",
                     "descr": "Off",
                     "value": "0x0",
@@ -1464,6 +1675,43 @@
             ]
         }
     },
+    "ID_LED": {
+        "dev_info": {
+            "device_type": "LED",
+            "device_name": "LOC_LED"
+        },
+        "dev_attr": {
+            "index": "0"
+        },
+        "i2c": {
+            "attr_list": [
+                {
+                    "attr_name": "blue",
+                    "bits": "2:1",
+                    "descr": "Blue",
+                    "value": "0x02",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x84"
+                },
+                {
+                    "attr_name": "blue_blink",
+                    "bits": "2:1",
+                    "descr": "Blue Blinking",
+                    "value": "0x03",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x84"
+                },
+                {
+                    "attr_name": "off",
+                    "bits": "2",
+                    "descr": "Off",
+                    "value": "0x0",
+                    "swpld_addr": "0x30",
+                    "swpld_addr_offset": "0x84"
+                }
+            ]
+        }
+    },    
     "PORT1": {
         "dev_info": {
             "device_type": "QSFP-DD",

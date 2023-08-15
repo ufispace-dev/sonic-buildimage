@@ -642,42 +642,48 @@
             "index": "48,48,48,48",
             "lanes": "37,38,39,40",
             "breakout_modes": {
-                            "1x100G" : [ "Eth48(Port48)" ]
+                            "1x100G[40G]" : [ "Eth48(Port48)" ]
             }
         },
         "Ethernet52": {
             "index": "49,49,49,49",
             "lanes": "33,34,35,36",
             "breakout_modes": {
-                            "1x100G" : [ "Eth49(Port49)" ]
+                            "1x100G[40G]" : [ "Eth49(Port49)" ]
             }
         },
         "Ethernet56": {
             "index": "50,50,50,50",
             "lanes": "45,46,47,48",
             "breakout_modes": {
-                            "1x100G" : [ "Eth50(Port50)" ]
+                            "1x100G[40G]" : [ "Eth50(Port50)" ]
             }
         },
         "Ethernet60": {
             "index": "51,51,51,51",
             "lanes": "49,50,51,52",
             "breakout_modes": {
-                            "1x100G" : [ "Eth51(Port51)" ]
+                            "1x100G[40G]" : [ "Eth51(Port51)" ]
             }
         },
         "Ethernet64": {
             "index": "52,52,52,52",
             "lanes": "53,54,55,56",
             "breakout_modes": {
-                            "1x100G" : [ "Eth52(Port52)" ]
+                            "1x100G[40G]" : [ "Eth52(Port52)" ],
+                            "2x50G": ["Eth52/1(Port52)", "Eth52/2(Port52)"],
+                            "4x25G": ["Eth52/1(Port52)", "Eth52/2(Port52)", "Eth52/3(Port52)", "Eth52/4(Port52)"],
+                            "4x10G": ["Eth52/1(Port52)", "Eth52/2(Port52)", "Eth52/3(Port52)", "Eth52/4(Port52)"]
             }
         },
         "Ethernet68": {
             "index": "53,53,53,53",
             "lanes": "57,58,59,60",
             "breakout_modes": {
-                            "1x100G" : [ "Eth53(Port53)" ]
+                            "1x100G[40G]" : [ "Eth53(Port53)" ],
+                            "2x50G": ["Eth53/1(Port53)", "Eth53/2(Port53)"],
+                            "4x25G": ["Eth53/1(Port53)", "Eth53/2(Port53)", "Eth53/3(Port53)", "Eth53/4(Port53)"],
+                            "4x10G": ["Eth53/1(Port53)", "Eth53/2(Port53)", "Eth53/3(Port53)", "Eth53/4(Port53)"]
             }
         }
     }

@@ -16,6 +16,7 @@
  * A pddf kernel module for system status registers
  */
 
+#define __STDC_WANT_LIB_EXT1__ 1
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/jiffies.h>
@@ -192,8 +193,11 @@ static ssize_t do_attr_operation(struct device *dev, struct device_attribute *da
     pdata->sysstatus_addr_attrs[pdata->len] = pdata->sysstatus_addr_attr;
     pdata->len++;
     pddf_dbg(SYSSTATUS, KERN_ERR "%s: Populating the data for %s\n", __FUNCTION__, pdata->sysstatus_addr_attr.aname);
+#ifdef __STDC_LIB_EXT1__
+    memset_s(&pdata->sysstatus_addr_attr, sizeof(pdata->sysstatus_addr_attr), 0, sizeof(pdata->sysstatus_addr_attr));
+#else
     memset(&pdata->sysstatus_addr_attr, 0, sizeof(pdata->sysstatus_addr_attr));
-
+#endif
 
     return count;
 }

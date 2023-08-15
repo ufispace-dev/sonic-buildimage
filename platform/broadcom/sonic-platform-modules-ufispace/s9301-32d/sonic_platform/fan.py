@@ -29,14 +29,14 @@ class Fan(PddfFan):
         if self.is_psu_fan:
             attr = "psu_fan{}_speed_rpm".format(self.fan_index)
             device = "PSU{}".format(self.fans_psu_index)
-            max_speed = eval(self.plugin_data['PSU']['PSU_FAN_MAX_SPEED']) 
+            max_speed = int(self.plugin_data['PSU']['PSU_FAN_MAX_SPEED']) 
         else:
             if self.fan_index == 1:
                 pos = "f"
-                max_speed = eval(self.plugin_data['FAN']['FAN_F_MAX_SPEED']) 
+                max_speed = int(self.plugin_data['FAN']['FAN_F_MAX_SPEED']) 
             else:
                 pos = "r"
-                max_speed = eval(self.plugin_data['FAN']['FAN_R_MAX_SPEED']) 
+                max_speed = int(self.plugin_data['FAN']['FAN_R_MAX_SPEED']) 
             attr = "fan{}_{}_speed_rpm".format(self.fantray_index, pos)
             device = "FAN-CTRL"
 
@@ -50,8 +50,9 @@ class Fan(PddfFan):
         else:
             speed = int(float(output['status']))
 
-        speed_percentage = (speed*100)/max_speed
-        return speed_percentage
+        speed_percentage = round((speed*100)/max_speed)
+        
+        return min(speed_percentage, 100)
 
     def get_speed_rpm(self):
         """
@@ -141,17 +142,6 @@ class Fan(PddfFan):
 
         return presence
 
-    def get_status(self):
-        """
-        Retrieves the operational status of the device
-
-        Returns:
-            A boolean value, True if device is operating properly, False if not
-        """
-        speed = self.get_speed_rpm()
-        status = True if (speed != 0) else False
-        return status
-
     def get_target_speed(self):
         """
         Retrieves the target (expected) speed of the fan
@@ -159,19 +149,20 @@ class Fan(PddfFan):
             An integer, the percentage of full fan speed, in the range 0 (off)
                  to 100 (full speed)
         """
-        if self.is_psu_fan:
-            return 75
-        else:
-            return 65
+        return self.get_speed()
 
-    def get_speed_tolerance(self):
+    def set_speed(self, speed):
         """
-        Retrieves the speed tolerance of the fan
+        Sets the fan speed
+
+        Args:
+            speed: An integer, the percentage of full fan speed to set fan to,
+                   in the range 0 (off) to 100 (full speed)
+
         Returns:
-            An integer, the percentage of variance from target speed which is
-        considered tolerable
+            A boolean, True if speed is set successfully, False if not
         """
-        if self.is_psu_fan:
-            return 80
-        else:
-            return 40
+
+        print("Setting Fan speed is not allowed")
+        return False
+

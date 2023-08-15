@@ -11,7 +11,7 @@ class Fan(PddfFan):
     """PDDF Platform-Specific Fan class"""
 
     def __init__(self, tray_idx, fan_idx=0, pddf_data=None, pddf_plugin_data=None, is_psu_fan=False, psu_index=0):
-        # idx is 0-based 
+        # idx is 0-based
         PddfFan.__init__(self, tray_idx, fan_idx, pddf_data, pddf_plugin_data, is_psu_fan, psu_index)
 
     # Provide the functions/variables below for which implementation is to be overwritten
@@ -29,14 +29,14 @@ class Fan(PddfFan):
         if self.is_psu_fan:
             attr = "psu_fan{}_speed_rpm".format(self.fan_index)
             device = "PSU{}".format(self.fans_psu_index)
-            max_speed = eval(self.plugin_data['PSU']['PSU_FAN_MAX_SPEED']) 
+            max_speed = int(self.plugin_data['PSU']['PSU_FAN_MAX_SPEED'])
         else:
             if self.fan_index == 1:
                 pos = "f"
-                max_speed = eval(self.plugin_data['FAN']['FAN_F_MAX_SPEED']) 
+                max_speed = int(self.plugin_data['FAN']['FAN_F_MAX_SPEED'])
             else:
                 pos = "r"
-                max_speed = eval(self.plugin_data['FAN']['FAN_R_MAX_SPEED']) 
+                max_speed = int(self.plugin_data['FAN']['FAN_R_MAX_SPEED'])
             attr = "fan{}_{}_speed_rpm".format(self.fantray_index, pos)
             device = "FAN-CTRL"
 
@@ -50,8 +50,9 @@ class Fan(PddfFan):
         else:
             speed = int(float(output['status']))
 
-        speed_percentage = (speed*100)/max_speed
-        return speed_percentage
+        speed_percentage = round((speed*100)/max_speed)
+
+        return min(speed_percentage, 100)
 
     def get_speed_rpm(self):
         """
@@ -92,26 +93,8 @@ class Fan(PddfFan):
             A string, either FAN_DIRECTION_INTAKE or FAN_DIRECTION_EXHAUST
             depending on fan direction
         """
-        direction = self.FAN_DIRECTION_INTAKE
-        if self.is_psu_fan:
-            attr = "psu_fan{}_dir".format(self.fan_index)
-            device = "PSU{}".format(self.fans_psu_index)
-        else:
-            attr = "fan{}_dir".format(self.fantray_index)
-            device = "FAN-CTRL"
 
-        output = self.pddf_obj.get_attr_name_output(device, attr)
-        if not output:
-            return direction
-
-        mode = output['mode']
-        val = output['status'].strip()
-        vmap = self.plugin_data['FAN']['direction'][mode]['valmap']
-   
-        if val in vmap:
-            direction = vmap[val]
-            
-        return direction
+        return self.FAN_DIRECTION_EXHAUST
 
     def get_presence(self):
         """
@@ -159,19 +142,6 @@ class Fan(PddfFan):
             An integer, the percentage of full fan speed, in the range 0 (off)
                  to 100 (full speed)
         """
-        if self.is_psu_fan:
-            return 75
-        else:
-            return 65
 
-    def get_speed_tolerance(self):
-        """
-        Retrieves the speed tolerance of the fan
-        Returns:
-            An integer, the percentage of variance from target speed which is
-        considered tolerable
-        """
-        if self.is_psu_fan:
-            return 80
-        else:
-            return 40
+        return self.get_speed()
+

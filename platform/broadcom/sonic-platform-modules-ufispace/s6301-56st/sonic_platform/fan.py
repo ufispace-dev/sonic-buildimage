@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import subprocess
+import os
 
 try:
     from sonic_platform_pddf_base.pddf_fan import PddfFan
@@ -60,9 +60,11 @@ class Fan(PddfFan):
             else:
                 rpm_speed = int(float(output['status']))
         else:
-            cmd = "cat /sys/bus/i2c/devices/5-0034/hwmon/hwmon*/fan{}_input".format(self.fantray_index)
-            value = subprocess.check_output(cmd, shell=True).strip()
-            rpm_speed = int(value)
+            ucd_path = "/sys/bus/i2c/devices/5-0034/hwmon/"
+            if os.path.exists(ucd_path):
+                hwmon_dir = os.listdir(ucd_path)
+                with open("{}/{}/temp{}_input".format(ucd_path, hwmon_dir[0], self.fantray_index), "rb") as f:
+                    rpm_speed = int(f.read().strip())
 
         return rpm_speed
 
@@ -94,12 +96,7 @@ class Fan(PddfFan):
             if val in vmap:
                 dir = vmap[val]
 
-        if dir == "INTAKE":
-            direction = self.FAN_DIRECTION_INTAKE
-        elif dir == "EXHAUST":
-            direction = self.FAN_DIRECTION_EXHAUST
-
-        return direction
+        return dir
 
     def get_presence(self):
         """

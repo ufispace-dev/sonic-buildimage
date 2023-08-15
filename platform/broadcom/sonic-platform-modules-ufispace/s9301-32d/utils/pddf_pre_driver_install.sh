@@ -6,6 +6,8 @@ if [ ! -f /tmp/._pddf_pre_driver_init_completion ]; then
     rmmod igb
     modprobe igb
     modprobe i40e
+    # disable bmc watchdog
+    ipmitool mc watchdog off
     date > /tmp/._pddf_pre_driver_init_completion
 fi
 echo "PDDF driver pre-install completed"

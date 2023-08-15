@@ -783,11 +783,11 @@
             "attr_list": [
                 {
                     "attr_name": "temp1_high_threshold",
-                    "drv_attr_name": "temp1_max"
+                    "drv_attr_name": "temp2_max"
                 },
                 {
                     "attr_name": "temp1_input",
-                    "drv_attr_name": "temp1_input"
+                    "drv_attr_name": "temp2_input"
                 }
             ]
         }
@@ -810,11 +810,11 @@
             "attr_list": [
                 {
                     "attr_name": "temp1_high_threshold",
-                    "drv_attr_name": "temp2_max"
+                    "drv_attr_name": "temp3_max"
                 },
                 {
                     "attr_name": "temp1_input",
-                    "drv_attr_name": "temp2_input"
+                    "drv_attr_name": "temp3_input"
                 }
             ]
         }
@@ -837,11 +837,11 @@
             "attr_list": [
                 {
                     "attr_name": "temp1_high_threshold",
-                    "drv_attr_name": "temp3_max"
+                    "drv_attr_name": "temp4_max"
                 },
                 {
                     "attr_name": "temp1_input",
-                    "drv_attr_name": "temp3_input"
+                    "drv_attr_name": "temp4_input"
                 }
             ]
         }

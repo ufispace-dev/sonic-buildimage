@@ -1,5 +1,4 @@
 #!/bin/bash
-#echo 1 > /sys/kernel/pddf/devices/sysstatus/sysstatus_data/port_led_clr_ctrl
 
 # init Host GPIO 0x74
 i2cset -f -y -r 0 0x74 4 0x00
@@ -76,7 +75,6 @@ sfp_bus_array=(45 46)
 for i in {0..1};
 do
     echo $((i + 33)) > /sys/bus/i2c/devices/${sfp_bus_array[i]}-0050/port_name
-    #echo "echo $((i + 33)) > /sys/bus/i2c/devices/${sfp_bus_array[i]}-0050/port_name"
 done
 
 # _mac_vdd_init
@@ -90,10 +88,9 @@ vid=$(($reg_val & 0x7))
 mac_vdd_val=${vdd_val_array[vid]}
 rov_reg=${rov_reg_array[vid]}
 i2cset -f -y -r 8 0x22 0x21 ${rov_reg} w 2>/dev/null
-#echo "Setting mac vdd ${mac_vdd_val} with rov register value ${rov_reg}"
+
+#disable bmc watchdog
+timeout 3 ipmitool mc watchdog off
 
 echo "PDDF device post-create completed"
 
-service swss restart
-
-echo "Restart swss/syncd to sync devices"

@@ -1149,9 +1149,9 @@
                 },
                 {
                     "attr_name": "off",
-                    "bits": "7",
+                    "bits": "7:6",
                     "descr": "Off",
-                    "value": "0x0",
+                    "value": "0x01;0x0",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x81"
                 }
@@ -1349,9 +1349,9 @@
                 },
                 {
                     "attr_name": "off",
-                    "bits": "3",
+                    "bits": "3:2",
                     "descr": "Off",
-                    "value": "0x0",
+                    "value": "0x01;0x0",
                     "swpld_addr": "0x30",
                     "swpld_addr_offset": "0x84"
                 }
