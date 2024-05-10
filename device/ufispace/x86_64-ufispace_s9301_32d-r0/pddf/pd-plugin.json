@@ -27,7 +27,7 @@
             },
             "bmc":
             {
-                "valmap": { "0x0280|":true, "0x0180|":false }
+                "valmap": { "Device Present":true, "Device Absent":false }
             }
         }, 
 		
@@ -39,7 +39,7 @@
             },
             "bmc":
             {
-                "valmap": { "0x0280|":true, "0x0180|":false }
+                "valmap": { "State Asserted":true, "State Deasserted":false }
             }        
         },
 
@@ -50,7 +50,7 @@
                 "valmap": { "F2B":"EXHAUST", "B2F":"INTAKE" }
             }
         },
-
+        "DEFAULT_TYPE": "AC",
         "PSU_FAN_MAX_SPEED":"30000"
     },
 
@@ -79,17 +79,8 @@
         "FAN_F_MAX_SPEED":"36200"
     },
 
-    "LED":
-    {
-        "capability":
-        {
-            "ro": ["SYS_LED", "FAN_LED", "PSU1_LED", "PSU2_LED"],
-            "rw": ["ID_LED"]
-        }
-    },
     "REBOOT_CAUSE":
     {
         "reboot_cause_file": "/host/reboot-cause/reboot-cause.txt"
     }
-
 }

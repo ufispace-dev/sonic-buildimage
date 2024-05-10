@@ -26,13 +26,6 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(INGRASYS_S9100_PLATFORM_MODULE) \
                                $(INGRASYS_S8810_32Q_PLATFORM_MODULE) \
                                $(INGRASYS_S9200_64X_PLATFORM_MODULE) \
-                               $(UFISPACE_S9700_53DX_PLATFORM_MODULE) \
-                               $(UFISPACE_S9300_32D_PLATFORM_MODULE) \
-                               $(UFISPACE_S9301_32D_PLATFORM_MODULE) \
-                               $(UFISPACE_S9110_32X_PLATFORM_MODULE) \
-                               $(UFISPACE_S8901_54XC_PLATFORM_MODULE) \
-                               $(UFISPACE_S7801_54XS_PLATFORM_MODULE) \
-                               $(UFISPACE_S6301_56ST_PLATFORM_MODULE) \
                                $(ACCTON_AS7712_32X_PLATFORM_MODULE) \
                                $(ACCTON_AS5712_54X_PLATFORM_MODULE) \
                                $(ACCTON_AS7816_64X_PLATFORM_MODULE) \
@@ -89,11 +82,13 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(NOKIA_IXR7250_PLATFORM_MODULE) \
                                $(TENCENT_TCS8400_PLATFORM_MODULE) \
                                $(TENCENT_TCS9400_PLATFORM_MODULE) \
-                               $(UFISPACE_S9300_32D_PLATFORM_MODULE) \
-                               $(UFISPACE_S9110_32X_PLATFORM_MODULE) \
-                               $(UFISPACE_S8901_54XC_PLATFORM_MODULE) \
+                               $(UFISPACE_S6301_56ST_PLATFORM_MODULE) \
                                $(UFISPACE_S7801_54XS_PLATFORM_MODULE) \
-                               $(UFISPACE_S6301_56ST_PLATFORM_MODULE)
+                               $(UFISPACE_S8901_54XC_PLATFORM_MODULE) \
+                               $(UFISPACE_S9110_32X_PLATFORM_MODULE) \
+                               $(UFISPACE_S9300_32D_PLATFORM_MODULE) \
+                               $(UFISPACE_S9301_32D_PLATFORM_MODULE) \
+                               $(UFISPACE_S9301_32DB_PLATFORM_MODULE)
 
 $(SONIC_ONE_IMAGE)_LAZY_BUILD_INSTALLS = $(BRCM_OPENNSL_KERNEL) $(BRCM_DNX_OPENNSL_KERNEL)
 ifeq ($(INSTALL_DEBUG_TOOLS),y)

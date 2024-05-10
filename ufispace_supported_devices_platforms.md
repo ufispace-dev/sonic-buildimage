@@ -8,5 +8,6 @@
 | 3    | UfiSpace       | S8901-54XC  | Broadcom    | Trident 3         | 48x25G + 6x100G             |
 | 4    | UfiSpace       | S9110-32X   | Broadcom    | Trident 3         | 32x100G                     |
 | 5    | UfiSpace       | S9300-32D   | Broadcom    | Trident 4         | 32x400G                     |
-| 6    | UfiSpace       | S9180-32X   | Barefoot    | Tofino            | 32x100G                     |
+| 6    | UfiSpace       | S9301-32D   | Broadcom    | Tomahawk 3        | 32x400G                     |
+| 7    | UfiSpace       | S9301-32DB  | Broadcom    | Trident 4         | 24x200G + 8x400G            |
 
