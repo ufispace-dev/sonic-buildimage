@@ -86,6 +86,7 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(TENCENT_TCS8400_PLATFORM_MODULE) \
                                $(TENCENT_TCS9400_PLATFORM_MODULE) \
                                $(UFISPACE_S6301_56ST_PLATFORM_MODULE) \
+                               $(UFISPACE_S6301_56STP_PLATFORM_MODULE) \
                                $(UFISPACE_S7801_54XS_PLATFORM_MODULE) \
                                $(UFISPACE_S8901_54XC_PLATFORM_MODULE) \
                                $(UFISPACE_S9110_32X_PLATFORM_MODULE) \
