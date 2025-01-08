@@ -312,10 +312,11 @@ class BGPPeerMgrBase(Manager):
         :return: True if no errors, False if there are errors
         """
         bgp_asn = self.directory.get_slot("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)["localhost"]["bgp_asn"]
+        enable_bgp_suppress_fib_pending_cmd = 'bgp suppress-fib-pending'
         if vrf == 'default':
-            cmd = ('router bgp %s\n' % bgp_asn) + cmd
+            cmd = ('router bgp %s\n %s\n' % (bgp_asn, enable_bgp_suppress_fib_pending_cmd)) + cmd
         else:
-            cmd = ('router bgp %s vrf %s\n' % (bgp_asn, vrf)) + cmd
+            cmd = ('router bgp %s vrf %s\n %s\n' % (bgp_asn, vrf, enable_bgp_suppress_fib_pending_cmd)) + cmd
         self.cfg_mgr.push(cmd)
         return True
 
@@ -386,7 +387,7 @@ class BGPPeerMgrBase(Manager):
         Load peers from FRR.
         :return: set of peers, which are already installed in FRR
         """
-        command = ["vtysh", "-c", "show bgp vrfs json"]
+        command = ["vtysh", "-H", "/dev/null", "-c", "show bgp vrfs json"]
         ret_code, out, err = run_command(command)
         if ret_code == 0:
             js_vrf = json.loads(out)
