@@ -185,7 +185,7 @@
                         "raw": "0",
                         "field_name": "TEMP_CPU_ENV",
                         "field_pos": "18"
-                    }               
+                    }
                 ]
             }
         }
@@ -1722,7 +1722,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT1": {
         "dev_info": {
             "device_type": "QSFP-DD",

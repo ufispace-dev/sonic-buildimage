@@ -148,7 +148,7 @@
                         "raw": "0",
                         "field_name": "TEMP_CPU_PECI",
                         "field_pos": "18"
-                    }              
+                    }
                 ]
             }
         }
@@ -185,7 +185,7 @@
                         "raw": "0",
                         "field_name": "TEMP_CPU_ENV",
                         "field_pos": "18"
-                    }               
+                    }
                 ]
             }
         }
@@ -222,7 +222,7 @@
                         "raw": "0",
                         "field_name": "TEMP_CPU_ENV_2",
                         "field_pos": "18"
-                    }               
+                    }
                 ]
             }
         }
@@ -259,7 +259,7 @@
                         "raw": "0",
                         "field_name": "TEMP_MAC_ENV",
                         "field_pos": "18"
-                    }               
+                    }
                 ]
             }
         }
@@ -296,7 +296,7 @@
                         "raw": "0",
                         "field_name": "TEMP_MAC_DIE",
                         "field_pos": "18"
-                    }               
+                    }
                 ]
             }
         }
@@ -333,7 +333,7 @@
                         "raw": "0",
                         "field_name": "TEMP_CAGE",
                         "field_pos": "18"
-                    }               
+                    }
                 ]
             }
         }
@@ -370,7 +370,7 @@
                         "raw": "0",
                         "field_name": "TEMP_PSU_CONN",
                         "field_pos": "18"
-                    }              
+                    }
                 ]
             }
         }
@@ -1162,7 +1162,7 @@
                         "bmc_cmd": "ipmitool raw 0x3c 0x30 0x0 | xargs | cut -d' ' -f1",
                         "raw": "1",
                         "type": "raw"
-                    }                 
+                    }
                 ]
             }
         }
@@ -1714,7 +1714,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT1": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2011,7 +2011,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT4": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2110,7 +2110,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT5": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2209,7 +2209,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT6": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2308,7 +2308,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT7": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2407,7 +2407,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT8": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2506,7 +2506,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT9": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2605,7 +2605,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT10": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2803,7 +2803,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT12": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -2902,7 +2902,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT13": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -3001,7 +3001,7 @@
                 }
             ]
         }
-    },        
+    },
     "PORT14": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -3199,7 +3199,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT16": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -3298,7 +3298,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT17": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -3496,7 +3496,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT19": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -3595,7 +3595,7 @@
                 }
             ]
         }
-    },            
+    },
     "PORT20": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -3991,7 +3991,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT24": {
         "dev_info": {
             "device_type": "QSFP28",
@@ -4090,7 +4090,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT25": {
         "dev_info": {
             "device_type": "QSFP-DD",
@@ -4288,7 +4288,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT27": {
         "dev_info": {
             "device_type": "QSFP-DD",
@@ -4387,7 +4387,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT28": {
         "dev_info": {
             "device_type": "QSFP-DD",
@@ -4486,7 +4486,7 @@
                 }
             ]
         }
-    },    
+    },
     "PORT29": {
         "dev_info": {
             "device_type": "QSFP-DD",
@@ -4585,7 +4585,7 @@
                 }
             ]
         }
-    },        
+    },
     "PORT30": {
         "dev_info": {
             "device_type": "QSFP-DD",
@@ -4684,7 +4684,7 @@
                 }
             ]
         }
-    },        
+    },
     "PORT31": {
         "dev_info": {
             "device_type": "QSFP-DD",
