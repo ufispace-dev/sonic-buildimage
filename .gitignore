@@ -52,6 +52,7 @@ files/dsc/install_debian
 files/dsc/fs.zip
 files/initramfs-tools/arista-convertfs
 files/initramfs-tools/union-mount
+!files/ufi/lib/*.deb
 
 # Debian byproduct files
 src/**/debian/stamp-*/
