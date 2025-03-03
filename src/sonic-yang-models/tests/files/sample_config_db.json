@@ -7,7 +7,8 @@
         },
         "DHCP_SERVER": {
             "192.0.0.8": {},
-            "192.0.0.8": {}
+            "192.0.0.8": {},
+            "2603:10e1:0:6f4::1": {}
         },
         "DNS_NAMESERVER": {
             "1.1.1.1": {},
@@ -363,7 +364,9 @@
                 "bgp_adv_lo_prefix_as_128": "true",
                 "yang_config_validation": "disable",
                 "rack_mgmt_map": "dummy_value",
-                "timezone": "Europe/Kiev"
+                "timezone": "Europe/Kiev",
+                "synchronous_mode": "enable",
+                "suppress-fib-pending": "disabled"
             }
         },
         "VLAN": {
@@ -1258,6 +1261,14 @@
                 "client_auth": "true",
                 "log_level": "2",
                 "port": "50052"
+            }
+        },
+        "GNMI_CLIENT_CERT": {
+            "testcert1": {
+                "role": "RW"
+            },
+            "testcert2": {
+                "role": "RO"
             }
         },
         "TUNNEL": {
@@ -2252,6 +2263,9 @@
                 "use_well_known_mac": "enabled",
                 "src_mac": "ToRMac",
                 "interval_pck_loss_count_update": "3"
+            },
+            "TIMED_OSCILLATION": {
+                "oscillation_enabled": "false"
             },
             "MUXLOGGER": {
                 "log_verbosity": "debug"

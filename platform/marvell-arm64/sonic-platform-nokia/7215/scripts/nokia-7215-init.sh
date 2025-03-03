@@ -5,8 +5,8 @@
 # Load required kernel-mode drivers
 load_kernel_drivers() {
 	echo "Loading Kernel Drivers"
-	sudo insmod /lib/modules/5.10.0-23-2-arm64/kernel/extra/nokia_7215_ixs_a1_cpld.ko
-	sudo insmod /lib/modules/5.10.0-23-2-arm64/kernel/extra/cn9130_cpu_thermal_sensor.ko
+	sudo insmod /lib/modules/5.10.0-30-2-arm64/kernel/extra/nokia_7215_ixs_a1_cpld.ko
+	sudo insmod /lib/modules/5.10.0-30-2-arm64/kernel/extra/cn9130_cpu_thermal_sensor.ko
 }
 
 fw_uboot_env_cfg()
@@ -39,6 +39,9 @@ file_exists() {
 
 # Install kernel drivers required for i2c bus access
 load_kernel_drivers
+
+# Disable sysrq-trigger
+echo 0 > /proc/sys/kernel/sysrq
 
 #setting up uboot environment
 fw_uboot_env_cfg

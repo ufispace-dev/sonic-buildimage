@@ -244,7 +244,8 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install system
 # Install SONiC host services package
 SONIC_HOST_SERVICES_PY3_WHEEL_NAME=$(basename {{sonic_host_services_py3_wheel_path}})
 sudo cp {{sonic_host_services_py3_wheel_path}} $FILESYSTEM_ROOT/$SONIC_HOST_SERVICES_PY3_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install pygobject
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install pycairo==1.26.0
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install --no-build-isolation pygobject
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SONIC_HOST_SERVICES_PY3_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$SONIC_HOST_SERVICES_PY3_WHEEL_NAME
 
@@ -324,8 +325,7 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-db-cli_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
 
-{% if include_system_eventd == "y" %}
-{% if build_reduce_image_size != "y" or sonic_asic_platform != "broadcom" %}
+{% if include_system_eventd == "y" and build_reduce_image_size != "y" %}
 # Install sonic-rsyslog-plugin
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-rsyslog-plugin_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
@@ -345,7 +345,6 @@ sudo cp $BUILD_TEMPLATES/bgpd_regex.json $FILESYSTEM_ROOT_ETC/rsyslog.d/
 j2 -f json $BUILD_TEMPLATES/rsyslog_plugin.conf.j2 $BUILD_TEMPLATES/syncd_events_info.json | sudo tee $FILESYSTEM_ROOT_ETC/rsyslog.d/syncd_events.conf
 sudo cp $BUILD_TEMPLATES/syncd_regex.json $FILESYSTEM_ROOT_ETC/rsyslog.d/
 
-{% endif %}
 {% endif %}
 
 # Install custom-built monit package and SONiC configuration files
@@ -974,6 +973,12 @@ sudo cp $files_path/$MLNX_FFB_SCRIPT $FILESYSTEM_ROOT/usr/bin/mlnx-ffb.sh
 sudo cp $files_path/$MLNX_ONIE_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_ONIE_FW_UPDATE
 sudo cp $files_path/$MLNX_SSD_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_SSD_FW_UPDATE
 sudo cp $files_path/$MLNX_INSTALL_PENDING_FW $FILESYSTEM_ROOT/usr/bin/$MLNX_INSTALL_PENDING_FW
+sudo cp platform/mellanox/cmis_host_mgmt/cmis_host_mgmt.py $FILESYSTEM_ROOT/usr/bin/cmis_host_mgmt.py
+sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/cmis_host_mgmt.py
+sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/cpld/
+for MLNX_CPLD_ARCHIVE in $MLNX_CPLD_ARCHIVES; do
+    sudo cp $files_path/$MLNX_CPLD_ARCHIVE $FILESYSTEM_ROOT/etc/mlnx/cpld/
+done
 j2 platform/mellanox/mlnx-fw-upgrade.j2 | sudo tee $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 

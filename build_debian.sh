@@ -33,7 +33,7 @@ CONFIGURED_ARCH=$([ -f .arch ] && cat .arch || echo amd64)
 ## docker engine version (with platform)
 DOCKER_VERSION=5:24.0.2-1~debian.11~$IMAGE_DISTRO
 CONTAINERD_IO_VERSION=1.6.21-1
-LINUX_KERNEL_VERSION=5.10.0-23-2
+LINUX_KERNEL_VERSION=5.10.0-30-2
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -526,6 +526,10 @@ rm /files/lib/systemd/system/rsyslog.service/Service/ExecStart/arguments
 set /files/lib/systemd/system/rsyslog.service/Service/ExecStart/arguments/1 -n
 "
 
+# Ensure pstore service is running
+sudo mkdir -p $FILESYSTEM_ROOT/lib/systemd/system/systemd-pstore.service.d
+sudo cp files/image_config/system-pstore/override.conf $FILESYSTEM_ROOT/lib/systemd/system/systemd-pstore.service.d/override.conf
+
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
 
 # Config sysctl
@@ -557,7 +561,7 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'setup
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'wheel==0.35.1'
 
 # docker Python API package is needed by Ansible docker module as well as some SONiC applications
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'docker==6.1.1'
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'docker==7.1.0'
 
 # Install scapy
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'scapy==2.4.4'

@@ -19,6 +19,7 @@ CERTS=$(echo $TELEMETRY_VARS | jq -r '.certs')
 
 TELEMETRY_ARGS=" -logtostderr"
 export CVL_SCHEMA_PATH=/usr/sbin/schema
+export GOTRACEBACK=crash
 
 if [ -n "$CERTS" ]; then
     SERVER_CRT=$(echo $CERTS | jq -r '.server_crt')
@@ -33,6 +34,9 @@ if [ -n "$CERTS" ]; then
     if [ ! -z $CA_CRT ]; then
         TELEMETRY_ARGS+=" --ca_crt $CA_CRT"
     fi
+
+    # Reuse GNMI_CLIENT_CERT for telemetry service
+    TELEMETRY_ARGS+=" --config_table_name GNMI_CLIENT_CERT"
 elif [ -n "$X509" ]; then
     SERVER_CRT=$(echo $X509 | jq -r '.server_crt')
     SERVER_KEY=$(echo $X509 | jq -r '.server_key')
