@@ -1,5 +1,11 @@
 sonic-ufispace-platform-modules (1.0.0) unstable; urgency=low
 
+  * Add support for S6301-56STP
+
+ -- Ufispace <leo.yt.lin@ufispace.com>  Mon, 6 May 2024 15:50:23 +0800
+
+sonic-ufispace-platform-modules (1.0.0) unstable; urgency=low
+
   * Add support for S9301-32DB
 
  -- Ufispace <leo.yt.lin@ufispace.com>  Thu, 9 Sep 2023 15:50:23 +0800
