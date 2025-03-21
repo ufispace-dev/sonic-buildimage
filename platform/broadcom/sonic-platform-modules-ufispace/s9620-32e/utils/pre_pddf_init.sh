@@ -76,6 +76,16 @@ function config_platform_files {
     _check_filepath "$src_platform_components" && ln -rsf "$src_platform_components" "$DEV_BASE/platform_components.json"
 }
 
+# Function to configure device pcie yaml file
+function config_pcie {
+    local src
+    case $HW_REV_ID in
+        $BETA) src="$DEV_BASE/pcie-beta.yaml" ;;
+        *)     src="$DEV_BASE/pcie-alpha.yaml" ;;
+    esac
+    _check_filepath "$src" && ln -rsf "$src" "$DEV_BASE/pcie.yaml"
+}
+
 # Function to configure BCM file
 function config_bcm_file {
     local src_bcm_file
@@ -93,6 +103,7 @@ function config_bcm_file {
 check_hw_rev_id
 config_device
 config_platform_files
+config_pcie
 config_bcm_file
 
 echo "PDDF/PLATFORM/CONFIG pre-init completed"

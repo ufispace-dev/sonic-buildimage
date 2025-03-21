@@ -1167,10 +1167,10 @@
                     },
                     {
                         "attr_name": "psu_model_name",
-                        "bmc_cmd": "_rv=$(ipmitool fru print 1 2>/dev/null | tr -s ' ' | cut -d' ' -f3-5 | grep 'Name') && echo $_rv || echo 'Name : N/A'",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 1 2>/dev/null | grep 'Part Number'|| echo 'Part Number : N/A'); _rv2=$(echo $_rv | cut -d':' -f 2 | awk '{$1=$1};1'); echo 'Part Number : '$_rv2",
                         "raw": "0",
                         "separator": ":",
-                        "field_name": "Name",
+                        "field_name": "Part Number",
                         "field_pos": "2"
                     },
                     {
@@ -1302,10 +1302,10 @@
                     },
                     {
                         "attr_name": "psu_model_name",
-                        "bmc_cmd": "_rv=$(ipmitool fru print 2 2>/dev/null | tr -s ' ' | cut -d' ' -f3-5 | grep 'Name') && echo $_rv || echo 'Name : N/A'",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 2 2>/dev/null | grep 'Part Number'|| echo 'Part Number : N/A'); _rv2=$(echo $_rv | cut -d':' -f 2 | awk '{$1=$1};1'); echo 'Part Number : '$_rv2",
                         "raw": "0",
                         "separator": ":",
-                        "field_name": "Name",
+                        "field_name": "Part Number",
                         "field_pos": "2"
                     },
                     {

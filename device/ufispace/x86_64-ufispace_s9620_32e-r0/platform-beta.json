@@ -133,9 +133,6 @@
         ],
         "thermals": [
             {
-                "name": "TEMP_ENV_CPU"
-            },
-            {
                 "name": "TEMP_CPU_PECI"
             },
             {
@@ -157,10 +154,25 @@
                 "name": "TEMP_ENV5"
             },
             {
+                "name": "TEMP_ENV_EXT0"
+            },
+            {
                 "name": "TEMP_ENV_FAN0"
             },
             {
                 "name": "TEMP_ENV_FAN1"
+            },
+            {
+                "name": "TEMP_ENV_MAC0"
+            },
+            {
+                "name": "TEMP_ENV_MAC1"
+            },
+            {
+                "name": "TEMP_MAC0"
+            },
+            {
+                "name": "TEMP_MAC1"
             },
             {
                 "name": "TEMP_PSU0_TEMP1"

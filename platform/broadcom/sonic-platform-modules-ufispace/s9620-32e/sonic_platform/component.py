@@ -15,10 +15,10 @@ except ImportError as e:
 
 IOPORT_PATH="/dev/port"
 
-PROTO=0
-ALPHA=1
-BETA=2
-PVT=3
+PROTO = 0
+ALPHA = 1
+BETA = 2
+PVT = 3
 
 CPU_CPLD_MAJOR_MINOR_REG = {
     "reg": 0x600,
@@ -89,20 +89,16 @@ class Component(ComponentBase):
     def __init__(self, component_index=0):
         self.pddf_obj = pddfapi.PddfApi()
         self.index = component_index
-        self.config = self._check_config()
         self.name = self.get_name()
 
     def _check_config(self): 
-        MASK = 0x03  
-        REG_OFFSET = 0xE01  
-        hw_rev_id = BETA     
+        hw_rev_id = BETA
         try:
-            with open(IOPORT_PATH, "rb") as f:
-                f.seek(REG_OFFSET)
-                reg_value = int.from_bytes(f.read(1), signed=False)
-                hw_rev_id = reg_value & MASK  
+            device = "SYSSTATUS"
+            hw_rev_id = self.pddf_obj.get_attr_name_output(device, "cpld_hw_rev")
+            hw_rev_id = int(hw_rev_id['status'].rstrip(),0)
         except Exception as e:
-            print(f"Error reading hardware revision ID: {e}")
+            hw_rev_id = BETA
 
         return hw_rev_id
 
@@ -199,7 +195,8 @@ class Component(ComponentBase):
          Returns:
             A string containing the name of the component
         """
-        if self.config == BETA:
+        HW_REV_ID = self._check_config()
+        if HW_REV_ID == BETA:
             return COMPONENT_LIST_BETA[self.index][0]
 
         return COMPONENT_LIST_ALPHA[self.index][0]
@@ -210,7 +207,8 @@ class Component(ComponentBase):
             Returns:
             A string containing the description of the component
         """
-        if self.config == BETA:
+        HW_REV_ID = self._check_config()
+        if HW_REV_ID == BETA:
             return COMPONENT_LIST_BETA[self.index][1]
         
         return COMPONENT_LIST_ALPHA[self.index][1]
