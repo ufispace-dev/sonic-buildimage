@@ -75,8 +75,8 @@
                 "valmap": {"Device Present":true, "Device Absent":false}
             }
         },
-        "FAN_R_MAX_SPEED":"11300",
-        "FAN_F_MAX_SPEED":"12000"
+        "FAN_R_MAX_SPEED":"15500",
+        "FAN_F_MAX_SPEED":"16300"
     },
 
     "REBOOT_CAUSE":
