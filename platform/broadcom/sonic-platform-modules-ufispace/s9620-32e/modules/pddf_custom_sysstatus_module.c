@@ -100,7 +100,8 @@ PDDF_DATA_ATTR(psu_1_led_status , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR
 PDDF_DATA_ATTR(cpld2_i2c_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 PDDF_DATA_ATTR(cpld3_i2c_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 PDDF_DATA_ATTR(cpld4_i2c_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld_mac_rov   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld_mac_0_rov   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld_mac_1_rov   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 PDDF_DATA_ATTR(cpld1_evt_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 PDDF_DATA_ATTR(cpld2_evt_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 PDDF_DATA_ATTR(cpld3_evt_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
@@ -143,7 +144,8 @@ static struct attribute *sysstatus_data_attributes[] = {
     &attr_cpld2_i2c_ctrl.dev_attr.attr,
     &attr_cpld3_i2c_ctrl.dev_attr.attr,
     &attr_cpld4_i2c_ctrl.dev_attr.attr,
-    &attr_cpld_mac_rov.dev_attr.attr,
+    &attr_cpld_mac_0_rov.dev_attr.attr,
+    &attr_cpld_mac_1_rov.dev_attr.attr,
     &attr_cpld1_evt_ctrl.dev_attr.attr,
     &attr_cpld2_evt_ctrl.dev_attr.attr,
     &attr_cpld3_evt_ctrl.dev_attr.attr,

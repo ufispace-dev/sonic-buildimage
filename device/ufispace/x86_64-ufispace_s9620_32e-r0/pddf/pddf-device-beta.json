@@ -596,9 +596,16 @@
                 "attr_len": "0x1"
             },
             {
-                "attr_name": "cpld_mac_rov",
-                "attr_devaddr": "0x30",
+                "attr_name": "cpld_mac_0_rov",
+                "attr_devaddr": "0x37",
                 "attr_offset": "0x54",
+                "attr_mask": "0xff",
+                "attr_len": "0x1"
+            },
+            {
+                "attr_name": "cpld_mac_1_rov",
+                "attr_devaddr": "0x37",
+                "attr_offset": "0x55",
                 "attr_mask": "0xff",
                 "attr_len": "0x1"
             },

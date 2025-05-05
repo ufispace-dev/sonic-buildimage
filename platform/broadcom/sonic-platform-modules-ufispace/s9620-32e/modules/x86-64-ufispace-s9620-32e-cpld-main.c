@@ -1257,10 +1257,10 @@ static attr_reg_map_t attr_reg[]= {
     [MGMT_P5_ABS_EVENT]                   =         {MGMT_PORT_0_5_ABS_EVENT_REG                     , MASK_0010_0000, DATA_HEX},
 
     // MUX
-    [IDLE_STATE]                           = {NONE_REG                                        , MASK_NONE     , DATA_UNK},
+    [IDLE_STATE]                          =         {NONE_REG                                        , MASK_NONE     , DATA_UNK},
 
     //BSP DEBUG
-    [BSP_DEBUG]                            = {NONE_REG                                        , MASK_NONE     , DATA_UNK},
+    [BSP_DEBUG]                           =         {NONE_REG                                        , MASK_NONE     , DATA_UNK},
 };
 
 enum bsp_log_types {
