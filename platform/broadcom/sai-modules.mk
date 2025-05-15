@@ -1,6 +1,6 @@
 # Broadcom SAI modules
 
-BRCM_OPENNSL_KERNEL = saiufi-modules_1.0.0_amd64_6.1.0-22-2.deb
+BRCM_OPENNSL_KERNEL = saiufi-modules_2.0.0_amd64_6.1.0-22-2.deb
 $(BRCM_OPENNSL_KERNEL)_PATH = files/ufi/lib/
 #$(BRCM_OPENNSL_KERNEL)_URL = ""
 $(BRCM_OPENNSL_KERNEL)_DEPENDS += $(LINUX_HEADERS) $(LINUX_HEADERS_COMMON)
