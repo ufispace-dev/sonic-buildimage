@@ -53,8 +53,9 @@ function check_hw_rev_id {
 function config_device {
     local src
     case $HW_REV_ID in
-        $BETA) src="$PDDF_BASE/pddf-device-beta.json" ;;
-        *)     src="$PDDF_BASE/pddf-device-alpha.json" ;;
+        $ALPHA) src="$PDDF_BASE/pddf-device-alpha.json" ;;
+        $BETA)  src="$PDDF_BASE/pddf-device-beta.json" ;;
+        *)      src="$PDDF_BASE/pddf-device-pvt.json" ;;
     esac
     _check_filepath "$src" && ln -rsf "$src" "$PDDF_BASE/pddf-device.json"
 }
@@ -63,13 +64,13 @@ function config_device {
 function config_platform_files {
     local src_platform src_platform_components
     case $HW_REV_ID in
-        $BETA)
-            src_platform="$DEV_BASE/platform-beta.json"
-            src_platform_components="$DEV_BASE/platform_components-beta.json"
-            ;;
-        *)
+        $ALPHA)
             src_platform="$DEV_BASE/platform-alpha.json"
             src_platform_components="$DEV_BASE/platform_components-alpha.json"
+            ;;
+        *)
+            src_platform="$DEV_BASE/platform-beta.json"
+            src_platform_components="$DEV_BASE/platform_components-beta.json"
             ;;
     esac
     _check_filepath "$src_platform" && ln -rsf "$src_platform" "$DEV_BASE/platform.json"
@@ -80,8 +81,8 @@ function config_platform_files {
 function config_pcie {
     local src
     case $HW_REV_ID in
-        $BETA) src="$DEV_BASE/pcie-beta.yaml" ;;
-        *)     src="$DEV_BASE/pcie-alpha.yaml" ;;
+        $ALPHA) src="$DEV_BASE/pcie-alpha.yaml" ;;
+        *)      src="$DEV_BASE/pcie-beta.yaml" ;;
     esac
     _check_filepath "$src" && ln -rsf "$src" "$DEV_BASE/pcie.yaml"
 }
@@ -90,8 +91,12 @@ function config_pcie {
 function config_bcm_file {
     local src_bcm_file
     case $HW_REV_ID in
-        $BETA) src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-beta.config" ;;
-        *)     src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-alpha.config" ;;
+        $ALPHA)
+            src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-alpha.config"
+            ;;
+        *)
+            src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-beta.config"
+            ;;
     esac
     if _check_filepath "$src_bcm_file"; then
         ln -rsf "$src_bcm_file" "$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G.config"

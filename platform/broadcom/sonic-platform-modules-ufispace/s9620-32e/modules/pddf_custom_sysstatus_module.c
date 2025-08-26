@@ -69,44 +69,45 @@ static struct attribute *sysstatus_addr_attributes[] = {
     NULL
 };
 
-PDDF_DATA_ATTR(cpld_sku_id    , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld_hw_rev     , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld_deph_rev   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld_build_rev  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld1_major_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld1_minor_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld1_build_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld2_major_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld2_minor_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld2_build_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld3_major_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld3_minor_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld3_build_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld4_major_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld4_minor_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld4_build_ver, S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(fpga_major_ver , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(fpga_minor_ver , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(fpga_build_ver , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(psu_0_pg       , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(psu_1_pg       , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(psu_0_prsnt     , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(psu_1_prsnt     , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(sync_led_status , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(system_led_status , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(fan_led_status   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(psu_0_led_status , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(psu_1_led_status , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld2_i2c_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld3_i2c_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld4_i2c_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld_sku_id      , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld_hw_rev      , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld_deph_rev    , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld_build_rev   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld1_major_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld1_minor_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld1_build_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_major_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_minor_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_build_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld3_major_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld3_minor_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld3_build_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld4_major_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld4_minor_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld4_build_ver  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(fpga_major_ver   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(fpga_minor_ver   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(fpga_build_ver   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(psu_0_pg         , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(psu_1_pg         , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(psu_0_prsnt      , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(psu_1_prsnt      , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_sync  , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_sys   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_fan   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_psu_0 , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_psu_1 , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(system_led_id    , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_i2c_ctrl   , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld3_i2c_ctrl   , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld4_i2c_ctrl   , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 PDDF_DATA_ATTR(cpld_mac_0_rov   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 PDDF_DATA_ATTR(cpld_mac_1_rov   , S_IRUGO, show_sysstatus_data, NULL, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld1_evt_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld2_evt_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld3_evt_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(cpld4_evt_ctrl , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
-PDDF_DATA_ATTR(fpga_evt_ctrl  , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld1_evt_ctrl   , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld2_evt_ctrl   , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld3_evt_ctrl   , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(cpld4_evt_ctrl   , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
+PDDF_DATA_ATTR(fpga_evt_ctrl    , S_IWUSR|S_IRUGO, show_sysstatus_data, store_sysstatus_data, PDDF_UCHAR, sizeof(u8), NULL, NULL);
 
 
 
@@ -136,11 +137,12 @@ static struct attribute *sysstatus_data_attributes[] = {
     &attr_psu_1_prsnt.dev_attr.attr,
     &attr_psu_0_pg.dev_attr.attr,
     &attr_psu_1_pg.dev_attr.attr,
-    &attr_sync_led_status.dev_attr.attr,
-    &attr_system_led_status.dev_attr.attr,
-    &attr_fan_led_status.dev_attr.attr,
-    &attr_psu_0_led_status.dev_attr.attr,
-    &attr_psu_1_led_status.dev_attr.attr,
+    &attr_system_led_sync.dev_attr.attr,
+    &attr_system_led_sys.dev_attr.attr,
+    &attr_system_led_fan.dev_attr.attr,
+    &attr_system_led_psu_0.dev_attr.attr,
+    &attr_system_led_psu_1.dev_attr.attr,
+    &attr_system_led_id.dev_attr.attr,
     &attr_cpld2_i2c_ctrl.dev_attr.attr,
     &attr_cpld3_i2c_ctrl.dev_attr.attr,
     &attr_cpld4_i2c_ctrl.dev_attr.attr,

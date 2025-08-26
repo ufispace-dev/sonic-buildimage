@@ -4,6 +4,10 @@
 echo "Disable BMC watchdog"
 timeout 3 ipmitool mc watchdog off
 
+#set bmc sel time
+echo "Set BMC SEL time to system time"
+timeout 5 ipmitool sel time set now > /dev/null 2>&1
+
 pddf_ledutil setstatusled SYS_LED off
 pddf_ledutil setstatusled LOC_LED off
 

@@ -1,0 +1,18 @@
+#!/bin/sh
+# Script to mount efivarfs during initramfs init-top phase
+
+PREREQ=""
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+# Mount efivarfs
+mount -t efivarfs efivarfs /sys/firmware/efi/efivars

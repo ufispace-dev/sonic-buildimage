@@ -141,6 +141,7 @@ function enable_event_control {
 }
 
 function set_led_default_val {
+    pddf_ledutil setstatusled LOC_LED off > /dev/null
     pddf_ledutil setstatusled SYNC_LED off > /dev/null
 }
 

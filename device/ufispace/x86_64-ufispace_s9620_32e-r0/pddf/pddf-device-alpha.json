@@ -540,35 +540,35 @@
                 "attr_len": "0x1"
             },
             {
-                "attr_name": "system_led_status",
+                "attr_name": "system_led_sys",
                 "attr_devaddr": "0x30",
                 "attr_offset": "0x80",
                 "attr_mask": "0xf",
                 "attr_len": "0x1"
             },
             {
-                "attr_name": "fan_led_status",
+                "attr_name": "system_led_fan",
                 "attr_devaddr": "0x30",
                 "attr_offset": "0x80",
                 "attr_mask": "0xf0",
                 "attr_len": "0x1"
             },
             {
-                "attr_name": "psu_0_led_status",
+                "attr_name": "system_led_psu_0",
                 "attr_devaddr": "0x30",
                 "attr_offset": "0x81",
                 "attr_mask": "0xf",
                 "attr_len": "0x1"
             },
             {
-                "attr_name": "psu_1_led_status",
+                "attr_name": "system_led_psu_1",
                 "attr_devaddr": "0x30",
                 "attr_offset": "0x81",
                 "attr_mask": "0xf0",
                 "attr_len": "0x1"
             },
             {
-                "attr_name": "sync_led_status",
+                "attr_name": "system_led_sync",
                 "attr_devaddr": "0x30",
                 "attr_offset": "0x82",
                 "attr_mask": "0xf",

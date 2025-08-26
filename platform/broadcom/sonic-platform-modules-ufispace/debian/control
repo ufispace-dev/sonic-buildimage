@@ -48,3 +48,7 @@ Description: This package contains s6301-56st platform driver utility for SONiC 
 Package: sonic-platform-ufispace-s6301-56stp
 Architecture: amd64
 Description: This package contains s6301-56stp platform driver utility for SONiC project.
+
+Package: sonic-platform-ufispace-s9510-28dc
+Architecture: amd64
+Description: This package contains s9510-28dc platform driver utility for SONiC project.

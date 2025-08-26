@@ -107,12 +107,6 @@
         },
         "Ethernet259": {
             "default_brkout_mode": "1x25G[10G, 1G]"
-        },
-        "Ethernet260": {
-            "default_brkout_mode": "1x10G[25G, 1G]"
-        },
-        "Ethernet261": {
-            "default_brkout_mode": "1x10G[25G, 1G]"
         }
     }
 }

@@ -289,14 +289,7 @@
             },
             {
                 "name": "Ethernet259"
-            },
-            {
-                "name": "Ethernet260"
-            },
-            {
-                "name": "Ethernet261"
             }
-
         ]
     },
     "interfaces": {
@@ -743,21 +736,7 @@
             "breakout_modes": {
                 "1x25G[10G, 1G]": ["Eth35(Port35)"]
             }
-        },
-          "Ethernet260": {
-            "index": "36",
-            "lanes": "256",
-            "breakout_modes": {
-                "1x10G[25G, 1G]": ["Eth36(Port36)"]
-            }
-        },
-          "Ethernet261": {
-            "index": "37",
-            "lanes": "262",
-            "breakout_modes": {
-                "1x10G[25G, 1G]": ["Eth37(Port37)"]
-            }
-        }                
+        }               
     }
 }
 
