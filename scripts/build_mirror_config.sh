@@ -26,7 +26,10 @@ if [ "$ARCHITECTURE" == "armhf" ]; then
 fi
 
 if [ "$DISTRIBUTION" == "buster" ]; then
-    DEFAULT_MIRROR_URLS=http://archive.debian.org/debian/
+    DEFAULT_MIRROR_URLS=http://packages.trafficmanager.net/snapshot/debian/20250621T001226Z/
+    DEFAULT_MIRROR_SECURITY_URLS=http://packages.trafficmanager.net/snapshot/debian-security/20250621T001253Z/
+elif [ "$DISTRIBUTION" == "bullseye" ]; then
+    DEFAULT_MIRROR_URLS=http://packages.trafficmanager.net/snapshot/debian/20250621T001226Z/
 fi
 
 if [ "$MIRROR_SNAPSHOT" == y ]; then
