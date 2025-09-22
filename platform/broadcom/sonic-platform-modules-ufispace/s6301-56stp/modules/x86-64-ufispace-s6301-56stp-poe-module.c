@@ -51,6 +51,9 @@ static ssize_t read_poe_port_callback(struct device *dev,
                                       struct device_attribute *da, char *buf);
 static ssize_t write_poe_port_callback(struct device *dev,
                                        struct device_attribute *da, const char *buf, size_t count);
+static ssize_t read_poe_cmd_debug(struct device *dev, struct device_attribute *da, char *buf);
+static ssize_t write_poe_cmd_debug(struct device *dev,
+                                   struct device_attribute *da, const char *buf, size_t count);
 
 u8 enable_log_read = LOG_DISABLE;
 u8 enable_log_write = LOG_DISABLE;
@@ -84,10 +87,14 @@ static SENSOR_DEVICE_ATTR(poe_pse_power_limit_mode, S_IRUGO | S_IWUSR,
                           read_poe_callback, write_poe_callback, POE_PSE_POWER_LIMIT_MODE);
 static SENSOR_DEVICE_ATTR(poe_debug, S_IRUGO | S_IWUSR,
                           read_poe_callback, write_poe_callback, POE_DEBUG);
+static SENSOR_DEVICE_ATTR(poe_cmd_debug, S_IRUGO | S_IWUSR,
+                          read_poe_cmd_debug, write_poe_cmd_debug, POE_CMD_DEBUG);
+static SENSOR_DEVICE_ATTR(poe_power_management_mode, S_IRUGO | S_IWUSR,
+                          read_poe_callback, write_poe_callback, POE_POWER_MANAGEMENT_MODE);
 
 #define POE_PORT_SENSOR_DEVICE_ATTR(port_num)                                                                                                                                          \
-    static SENSOR_DEVICE_ATTR(poe_port_##port_num##_set_detect_type, S_IWUSR, NULL, write_poe_port_callback, POE_PORT_##port_num##_SET_DETECT_TYPE);                                   \
-    static SENSOR_DEVICE_ATTR(poe_port_##port_num##_set_disconn_type, S_IWUSR, NULL, write_poe_port_callback, POE_PORT_##port_num##_SET_DISCONN_TYPE);                                 \
+    static SENSOR_DEVICE_ATTR(poe_port_##port_num##_detect_type, S_IRUGO | S_IWUSR, read_poe_port_callback, write_poe_port_callback, POE_PORT_##port_num##_DETECT_TYPE);               \
+    static SENSOR_DEVICE_ATTR(poe_port_##port_num##_disconn_type, S_IRUGO | S_IWUSR, read_poe_port_callback, write_poe_port_callback, POE_PORT_##port_num##_DISCONN_TYPE);             \
     static SENSOR_DEVICE_ATTR(poe_port_##port_num##_get_power, S_IRUGO, read_poe_port_callback, NULL, POE_PORT_##port_num##_GET_POWER);                                                \
     static SENSOR_DEVICE_ATTR(poe_port_##port_num##_get_temp, S_IRUGO, read_poe_port_callback, NULL, POE_PORT_##port_num##_GET_TEMP);                                                  \
     static SENSOR_DEVICE_ATTR(poe_port_##port_num##_get_config, S_IRUGO, read_poe_port_callback, NULL, POE_PORT_##port_num##_GET_CONFIG);                                              \
@@ -163,13 +170,15 @@ static struct attribute *s6301_56stp_poe_sys_attributes[] = {
     &sensor_dev_attr_poe_pse_status.dev_attr.attr,
     &sensor_dev_attr_poe_pse_power_limit_mode.dev_attr.attr,
     &sensor_dev_attr_poe_debug.dev_attr.attr,
+    &sensor_dev_attr_poe_cmd_debug.dev_attr.attr,
+    &sensor_dev_attr_poe_power_management_mode.dev_attr.attr,
     NULL};
 
 /* POE PORT */
 #define POE_PORT_SENSOR_DEVICE_ATTRS(port_num)                                   \
     static struct attribute *s6301_56stp_poe_port_##port_num##_attributes[] = {  \
-        &sensor_dev_attr_poe_port_##port_num##_set_detect_type.dev_attr.attr,    \
-        &sensor_dev_attr_poe_port_##port_num##_set_disconn_type.dev_attr.attr,   \
+        &sensor_dev_attr_poe_port_##port_num##_detect_type.dev_attr.attr,        \
+        &sensor_dev_attr_poe_port_##port_num##_disconn_type.dev_attr.attr,       \
         &sensor_dev_attr_poe_port_##port_num##_get_power.dev_attr.attr,          \
         &sensor_dev_attr_poe_port_##port_num##_get_temp.dev_attr.attr,           \
         &sensor_dev_attr_poe_port_##port_num##_get_config.dev_attr.attr,         \
@@ -341,7 +350,7 @@ static int _config_poe_log(u8 log_type)
 static ssize_t read_poe_callback(struct device *dev,
                                  struct device_attribute *da, char *buf)
 {
-    char out[512];
+    char out[OUT_BUF_SIZE] = {0};
     u32 u32_out;
     ssize_t ret = E_TYPE_SUCCESS;
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -424,6 +433,16 @@ static ssize_t read_poe_callback(struct device *dev,
     case POE_DEBUG:
         ret = sprintf(out, "%d\n", poe_debug);
         break;
+    case POE_POWER_MANAGEMENT_MODE:
+        if (ufi_poe_GetPowerManagementMode(dev, &u32_out) != E_TYPE_SUCCESS)
+        {
+            ret = -EIO;
+        }
+        else
+        {
+            ret = sprintf(out, "%d\n", u32_out);
+        }
+        break;
     default:
         ret = -EINVAL;
     }
@@ -440,7 +459,7 @@ static ssize_t read_poe_callback(struct device *dev,
 static ssize_t read_poe_port_callback(struct device *dev,
                                       struct device_attribute *da, char *buf)
 {
-    char out[512];
+    char out[OUT_BUF_SIZE] = {0};
     u32 u32_out;
     int port_num, attr_type;
     ssize_t ret = E_TYPE_SUCCESS;
@@ -458,6 +477,26 @@ static ssize_t read_poe_port_callback(struct device *dev,
     mutex_lock(&clientdata->cmd_lock);
     switch (attr_type)
     {
+    case POE_PORT_DETECT_TYPE:
+        if (ufi_poe_GetPortDetectType(dev, port_num, (E_BCM_POE_PD_TYPE *)&u32_out) != E_TYPE_SUCCESS)
+        {
+            ret = -EIO;
+        }
+        else
+        {
+            ret = sprintf(out, "%d\n", u32_out);
+        }
+        break;
+    case POE_PORT_DISCONN_TYPE:
+        if (ufi_poe_GetPortDisconnectType(dev, port_num, (E_BCM_POE_DISCONNECT_MODE *)&u32_out) != E_TYPE_SUCCESS)
+        {
+            ret = -EIO;
+        }
+        else
+        {
+            ret = sprintf(out, "%d\n", u32_out);
+        }
+        break;
     case POE_PORT_GET_POWER:
         if (ufi_poe_PowerShow(dev, port_num, out) != E_TYPE_SUCCESS)
         {
@@ -555,6 +594,20 @@ static ssize_t read_poe_port_callback(struct device *dev,
     return sprintf(buf, out);
 }
 
+static ssize_t read_poe_cmd_debug(struct device *dev,
+                                  struct device_attribute *da, char *buf)
+{
+    ssize_t ret;
+    struct i2c_client *client = to_i2c_client(dev);
+    struct poe_data *clientdata = i2c_get_clientdata(client);
+
+    mutex_lock(&clientdata->cmd_lock);
+    ret = sprintf(buf, "%s", g_poe_cmd_response_buf);
+    mutex_unlock(&clientdata->cmd_lock);
+
+    return ret;
+}
+
 /* handle write for attributes */
 static ssize_t write_poe_callback(struct device *dev,
                                   struct device_attribute *da, const char *buf, size_t count)
@@ -617,6 +670,20 @@ static ssize_t write_poe_callback(struct device *dev,
             ret = -EINVAL;
         }
         break;
+    case POE_POWER_MANAGEMENT_MODE:
+        if (val <= E_BCM_POE_POWER_DYNAMIC_WITHOUT_PORT_PRIORITY && val >= E_BCM_POE_POWER_MANAGE_NONE)
+        {
+            if (ufi_poe_SetPowerManagementMode(dev, val) != E_TYPE_SUCCESS)
+            {
+                dev_err(dev, "Set POE poswer management mode %d fail\n", val);
+                ret = -EIO;
+            }
+        }
+        else
+        {
+            ret = -EINVAL;
+        }
+        break;
     default:
         ret = -EINVAL;
     }
@@ -651,7 +718,7 @@ static ssize_t write_poe_port_callback(struct device *dev,
     mutex_lock(&clientdata->cmd_lock);
     switch (attr_type)
     {
-    case POE_PORT_SET_DETECT_TYPE:
+    case POE_PORT_DETECT_TYPE:
         if (val <= E_BCM_POE_PD_STANDARD_THEN_LEGACY && val >= E_BCM_POE_NO_DETECT)
         {
             if (ufi_poe_SetPortDetectType(dev, port_num, val) != E_TYPE_SUCCESS)
@@ -665,7 +732,7 @@ static ssize_t write_poe_port_callback(struct device *dev,
             ret = -EINVAL;
         }
         break;
-    case POE_PORT_SET_DISCONN_TYPE:
+    case POE_PORT_DISCONN_TYPE:
         if (val <= E_BCM_POE_DISCONNECT_DC && val >= E_BCM_POE_DISCONNECT_NONE)
         {
             if (ufi_poe_SetPortDisconnectType(dev, port_num, val) != E_TYPE_SUCCESS)
@@ -747,6 +814,46 @@ static ssize_t write_poe_port_callback(struct device *dev,
     }
 
     return ret;
+}
+
+static ssize_t write_poe_cmd_debug(struct device *dev,
+                                   struct device_attribute *da, const char *buf, size_t count)
+{
+    ssize_t ret = count;
+    struct i2c_client *client = to_i2c_client(dev);
+    struct poe_data *clientdata = i2c_get_clientdata(client);
+    u8 cmd = 0, f1 = 0, f2 = 0, f3 = 0, f4 = 0, f5 = 0, f6 = 0, f7 = 0, f8 = 0, f9 = 0, f10 = 0;
+    int items = 0;
+
+    mutex_lock(&clientdata->cmd_lock);
+    
+    // input string format is "cmd f1 f2 ... f10"
+    items = sscanf(buf, "%hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx",
+                   &cmd, &f1, &f2, &f3, &f4, &f5, &f6, &f7, &f8, &f9, &f10);
+
+    // check user input
+    if (items != 11) {
+        dev_err(dev, "Invalid command format: Expected 11 hex values, but got %d\n", items);
+        snprintf(g_poe_cmd_response_buf, POE_CMD_BUF_SIZE,
+                 "Error: Invalid command format. Expected \"cmd f1 f2 ... f10\"\n");
+        ret = -EINVAL;
+    } else {
+        // invoke ufi_poe_PoeCmd to apply cmd
+        if (ufi_poe_PoeCmd(dev, cmd, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10) != E_TYPE_SUCCESS)
+        {
+            dev_err(dev, "Failed to execute ufi_poe_PoeCmd\n");
+            ret = -EIO;
+        }
+    }
+
+    mutex_unlock(&clientdata->cmd_lock);
+
+    if (ret < 0)
+    {
+        return ret;
+    }
+
+    return count;
 }
 
 /* add valid poe client to list */

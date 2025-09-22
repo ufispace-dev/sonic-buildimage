@@ -99,6 +99,13 @@
 /* CPLD reg */
 #define CPLD_REG_MISC_CNTL 0x64
 
+/* output buffer size */
+#define OUT_BUF_SIZE 512
+
+/* for debug cmd */
+#define POE_CMD_BUF_SIZE 1024
+extern u8 g_poe_cmd_response_buf[POE_CMD_BUF_SIZE];
+
 /*=========================================================================
  *
  *      Type and Structure Definition Segment
@@ -814,6 +821,83 @@ s32 ufi_poe_GetPortPoEStatus(struct device *dev, u8 lport, BCM_POE_PORT_INFO_T *
 /*--------------------------------------------------------------------------
  *
  *  FUNCTION NAME :
+ *      ufi_poe_GetPortPoEConfig
+ *
+ *  DESCRIPTION :
+ *      To get port configuration
+ *
+ *  INPUT :
+ *      dev - i2c device
+ *      port - front port index
+ *
+ *  OUTPUT :
+ *      poePortConfig
+ *
+ *  RETURN :
+ *      error code
+ *
+ *  COMMENT :
+ *      none
+ *
+ *--------------------------------------------------------------------------
+ */
+s32 ufi_poe_GetPortPoEConfig(struct device *dev, u8 lport, BCM_POE_PORT_CONFIG_INFO_T *poePortConfig);
+
+/*--------------------------------------------------------------------------
+ *
+ *  FUNCTION NAME :
+ *      ufi_poe_GetPortDisconnectType
+ *
+ *  DESCRIPTION :
+ *      Get poe port disconnect type
+ *
+ *
+ *  INPUT :
+ *      dev - i2c device
+ *      lport - front port index
+ *
+ *  OUTPUT :
+ *      disconnectType - poe port disconnect type
+ *
+ *  RETURN :
+ *      error code
+ *
+ *  COMMENT :
+ *      none
+ *
+ *--------------------------------------------------------------------------
+ */
+s32 ufi_poe_GetPortDisconnectType(struct device *dev, u8 lport, E_BCM_POE_DISCONNECT_MODE *disconnectType);
+
+/*--------------------------------------------------------------------------
+ *
+ *  FUNCTION NAME :
+ *      ufi_poe_GetPortDetectType
+ *
+ *  DESCRIPTION :
+ *      Get poe port detect type
+ *
+ *
+ *  INPUT :
+ *      dev - i2c device
+ *      lport - front port index
+ *
+ *  OUTPUT :
+ *      detectType - poe port detect type
+ *
+ *  RETURN :
+ *      error code
+ *
+ *  COMMENT :
+ *      none
+ *
+ *--------------------------------------------------------------------------
+ */
+s32 ufi_poe_GetPortDetectType(struct device *dev, u8 lport, E_BCM_POE_PD_TYPE *detectType);
+
+/*--------------------------------------------------------------------------
+ *
+ *  FUNCTION NAME :
  *      ufi_poe_SetPortDisconnectType
  *
  *  DESCRIPTION :
@@ -862,6 +946,31 @@ s32 ufi_poe_SetPortDisconnectType(struct device *dev, u32 lport, E_BCM_POE_DISCO
  *--------------------------------------------------------------------------
  */
 s32 ufi_poe_SetPowerSourceConfiguration(struct device *dev, BCM_POE_BUDGE_T powerSourceInfo);
+
+/*--------------------------------------------------------------------------
+ *
+ *  FUNCTION NAME :
+ *      ufi_poe_SetPowerManagementMode
+ *
+ *  DESCRIPTION :
+ *      a API to get power management mode of PoE
+ *
+ *
+ *  INPUT :
+ *      dev - i2c device
+ *
+ *  OUTPUT :
+ *      powerManageMode - power management mode
+ *
+ *  RETURN :
+ *      error code
+ *
+ *  COMMENT :
+ *      none
+ *
+ *--------------------------------------------------------------------------
+ */
+s32 ufi_poe_GetPowerManagementMode(struct device *dev, u32 *powerManageMode);
 
 /*--------------------------------------------------------------------------
  *

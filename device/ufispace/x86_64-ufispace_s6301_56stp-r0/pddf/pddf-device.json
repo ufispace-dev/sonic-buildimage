@@ -790,7 +790,8 @@
                 "parent_bus": "0x4",
                 "dev_addr": "0x20",
                 "dev_type": "s6301_56stp_poe"
-            }
+            },
+            "attr_list": []
         }
     },
     "TEMP3": {
