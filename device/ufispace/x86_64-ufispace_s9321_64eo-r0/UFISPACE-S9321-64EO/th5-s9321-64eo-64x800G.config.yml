@@ -37,11 +37,19 @@ bcm_device:
         global_flexctr_egr_group_num_reserved: 1
         flowtracker_enable: 1
         flowtracker_hardware_learn_enable: 2
+<<<<<<< HEAD
         flowtracker_flexctr_alloc_enable: 1
+=======
+        flowtracker_flexctr_alloc_enable: 2
+>>>>>>> upstream/master
         flowtracker_max_flows: 131072
         sai_create_dflt_trap: 1
         default_cpu_tx_queue: 7
         sai_port_queue_ecn_counter: 1
+<<<<<<< HEAD
+=======
+        stat_custom_receive0_management_mode: 1
+>>>>>>> upstream/master
 ...
 ---
 device:
@@ -1146,6 +1154,7 @@ device:
         LP_TX_PRECODER_ON: 1
 ...
 ---
+<<<<<<< HEAD
 bcm_device:
     0:
         port:
@@ -1283,6 +1292,8 @@ bcm_device:
                 dport_map_port: 66
 ...
 ---
+=======
+>>>>>>> upstream/master
 device:
     0:
         # Per pipe flex counter configuration. Enable PPIU Mode
