@@ -1,0 +1,94 @@
+{
+
+    "XCVR":
+    {
+        "xcvr_present":
+        {
+           "i2c":
+           {
+               "valmap-SFP": {"0":true, "1":false },
+               "valmap-SFP28": {"0":true, "1":false },
+               "valmap-QSFP-DD": {"0":true, "1":false},
+               "valmap-QSFP": {"0":true, "1":false},
+               "valmap-QSFP28": {"0":true, "1":false }
+           }
+        },
+        "xcvr_intr_status":
+        {
+           "i2c":
+           {
+                "valmap-QSFP-DD": {"0":true, "1":false},
+                "valmap-QSFP": {"0":true, "1":false},
+                "valmap-QSFP28": {"0":true, "1":false }
+           }
+        },
+        "status":
+        {
+            "inserted": "1",
+            "removed": "0"
+        }
+    },
+
+    "PSU":
+    {
+        "psu_present":
+        {
+            "i2c":
+            {
+                "valmap": { "1":true, "0":false }
+            }
+        },
+
+        "psu_power_good":
+        {
+            "i2c":
+            {
+                "valmap": { "1": true, "0":false }
+            }
+        },
+
+        "psu_fan_dir":
+        {
+            "bmc":
+            {
+                "valmap": {"0": "UNKNOWN", "1":"INTAKE", "2":"EXHAUST"}
+            }
+        },
+        "psu_support_list":
+        [
+            {"Manufacturer": "FSPGROUP","Name": "VICTO451AM", "MaxSpd": "PSU_AC_FAN_MAX_SPEED", "Type":"AC", "Dir": "INTAKE"},
+            {"Manufacturer": "FSPGROUP","Name": "YNEB0450AM", "MaxSpd": "PSU_DC_FAN_MAX_SPEED", "Type":"DC", "Dir": "INTAKE"}
+        ],
+
+        "valmap": {"PSU_AC_FAN_MAX_SPEED": "20000", "PSU_DC_FAN_MAX_SPEED":"18000", "DEFAULT_TYPE": "AC"}
+    },
+
+    "FAN":
+    {
+        "direction":
+        {
+            "bmc":
+            {
+                "valmap": {"0": "UNKNOWN", "1":"INTAKE", "2":"EXHAUST"}
+            }
+        },
+
+        "present":
+        {
+            "i2c":
+            {
+                "valmap": {"1":true, "0":false}
+            },
+            "bmc":
+            {
+                "valmap": {"Device Present":true, "Device Absent":false}
+            }
+        },
+        "FAN_MAX_SPEED":"25000"
+    },
+
+    "REBOOT_CAUSE":
+    {
+        "reboot_cause_file": "/host/reboot-cause/reboot-cause.txt"
+    }
+}
