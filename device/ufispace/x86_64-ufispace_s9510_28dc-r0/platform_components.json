@@ -1,0 +1,13 @@
+{
+    "chassis": {
+        "x86_64-ufispace_s9510_28dc-r0": {
+            "component": {
+                "CPLD1": { },
+                "BIOS": { },
+                "BMC": { },
+                "PCIe": { },
+                "PCIe Loader": { }
+            }
+        }
+    }
+}

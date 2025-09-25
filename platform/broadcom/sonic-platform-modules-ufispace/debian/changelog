@@ -1,4 +1,9 @@
 sonic-ufispace-platform-modules (1.0.0) unstable; urgency=lows
+  * Add support for S9620-32E
+
+ -- Ufispace <alex.hsia@ufispace.com>  Mon, 16 Dec 2024 15:50:23 +0800
+
+sonic-ufispace-platform-modules (1.0.0) unstable; urgency=lows
   * Add support for S9321-64E
 
  -- Ufispace <nonodark.huang@ufispace.com>  Mon, 23 Sep 2024 15:50:23 +0800
@@ -7,6 +12,12 @@ sonic-ufispace-platform-modules (1.0.0) unstable; urgency=lows
   * Add support for S9321-64EO
 
  -- Ufispace <nonodark.huang@ufispace.com>  Thu, 26 Dec 2024 18:19:23 +0800
+
+sonic-ufispace-platform-modules (1.0.0) unstable; urgency=low
+
+  * Add support for S9510-28DC
+
+ -- Ufispace <nonodark.huang@ufispace.com>  Thu, 19 Sep 2024 15:50:23 +0800
 
 sonic-ufispace-platform-modules (1.0.0) unstable; urgency=low
 
