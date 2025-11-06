@@ -6,7 +6,8 @@
                 "BIOS": { },
                 "BMC": { },
                 "PCIe": { },
-                "PCIe Loader": { }
+                "PCIe Loader": { },
+                "MU": { }
             }
         }
     }

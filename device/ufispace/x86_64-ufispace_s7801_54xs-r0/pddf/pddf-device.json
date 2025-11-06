@@ -5,7 +5,7 @@
         "num_fans_pertray": 1,
         "num_ports": 54,
         "num_temps": 8,
-        "num_components": 6,
+        "num_components": 7,
         "pddf_dev_types": {
             "description": "PDDF supported devices",
             "CPLD": [
@@ -36,6 +36,8 @@
             "pddf_cpld_driver",
             "pddf_mux_module",
             "pddf_xcvr_module",
+            "pddf_multifpgapci_i2c_module",
+            "pddf_multifpgapci_driver",
             "pddf_fpgapci_driver",
             "pddf_xcvr_driver_module",
             "pddf_psu_driver_module",
@@ -99,6 +101,14 @@
         "attr_list":
         [
             { "attr_name":"version", "get_cmd": "bcmcmd 'pciephy fw version' | grep 'PCIe FW loader version' | cut -d ' ' -f 5" }
+        ]
+    },
+    "COMPONENT7":
+    {
+        "comp_attr": { "name": "MU", "type": "updater", "description": "Firmware Update Package" },
+        "attr_list":
+        [
+            { "attr_name": "version", "get_cmd": "mkdir -p /mnt/onie-boot && mount LABEL=ONIE-BOOT /mnt/onie-boot &> /dev/null; if [ -f \"/mnt/onie-boot/onie/update/update_details.log\" ]; then ver=$(grep -i 'Updater version:' \"/mnt/onie-boot/onie/update/update_details.log\" | tail -1 | awk '{print $3}' | tr -d '\\r\\n'); if [ -n \"$ver\" ]; then result=$(/mnt/onie-boot/onie/tools/bin/onie-fwpkg | grep \"$ver\" | awk -F'|' '{print $3}' | tail -1 | xargs | tr -d '\\r\\n'); echo \"$ver ($result)\"; else echo \"NA ()\"; fi; else echo \"NA ()\"; fi" }
         ]
     },
     "SYSTEM": {

@@ -29,17 +29,17 @@
   name: 'PCI bridge: Intel Corporation Atom Processor C3000 Series PCI Express Root
     Port #0 (rev 11)'
 - bus: '00'
-  dev: 0a
-  fn: '0'
-  id: 19a5
-  name: 'PCI bridge: Intel Corporation Atom Processor C3000 Series PCI Express Root
-    Port #1 (rev 11)'
-- bus: '00'
   dev: 0b
   fn: '0'
   id: 19a6
   name: 'PCI bridge: Intel Corporation Atom Processor C3000 Series PCI Express Root
     Port #2 (rev 11)'
+- bus: '00'
+  dev: 0c
+  fn: '0'
+  id: 19a7
+  name: 'PCI bridge: Intel Corporation Atom Processor C3000 Series PCI Express Root
+    Port #3 (rev 11)'
 - bus: '00'
   dev: 0e
   fn: '0'
@@ -104,7 +104,8 @@
   dev: 1c
   fn: '0'
   id: 19db
-  name: 'SD Host controller: Intel Corporation Device 19db (rev 11)'
+  name: 'SD Host controller: Intel Corporation Atom Processor C3000 Series SD Host
+    Controller (rev 11)'
 - bus: '00'
   dev: 1f
   fn: '0'
@@ -127,46 +128,11 @@
   dev: 1f
   fn: '5'
   id: 19e0
-  name: 'Serial bus controller [0c80]: Intel Corporation Atom Processor C3000 Series
-    SPI Controller (rev 11)'
+  name: 'Serial bus controller: Intel Corporation Atom Processor C3000 Series SPI
+    Controller (rev 11)'
 - bus: '01'
   dev: '00'
   fn: '0'
   id: 19e2
   name: 'Co-processor: Intel Corporation Atom Processor C3000 Series QuickAssist Technology
-    (rev 11)'
-- bus: '04'
-  dev: '00'
-  fn: '0'
-  id: b870
-  name: 'Ethernet controller: Broadcom Inc. and subsidiaries Device b870 (rev 01)'
-- bus: '06'
-  dev: '00'
-  fn: '0'
-  id: '1533'
-  name: 'Ethernet controller: Intel Corporation I210 Gigabit Network Connection (rev
-    03)'
-- bus: 09
-  dev: '00'
-  fn: '0'
-  id: 15c3
-  name: 'Ethernet controller: Intel Corporation Ethernet Connection X553 Backplane
-    (rev 11)'
-- bus: 09
-  dev: '00'
-  fn: '1'
-  id: 15c3
-  name: 'Ethernet controller: Intel Corporation Ethernet Connection X553 Backplane
-    (rev 11)'
-- bus: 0a
-  dev: '00'
-  fn: '0'
-  id: 15c3
-  name: 'Ethernet controller: Intel Corporation Ethernet Connection X553 Backplane
-    (rev 11)'
-- bus: 0a
-  dev: '00'
-  fn: '1'
-  id: 15c3
-  name: 'Ethernet controller: Intel Corporation Ethernet Connection X553 Backplane
     (rev 11)'

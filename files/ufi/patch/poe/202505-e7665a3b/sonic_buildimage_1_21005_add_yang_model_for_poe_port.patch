@@ -1,0 +1,323 @@
+From 1847b8f99ba6b3690f036b4161dcf2b1488f885a Mon Sep 17 00:00:00 2001
+From: Serhiy Boiko <serhiy.boiko@plvision.eu>
+Date: Tue, 3 Dec 2024 14:17:13 +0200
+Subject: [PATCH] [yang] Add yang model for POE_PORT
+
+Signed-off-by: Serhiy Boiko <serhiy.boiko@plvision.eu>
+---
+ src/sonic-yang-models/doc/Configuration.md    |  19 +++
+ src/sonic-yang-models/setup.py                |   1 +
+ .../tests/files/sample_config_db.json         |  42 +++++++
+ .../tests/yang_model_pytests/test_poe_port.py | 116 ++++++++++++++++++
+ .../yang-models/sonic-poe.yang                |  77 ++++++++++++
+ 5 files changed, 255 insertions(+)
+ create mode 100644 src/sonic-yang-models/tests/yang_model_pytests/test_poe_port.py
+ create mode 100644 src/sonic-yang-models/yang-models/sonic-poe.yang
+
+diff --git a/src/sonic-yang-models/doc/Configuration.md b/src/sonic-yang-models/doc/Configuration.md
+index 5059c050c3dc..d7306b4ed670 100644
+--- a/src/sonic-yang-models/doc/Configuration.md
++++ b/src/sonic-yang-models/doc/Configuration.md
+@@ -62,6 +62,7 @@
+   * [Port](#port)
+   * [Port Channel](#port-channel)
+   * [Portchannel member](#portchannel-member)
++  * [PoE Port](#poe-port)
+   * [Scheduler](#scheduler)
+   * [Port QoS Map](#port-qos-map)
+   * [Queue](#queue)
+@@ -2155,6 +2156,24 @@ name as object key and member list as attribute.
+ }
+ 
+ ```
++
++### PoE Port
++
++This table stores PoE port configuration. The interface name
++is used as the key.
++
++```
++{
++  "POE_PORT": {
++    "Ethernet0": {
++      "enabled": "enable",
++      "pwr_limit": "50.0",
++      "priority": "high"
++    }
++  }
++}
++```
++
+ ### Scheduler
+ 
+ ```
+diff --git a/src/sonic-yang-models/setup.py b/src/sonic-yang-models/setup.py
+index a979a0c8c7f7..0a0e4bfa2d44 100644
+--- a/src/sonic-yang-models/setup.py
++++ b/src/sonic-yang-models/setup.py
+@@ -86,6 +86,7 @@
+     'sonic-port.yang',
+     'sonic-policer.yang',
+     'sonic-portchannel.yang',
++    'sonic-poe.yang',
+     'sonic-pfcwd.yang',
+     'sonic-route-common.yang',
+     'sonic-route-map.yang',
+diff --git a/src/sonic-yang-models/tests/files/sample_config_db.json b/src/sonic-yang-models/tests/files/sample_config_db.json
+index d59a083c8be5..83b7a1c02044 100644
+--- a/src/sonic-yang-models/tests/files/sample_config_db.json
++++ b/src/sonic-yang-models/tests/files/sample_config_db.json
+@@ -1077,6 +1077,48 @@
+                 "LOGOUTPUT": "SYSLOG"
+             }
+         },
++        "POE_PORT": {
++            "Ethernet0": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "high"
++            },
++            "Ethernet1": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "high"
++            },
++            "Ethernet2": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "high"
++            },
++            "Ethernet3": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "high"
++            },
++            "Ethernet4": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "high"
++            },
++            "Ethernet5": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "high"
++            },
++            "Ethernet6": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "high"
++            },
++            "Ethernet7": {
++                "enabled": "enable",
++                "pwr_limit": "50.0",
++                "priority": "crit"
++            }
++        },
+         "ACL_TABLE": {
+             "V4-ACL-TABLE": {
+                 "type": "L3",
+diff --git a/src/sonic-yang-models/tests/yang_model_pytests/test_poe_port.py b/src/sonic-yang-models/tests/yang_model_pytests/test_poe_port.py
+new file mode 100644
+index 000000000000..d5750461da1a
+--- /dev/null
++++ b/src/sonic-yang-models/tests/yang_model_pytests/test_poe_port.py
+@@ -0,0 +1,116 @@
++import pytest
++
++
++class TestPoePort:
++
++    def test_valid_data(self, yang_model):
++        data = {
++            "sonic-port:sonic-port": {
++                "sonic-port:PORT": {
++                    "PORT_LIST": [
++                    {
++                        "admin_status": "up",
++                        "alias": "eth8",
++                        "description": "Ethernet0",
++                        "lanes": "65",
++                        "mtu": 9000,
++                        "name": "Ethernet0",
++                        "speed": 25000
++                    }
++                    ]
++                }
++            },
++            "sonic-poe:sonic-poe": {
++                "sonic-poe:POE_PORT": {
++                    "POE_PORT_LIST": [
++                        {
++                            "ifname": "Ethernet0",
++                            "enabled": "enable",
++                            "pwr_limit": "50",
++                            "priority": "high"
++                        }
++                    ]
++                }
++            }
++        }
++
++        yang_model.load_data(data)
++
++    @pytest.mark.parametrize(
++        "enabled, error_message", [
++            ("enable", None),
++            ("disable", None),
++            ("xyz", 'Invalid value "xyz" in "enabled" element.')]
++        )
++    def test_enabled_field(self, yang_model, enabled, error_message):
++        data = {
++            "sonic-port:sonic-port": {
++                "sonic-port:PORT": {
++                    "PORT_LIST": [
++                    {
++                        "admin_status": "up",
++                        "alias": "eth8",
++                        "description": "Ethernet0",
++                        "lanes": "65",
++                        "mtu": 9000,
++                        "name": "Ethernet0",
++                        "speed": 25000
++                    }
++                    ]
++                }
++            },
++            "sonic-poe:sonic-poe": {
++                "sonic-poe:POE_PORT": {
++                    "POE_PORT_LIST": [
++                        {
++                            "ifname": "Ethernet0",
++                            "enabled": enabled,
++                            "pwr_limit": "50",
++                            "priority": "high"
++                        }
++                    ]
++                }
++            }
++        }
++
++        yang_model.load_data(data, error_message)
++
++    @pytest.mark.parametrize(
++        "priority, error_message", [
++            ("low", None),
++            ("high", None),
++            ("crit", None),
++            ("xyz", 'Invalid value "xyz" in "priority" element.')]
++        )
++    def test_priority_field(self, yang_model, priority, error_message):
++        data = {
++            "sonic-port:sonic-port": {
++                "sonic-port:PORT": {
++                    "PORT_LIST": [
++                    {
++                        "admin_status": "up",
++                        "alias": "eth8",
++                        "description": "Ethernet0",
++                        "lanes": "65",
++                        "mtu": 9000,
++                        "name": "Ethernet0",
++                        "speed": 25000
++                    }
++                    ]
++                }
++            },
++            "sonic-poe:sonic-poe": {
++                "sonic-poe:POE_PORT": {
++                    "POE_PORT_LIST": [
++                        {
++                            "ifname": "Ethernet0",
++                            "enabled": "enable",
++                            "pwr_limit": "50",
++                            "priority": priority
++                        }
++                    ]
++                }
++            }
++        }
++
++        yang_model.load_data(data, error_message)
+diff --git a/src/sonic-yang-models/yang-models/sonic-poe.yang b/src/sonic-yang-models/yang-models/sonic-poe.yang
+new file mode 100644
+index 000000000000..da593ff6bdf0
+--- /dev/null
++++ b/src/sonic-yang-models/yang-models/sonic-poe.yang
+@@ -0,0 +1,77 @@
++module sonic-poe {
++    yang-version 1.1;
++
++    namespace "http://github.com/sonic-net/sonic-poe";
++
++    prefix poe;
++
++    import sonic-types {
++        prefix stypes;
++    }
++
++    import sonic-port {
++        prefix port;
++    }
++
++    organization
++        "SONiC";
++
++    contact
++        "SONiC";
++
++    description
++        "PoE YANG Module for SONiC OS";
++
++    revision 2024-06-13 {
++        description
++            "First Revision";
++    }
++
++    container sonic-poe {
++
++        container POE_PORT {
++
++            description "Power over Ethernet configuration (POE_PORT table in config_db.json)";
++
++            typedef poe-priority {
++
++                type enumeration {
++                    enum crit;
++                    enum high;
++                    enum low;
++                }
++            }
++
++            list POE_PORT_LIST {
++                key "ifname";
++                leaf ifname {
++                    type leafref {
++                        path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
++                    }
++                    description "Interface name from the PORT table in config_db.json";
++                }
++                leaf enabled {
++                    type stypes:mode-status;
++                    default disable;
++                    description "PoE status on port. [enable/disable]";
++                }
++                leaf pwr_limit {
++                    mandatory true;
++                    type string {
++                        length 1..255;
++                    }
++                    description "Power limit on PoE port. [0..999]";
++                }
++                leaf priority {
++                    type poe-priority;
++                    default high;
++                    description "Port priority level. [crit/high/low]";
++                }
++            }
++            /* end of POE_PORT_LIST */
++        }
++        /* end of container POE_PORT */
++    }
++    /* end of top-level container sonic-poe */
++}
++/* end of module sonic-poe */
