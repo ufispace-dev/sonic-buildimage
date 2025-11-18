@@ -1,0 +1,78 @@
+From d63987f3bbcdd082c043a56bb4b93ee2ea132f98 Mon Sep 17 00:00:00 2001
+From: Serhiy Boiko <serhiy.boiko@plvision.eu>
+Date: Mon, 8 Jul 2024 10:25:51 +0300
+Subject: [PATCH] [swss-common] Add additional tables to support PoE
+
+Signed-off-by: Serhiy Boiko <serhiy.boiko@plvision.eu>
+---
+ common/database_config.json | 15 +++++++++++++++
+ common/schema.h             |  9 +++++++++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/common/database_config.json b/common/database_config.json
+index 67b5cda88..ce394cbb1 100644
+--- a/common/database_config.json
++++ b/common/database_config.json
+@@ -91,6 +91,21 @@
+             "id" : 14,
+             "separator": ":",
+             "instance" : "redis"
++        },
++        "POE_ASIC_DB" : {
++            "id" : 21,
++            "separator": ":",
++            "instance" : "redis"
++        },
++        "POE_COUNTERS_DB" : {
++            "id" : 22,
++            "separator": ":",
++            "instance" : "redis"
++        },
++        "POE_FLEX_COUNTER_DB" : {
++            "id" : 23,
++            "separator": ":",
++            "instance" : "redis"
+         }
+     },
+     "VERSION" : "1.0"
+diff --git a/common/schema.h b/common/schema.h
+index bb0f4e6f1..4404b23a2 100644
+--- a/common/schema.h
++++ b/common/schema.h
+@@ -31,6 +31,9 @@ namespace swss {
+ #define DPU_COUNTERS_DB     18
+ #define EVENT_DB            19
+ #define BMP_STATE_DB        20
++#define POE_ASIC_DB         21
++#define POE_COUNTERS_DB     22
++#define POE_FLEX_COUNTER_DB 23
+ 
+ /***** APPLICATION DATABASE *****/
+ 
+@@ -122,6 +125,7 @@ namespace swss {
+ #define APP_STP_MST_PORT_TABLE_NAME         "STP_MST_PORT_TABLE"
+ #define APP_STP_INST_PORT_FLUSH_TABLE_NAME  "STP_INST_PORT_FLUSH_TABLE"
+ 
++#define APP_POE_TABLE_NAME                  "POE_TABLE"
+ 
+ #define APP_SAG_TABLE_NAME                  "SAG_TABLE"
+ 
+@@ -333,6 +337,7 @@ namespace swss {
+ #define CFG_PORT_CABLE_LEN_TABLE_NAME "CABLE_LENGTH"
+ #define CFG_SEND_TO_INGRESS_PORT_TABLE_NAME  "SEND_TO_INGRESS_PORT"
+ #define CFG_GEARBOX_TABLE_NAME           "GEARBOX"
++#define CFG_POE_TABLE_NAME               "POE_PORT"
+ #define CFG_INTF_TABLE_NAME               "INTERFACE"
+ #define CFG_LAG_INTF_TABLE_NAME           "PORTCHANNEL_INTERFACE"
+ #define CFG_VLAN_INTF_TABLE_NAME          "VLAN_INTERFACE"
+@@ -495,6 +500,10 @@ namespace swss {
+ 
+ #define STATE_BGP_PEER_CONFIGURED_TABLE_NAME "BGP_PEER_CONFIGURED_TABLE"
+ 
++#define STATE_POE_DEVICE_TABLE_NAME                 "POE_DEVICE_TABLE"
++#define STATE_POE_PSE_TABLE_NAME                    "POE_PSE_TABLE"
++#define STATE_POE_PORT_TABLE_NAME                   "POE_PORT_TABLE"
++
+ // ACL table and ACL rule table
+ #define STATE_ACL_TABLE_TABLE_NAME                  "ACL_TABLE_TABLE"
+ #define STATE_ACL_RULE_TABLE_NAME                   "ACL_RULE_TABLE"

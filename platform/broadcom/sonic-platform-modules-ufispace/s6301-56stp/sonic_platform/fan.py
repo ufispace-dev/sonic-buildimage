@@ -27,7 +27,7 @@ class Fan(PddfFan):
             An Integer, the max speed
         """
         if self.is_psu_fan:
-            psu_fru = PsuFru(self.fans_psu_index)
+            psu_fru = PsuFru(self.pddf_obj, self.fans_psu_index)
             max_speed = int(self.plugin_data['PSU']['valmap']['PSU_FAN_MAX_SPEED'])
             for dev in self.plugin_data['PSU']['psu_support_list']:
                 if dev['Manufacturer'] == psu_fru.mfr_id and dev['Name'] == psu_fru.model:
@@ -93,7 +93,7 @@ class Fan(PddfFan):
         """
         direction = self.FAN_DIRECTION_NOT_APPLICABLE
         if self.is_psu_fan:
-            psu_fru = PsuFru(self.fans_psu_index)
+            psu_fru = PsuFru(self.pddf_obj, self.fans_psu_index)
             if psu_fru.mfr_id == "not available":
                 return direction
             for dev in self.plugin_data['PSU']['psu_support_list']:

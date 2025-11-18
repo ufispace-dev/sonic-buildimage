@@ -1,0 +1,1151 @@
+From fb440f149255515745a2fef788c4cda3b12f708b Mon Sep 17 00:00:00 2001
+From: Serhiy Boiko <serhiy.boiko@plvision.eu>
+Date: Mon, 8 Jul 2024 11:23:03 +0300
+Subject: [PATCH] Add support for PoE feature
+
+Add target for poesyncd container
+Add poe_vs hwsku
+Add build flag to disable PoE feature (enabled by default).
+Add cleanup of PoE database during config reload.
+
+Signed-off-by: Serhiy Boiko <serhiy.boiko@plvision.eu>
+Change-Id: I2f2b8d7ed3285193b1d58b9fc666dcb8bf1bfcd9
+---
+ Makefile.work                                 |   1 +
+ device/virtual/x86_64-kvm_x86_64-r0/README.md |  20 ++
+ .../poe_vs/buffers.json.j2                    |   3 +
+ .../poe_vs/buffers_defaults_def.j2            |  45 ++++
+ .../poe_vs/buffers_defaults_t0.j2             |  45 ++++
+ .../poe_vs/buffers_defaults_t1.j2             |  45 ++++
+ .../poe_vs/context_config.json                |  38 ++++
+ .../x86_64-kvm_x86_64-r0/poe_vs/poe.profile   |   5 +
+ .../poe_vs/poe_config.json                    | 192 ++++++++++++++++++
+ .../poe_vs/port_config.ini                    |  33 +++
+ .../x86_64-kvm_x86_64-r0/poe_vs/sai.profile   |   3 +
+ .../docker-database/database_config.json.j2   |  16 ++
+ .../docker-orchagent/critical_processes.j2    |   1 +
+ dockers/docker-orchagent/supervisord.conf.j2  |  32 +++
+ files/build_templates/init_cfg.json.j2        |   1 +
+ .../per_namespace/poesyncd.service.j2         |  20 ++
+ .../build_templates/sonic_debian_extension.j2 |   2 +
+ files/scripts/poesyncd-platform.sh            |  12 ++
+ files/scripts/poesyncd.sh                     |  83 ++++++++
+ files/scripts/swss.sh                         |   3 +-
+ platform/template/docker-poesyncd-base.mk     |  32 +++
+ platform/vs/docker-poesyncd-vs.dep            |  11 +
+ platform/vs/docker-poesyncd-vs.mk             |  17 ++
+ platform/vs/docker-poesyncd-vs/Dockerfile.j2  |  38 ++++
+ .../vs/docker-poesyncd-vs/critical_processes  |   1 +
+ platform/vs/docker-poesyncd-vs/start.sh       |  14 ++
+ .../vs/docker-poesyncd-vs/supervisord.conf    |  50 +++++
+ .../vs/docker-sonic-vs/database_config.json   |  15 ++
+ .../vs/docker-sonic-vs/supervisord.conf.j2    |  20 ++
+ platform/vs/rules.mk                          |   1 +
+ rules/config                                  |   3 +
+ slave.mk                                      |   2 +
+ 32 files changed, 803 insertions(+), 1 deletion(-)
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers.json.j2
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_def.j2
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t0.j2
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t1.j2
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/context_config.json
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe.profile
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe_config.json
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/port_config.ini
+ create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/sai.profile
+ create mode 100644 files/build_templates/per_namespace/poesyncd.service.j2
+ create mode 100755 files/scripts/poesyncd-platform.sh
+ create mode 100755 files/scripts/poesyncd.sh
+ create mode 100644 platform/template/docker-poesyncd-base.mk
+ create mode 100644 platform/vs/docker-poesyncd-vs.dep
+ create mode 100644 platform/vs/docker-poesyncd-vs.mk
+ create mode 100644 platform/vs/docker-poesyncd-vs/Dockerfile.j2
+ create mode 100644 platform/vs/docker-poesyncd-vs/critical_processes
+ create mode 100755 platform/vs/docker-poesyncd-vs/start.sh
+ create mode 100644 platform/vs/docker-poesyncd-vs/supervisord.conf
+
+diff --git a/Makefile.work b/Makefile.work
+index 33bc90305a3a..4c70ef9a05bf 100644
+--- a/Makefile.work
++++ b/Makefile.work
+@@ -540,6 +540,7 @@ SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
+                            INCLUDE_DHCP_RELAY=$(INCLUDE_DHCP_RELAY) \
+                            INCLUDE_DHCP_SERVER=$(INCLUDE_DHCP_SERVER) \
+                            INCLUDE_MACSEC=$(INCLUDE_MACSEC) \
++                           INCLUDE_POE=$(INCLUDE_POE) \
+                            INCLUDE_ICCPD=$(INCLUDE_ICCPD) \
+                            SONIC_INCLUDE_RESTAPI=$(INCLUDE_RESTAPI) \
+                            SONIC_INCLUDE_MUX=$(INCLUDE_MUX) \
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/README.md b/device/virtual/x86_64-kvm_x86_64-r0/README.md
+index 0347432d67b4..5aa48fa0a7ec 100644
+--- a/device/virtual/x86_64-kvm_x86_64-r0/README.md
++++ b/device/virtual/x86_64-kvm_x86_64-r0/README.md
+@@ -15,6 +15,7 @@ The format of default_sku is a single line:
+ | ------ | ------ |
+ | Force10-S6000 | Dell Force10 S6000|
+ | brcm_gearbox_vs | Similar to Force10-S6000, but implements a virtual BRCM81724 Gearbox Phy |
++| poe_vs | Similar to Force10-S6000, but implements PoE |
+ 
+ ## Allowable values for default_preset
+ 
+@@ -86,3 +87,22 @@ swss docker).
+ 
+ The commands "show gearbox interfaces status" and "show gearbox phys status" can be 
+ used to verify the virtual gearbox phy has been created. See https://github.com/Azure/sonic-utilities/blob/master/doc/Command-Reference.md#gearbox for details.
++
++## poe_vs
++
++This sku simulates a device with PoE capabilites. To enable, set default_sku to:
++
++
++```
++poe_vs t1
++```
++
++To build (same as Force-10-S6000):
++
++```
++make init
++make configure PLATFORM=vs
++make target/sonic-vs.img.gz
++```
++
++See https://github.com/sonic-net/sonic-utilities/blob/master/doc/Command-Reference.md#power-over-ethernet for details.
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers.json.j2 b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers.json.j2
+new file mode 100644
+index 000000000000..b67cf577ab75
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers.json.j2
+@@ -0,0 +1,2 @@
++{%- set default_topo = 't1' %}
++{%- include 'buffers_config.j2' %}
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_def.j2 b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_def.j2
+new file mode 100644
+index 000000000000..ff6c35e0d9f6
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_def.j2
+@@ -0,0 +1,45 @@
++{%- set default_cable = '300m' %}
++
++{%- macro generate_port_lists(PORT_ALL) %}
++    {# Generate list of ports #}
++    {% for port_idx in range(0,32) %}
++        {% if PORT_ALL.append("Ethernet%d" % (port_idx * 4)) %}{% endif %}
++    {% endfor %}
++{%- endmacro %}
++
++{%- macro generate_buffer_pool_and_profiles() %}
++    "BUFFER_POOL": {
++        "ingress_lossless_pool": {
++            "size": "12766208",
++            "type": "ingress",
++            "mode": "dynamic"
++        },
++        "egress_lossless_pool": {
++            "size": "12766208",
++            "type": "egress",
++            "mode": "static"
++        },
++        "egress_lossy_pool": {
++            "size": "7326924",
++            "type": "egress",
++            "mode": "dynamic"
++        }
++    },
++    "BUFFER_PROFILE": {
++        "ingress_lossy_profile": {
++            "pool":"ingress_lossless_pool",
++            "size":"0",
++            "dynamic_th":"3"
++        },
++        "egress_lossless_profile": {
++            "pool":"egress_lossless_pool",
++            "size":"0",
++            "static_th":"12766208"
++        },
++        "egress_lossy_profile": {
++            "pool":"egress_lossy_pool",
++            "size":"1518",
++            "dynamic_th":"3"
++        }
++    },
++{%- endmacro %}
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t0.j2 b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t0.j2
+new file mode 100644
+index 000000000000..ff6c35e0d9f6
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t0.j2
+@@ -0,0 +1,45 @@
++{%- set default_cable = '300m' %}
++
++{%- macro generate_port_lists(PORT_ALL) %}
++    {# Generate list of ports #}
++    {% for port_idx in range(0,32) %}
++        {% if PORT_ALL.append("Ethernet%d" % (port_idx * 4)) %}{% endif %}
++    {% endfor %}
++{%- endmacro %}
++
++{%- macro generate_buffer_pool_and_profiles() %}
++    "BUFFER_POOL": {
++        "ingress_lossless_pool": {
++            "size": "12766208",
++            "type": "ingress",
++            "mode": "dynamic"
++        },
++        "egress_lossless_pool": {
++            "size": "12766208",
++            "type": "egress",
++            "mode": "static"
++        },
++        "egress_lossy_pool": {
++            "size": "7326924",
++            "type": "egress",
++            "mode": "dynamic"
++        }
++    },
++    "BUFFER_PROFILE": {
++        "ingress_lossy_profile": {
++            "pool":"ingress_lossless_pool",
++            "size":"0",
++            "dynamic_th":"3"
++        },
++        "egress_lossless_profile": {
++            "pool":"egress_lossless_pool",
++            "size":"0",
++            "static_th":"12766208"
++        },
++        "egress_lossy_profile": {
++            "pool":"egress_lossy_pool",
++            "size":"1518",
++            "dynamic_th":"3"
++        }
++    },
++{%- endmacro %}
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t1.j2 b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t1.j2
+new file mode 100644
+index 000000000000..ff6c35e0d9f6
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t1.j2
+@@ -0,0 +1,45 @@
++{%- set default_cable = '300m' %}
++
++{%- macro generate_port_lists(PORT_ALL) %}
++    {# Generate list of ports #}
++    {% for port_idx in range(0,32) %}
++        {% if PORT_ALL.append("Ethernet%d" % (port_idx * 4)) %}{% endif %}
++    {% endfor %}
++{%- endmacro %}
++
++{%- macro generate_buffer_pool_and_profiles() %}
++    "BUFFER_POOL": {
++        "ingress_lossless_pool": {
++            "size": "12766208",
++            "type": "ingress",
++            "mode": "dynamic"
++        },
++        "egress_lossless_pool": {
++            "size": "12766208",
++            "type": "egress",
++            "mode": "static"
++        },
++        "egress_lossy_pool": {
++            "size": "7326924",
++            "type": "egress",
++            "mode": "dynamic"
++        }
++    },
++    "BUFFER_PROFILE": {
++        "ingress_lossy_profile": {
++            "pool":"ingress_lossless_pool",
++            "size":"0",
++            "dynamic_th":"3"
++        },
++        "egress_lossless_profile": {
++            "pool":"egress_lossless_pool",
++            "size":"0",
++            "static_th":"12766208"
++        },
++        "egress_lossy_profile": {
++            "pool":"egress_lossy_pool",
++            "size":"1518",
++            "dynamic_th":"3"
++        }
++    },
++{%- endmacro %}
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/context_config.json b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/context_config.json
+new file mode 100644
+index 000000000000..3e106723d469
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/context_config.json
+@@ -0,0 +1,38 @@
++{
++    "CONTEXTS": [
++        {
++            "guid" : 0,
++            "name" : "sw0",
++            "dbAsic" : "ASIC_DB",
++            "dbCounters" : "COUNTERS_DB",
++            "dbFlex": "FLEX_COUNTER_DB",
++            "dbState" : "STATE_DB",
++            "zmq_enable": false,
++            "zmq_endpoint": "tcp://127.0.0.1:5555",
++            "zmq_ntf_endpoint": "tcp://127.0.0.1:5556",
++            "switches": [
++                {
++                    "index" : 0,
++                    "hwinfo" : ""
++                }
++            ]
++        },
++        {
++            "guid" : 1,
++            "name" : "poe1",
++            "dbAsic" : "POE_ASIC_DB",
++            "dbCounters" : "POE_COUNTERS_DB",
++            "dbFlex": "POE_FLEX_COUNTER_DB",
++            "dbState" : "STATE_DB",
++            "zmq_enable": false,
++            "zmq_endpoint": "tcp://127.0.0.1:5575",
++            "zmq_ntf_endpoint": "tcp://127.0.0.1:5576",
++            "switches": [
++                {
++                    "index" : 1,
++                    "hwinfo": ""
++                }
++            ]
++        }
++    ]
++}
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe.profile b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe.profile
+new file mode 100644
+index 000000000000..e505b2ba2cf3
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe.profile
+@@ -0,0 +1,5 @@
++SAI_VS_SWITCH_TYPE=SAI_VS_SWITCH_TYPE_POE
++SAI_VS_SAI_SWITCH_TYPE=SAI_SWITCH_TYPE_POE
++SAI_VS_HOSTIF_USE_TAP_DEVICE=false
++SAI_VS_USE_BCMSIM_LINK_MON=true
++SAI_VS_INTERFACE_LANE_MAP_FILE=/usr/share/sonic/hwsku/lanemap.ini
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe_config.json b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe_config.json
+new file mode 100644
+index 000000000000..31120f79d40f
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/poe_config.json
+@@ -0,0 +1,192 @@
++[{
++  "hw_info": "mcu1",
++  "power_limit_mode": "port",
++  "pse_list": [
++    {
++      "pse_index": 0
++    },
++    {
++      "pse_index": 1
++    }
++  ],
++  "port_mapping_list": [
++    {
++      "interface": "Ethernet0",
++      "front_panel_index": 1,
++      "power_priority": "crit"
++    },
++    {
++      "interface": "Ethernet4",
++      "front_panel_index": 2,
++      "power_priority": "crit"
++    },
++    {
++      "interface": "Ethernet8",
++      "front_panel_index": 3,
++      "power_priority": "low"
++    },
++    {
++      "interface": "Ethernet12",
++      "front_panel_index": 4,
++      "power_priority": "low"
++    },
++    {
++      "interface": "Ethernet16",
++      "front_panel_index": 5,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet20",
++      "front_panel_index": 6,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet24",
++      "front_panel_index": 7,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet28",
++      "front_panel_index": 8,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet32",
++      "front_panel_index": 9,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet36",
++      "front_panel_index": 10,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet40",
++      "front_panel_index": 11,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet44",
++      "front_panel_index": 12,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet48",
++      "front_panel_index": 13,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet52",
++      "front_panel_index": 14,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet56",
++      "front_panel_index": 15,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet60",
++      "front_panel_index": 16,
++      "power_priority": "high"
++    }
++  ]
++},
++{
++  "hw_info": "mcu2",
++  "pse_list": [
++    {
++      "pse_index": 2
++    },
++    {
++      "pse_index": 3
++    }
++  ],
++  "port_mapping_list": [
++    {
++      "interface": "Ethernet64",
++      "front_panel_index": 17,
++      "power_priority": "crit"
++    },
++    {
++      "interface": "Ethernet68",
++      "front_panel_index": 18,
++      "power_priority": "crit"
++    },
++    {
++      "interface": "Ethernet72",
++      "front_panel_index": 19,
++      "power_priority": "low"
++    },
++    {
++      "interface": "Ethernet76",
++      "front_panel_index": 20,
++      "power_priority": "low"
++    },
++    {
++      "interface": "Ethernet80",
++      "front_panel_index": 21,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet84",
++      "front_panel_index": 22,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet88",
++      "front_panel_index": 23,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet92",
++      "front_panel_index": 24,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet96",
++      "front_panel_index": 25,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet100",
++      "front_panel_index": 26,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet104",
++      "front_panel_index": 27,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet108",
++      "front_panel_index": 28,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet112",
++      "front_panel_index": 29,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet116",
++      "front_panel_index": 30,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet120",
++      "front_panel_index": 31,
++      "power_priority": "high"
++    },
++    {
++      "interface": "Ethernet124",
++      "front_panel_index": 32,
++      "power_priority": "high"
++    }
++  ]
++},
++{
++  "hw_info": "mcu3",
++  "pse_list": [],
++  "port_mapping_list": []
++}]
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/port_config.ini b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/port_config.ini
+new file mode 100644
+index 000000000000..95cf5eec9e4e
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/port_config.ini
+@@ -0,0 +1,33 @@
++# name          lanes             alias             index       speed
++Ethernet0       25,26,27,28       fortyGigE0/0      0           40000
++Ethernet4       29,30,31,32       fortyGigE0/4      1           40000
++Ethernet8       33,34,35,36       fortyGigE0/8      2           40000
++Ethernet12      37,38,39,40       fortyGigE0/12     3           40000
++Ethernet16      45,46,47,48       fortyGigE0/16     4           40000
++Ethernet20      41,42,43,44       fortyGigE0/20     5           40000
++Ethernet24      1,2,3,4           fortyGigE0/24     6           40000
++Ethernet28      5,6,7,8           fortyGigE0/28     7           40000
++Ethernet32      13,14,15,16       fortyGigE0/32     8           40000
++Ethernet36      9,10,11,12        fortyGigE0/36     9           40000
++Ethernet40      17,18,19,20       fortyGigE0/40     10          40000
++Ethernet44      21,22,23,24       fortyGigE0/44     11          40000
++Ethernet48      53,54,55,56       fortyGigE0/48     12          40000
++Ethernet52      49,50,51,52       fortyGigE0/52     13          40000
++Ethernet56      57,58,59,60       fortyGigE0/56     14          40000
++Ethernet60      61,62,63,64       fortyGigE0/60     15          40000
++Ethernet64      69,70,71,72       fortyGigE0/64     16          40000
++Ethernet68      65,66,67,68       fortyGigE0/68     17          40000
++Ethernet72      73,74,75,76       fortyGigE0/72     18          40000
++Ethernet76      77,78,79,80       fortyGigE0/76     19          40000
++Ethernet80      109,110,111,112   fortyGigE0/80     20          40000
++Ethernet84      105,106,107,108   fortyGigE0/84     21          40000
++Ethernet88      113,114,115,116   fortyGigE0/88     22          40000
++Ethernet92      117,118,119,120   fortyGigE0/92     23          40000
++Ethernet96      125,126,127,128   fortyGigE0/96     24          40000
++Ethernet100     121,122,123,124   fortyGigE0/100    25          40000
++Ethernet104     81,82,83,84       fortyGigE0/104    26          40000
++Ethernet108     85,86,87,88       fortyGigE0/108    27          40000
++Ethernet112     93,94,95,96       fortyGigE0/112    28          40000
++Ethernet116     89,90,91,92       fortyGigE0/116    29          40000
++Ethernet120     101,102,103,104   fortyGigE0/120    30          40000
++Ethernet124     97,98,99,100      fortyGigE0/124    31          40000
+diff --git a/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/sai.profile b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/sai.profile
+new file mode 100644
+index 000000000000..0a2df177f1c5
+--- /dev/null
++++ b/device/virtual/x86_64-kvm_x86_64-r0/poe_vs/sai.profile
+@@ -0,0 +1,3 @@
++SAI_VS_SWITCH_TYPE=SAI_VS_SWITCH_TYPE_BCM56850
++SAI_VS_HOSTIF_USE_TAP_DEVICE=true
++SAI_VS_INTERFACE_LANE_MAP_FILE=/usr/share/sonic/hwsku/lanemap.ini
+diff --git a/dockers/docker-database/database_config.json.j2 b/dockers/docker-database/database_config.json.j2
+index b97589d3733d..f0296c93107f 100644
+--- a/dockers/docker-database/database_config.json.j2
++++ b/dockers/docker-database/database_config.json.j2
+@@ -147,6 +147,22 @@
+             "instance" : "redis_bmp"
+         }
+ {% endif %}
++        ,
++        "POE_ASIC_DB" : {
++            "id" : 21,
++            "separator": ":",
++            "instance" : "redis"
++        },
++        "POE_COUNTERS_DB" : {
++            "id" : 22,
++            "separator": ":",
++            "instance" : "redis"
++        },
++        "POE_FLEX_COUNTER_DB" : {
++            "id" : 23,
++            "separator": ":",
++            "instance" : "redis"
++        }
+     },
+     "VERSION" : "1.0"
+ }
+diff --git a/dockers/docker-orchagent/critical_processes.j2 b/dockers/docker-orchagent/critical_processes.j2
+index b9bad74089b6..ff835cf926c7 100644
+--- a/dockers/docker-orchagent/critical_processes.j2
++++ b/dockers/docker-orchagent/critical_processes.j2
+@@ -10,6 +10,7 @@ program:portsyncd
+ program:neighsyncd
+ program:fdbsyncd
+ program:vlanmgrd
++program:poemgrd
+ program:intfmgrd
+ program:portmgrd
+ program:fabricmgrd
+diff --git a/dockers/docker-orchagent/supervisord.conf.j2 b/dockers/docker-orchagent/supervisord.conf.j2
+index eee121f1c68b..0026eb8a00f8 100644
+--- a/dockers/docker-orchagent/supervisord.conf.j2
++++ b/dockers/docker-orchagent/supervisord.conf.j2
+@@ -59,6 +59,23 @@ environment=ASAN_OPTIONS="log_path=/var/log/asan/gearsyncd-asan.log{{ asan_extra
+ {% endif %}
+ {%- endif %}
+ 
++{% if is_fabric_asic == 0 %}
++[program:poesyncd]
++command=/usr/bin/poesyncd -p /usr/share/sonic/hwsku/poe_config.json
++priority=3
++autostart=false
++autorestart=false
++startsecs=0
++startretries=0
++stdout_logfile=syslog
++stderr_logfile=syslog
++dependent_startup=true
++dependent_startup_wait_for=rsyslogd:running
++{% if ENABLE_ASAN == "y" %}
++environment=ASAN_OPTIONS="log_path=/var/log/asan/poesyncd-asan.log{{ asan_extra_options }}"
++{% endif %}
++{%- endif %}
++
+ {% if is_fabric_asic == 0 %}
+ [program:portsyncd]
+ command=/usr/bin/portsyncd
+@@ -212,6 +229,21 @@ environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log{{ asan_extra_
+ {% endif %}
+ {%- endif %}
+ 
++{% if is_fabric_asic == 0 %}
++[program:poemgrd]
++command=/usr/bin/poemgrd
++priority=10
++autostart=false
++autorestart=false
++stdout_logfile=syslog
++stderr_logfile=syslog
++dependent_startup=true
++dependent_startup_wait_for=swssconfig:exited
++{% if ENABLE_ASAN == "y" %}
++environment=ASAN_OPTIONS="log_path=/var/log/asan/poemgrd-asan.log{{ asan_extra_options }}"
++{% endif %}
++{%- endif %}
++
+ [program:fabricmgrd]
+ command=/usr/bin/fabricmgrd
+ priority=10
+diff --git a/files/build_templates/init_cfg.json.j2 b/files/build_templates/init_cfg.json.j2
+index 1d1c1817b49d..b6dd49e1953f 100644
+--- a/files/build_templates/init_cfg.json.j2
++++ b/files/build_templates/init_cfg.json.j2
+@@ -73,6 +73,7 @@
+ {% do features.append(("dhcp_relay", "{% if not (DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['type'] is defined and DEVICE_METADATA['localhost']['type'] is not in ['ToRRouter', 'EPMS', 'MgmtTsToR', 'MgmtToRRouter', 'BmcMgmtToRRouter']) %}enabled{% else %}disabled{% endif %}", false, "enabled")) %}
+ {%- if include_dhcp_server == "y" %}{% do features.append(("dhcp_server", "disabled", false, "enabled")) %}{% endif %}
+ {%- if sonic_asic_platform == "vs" %}{% do features.append(("gbsyncd", "enabled", false, "enabled")) %}{% endif %}
++{%- if include_poe == "y" %}{% do features.append(("poesyncd", "enabled", false, "enabled")) %}{% endif %}
+ {%- if include_iccpd == "y" %}{% do features.append(("iccpd", "disabled", false, "enabled")) %}{% endif %}
+ {%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", true, "enabled")) %}{% endif %}
+ {%- if include_mux == "y" %}{% do features.append(("mux", "{% if 'subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR' %}enabled{% else %}always_disabled{% endif %}", false, "enabled")) %}{% endif %}
+diff --git a/files/build_templates/per_namespace/poesyncd.service.j2 b/files/build_templates/per_namespace/poesyncd.service.j2
+new file mode 100644
+index 000000000000..dc5ce3aacfe0
+--- /dev/null
++++ b/files/build_templates/per_namespace/poesyncd.service.j2
+@@ -0,0 +1,20 @@
++[Unit]
++Description={{docker_container_name}} service
++Requires=database{% if multi_instance == 'true' %}@%i{% endif %}.service config-setup.service
++After=database{% if multi_instance == 'true' %}@%i{% endif %}.service config-setup.service
++After=interfaces-config.service
++After=swss{% if multi_instance == 'true' %}@%i{% endif %}.service
++BindsTo=sonic.target
++After=sonic.target
++
++[Service]
++User=root
++Environment=sonic_asic_platform={{ sonic_asic_platform }}
++Environment=poesyncd_platform={{ docker_container_name }}
++ExecCondition=/usr/bin/{{docker_container_name}}-platform.sh
++ExecStartPre=/usr/local/bin/{{docker_container_name}}.sh start{% if multi_instance == 'true' %} %i{% endif %}
++ExecStart=/usr/local/bin/{{docker_container_name}}.sh wait{% if multi_instance == 'true' %} %i{% endif %}
++ExecStop=/usr/local/bin/{{docker_container_name}}.sh stop{% if multi_instance == 'true' %} %i{% endif %}
++
++[Install]
++WantedBy=sonic.target
+diff --git a/files/build_templates/sonic_debian_extension.j2 b/files/build_templates/sonic_debian_extension.j2
+index 579c165d9cee..5bac8960058e 100644
+--- a/files/build_templates/sonic_debian_extension.j2
++++ b/files/build_templates/sonic_debian_extension.j2
+@@ -1013,6 +1013,8 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
+ sudo LANG=C cp $SCRIPTS_DIR/syncd_common.sh $FILESYSTEM_ROOT/usr/local/bin/syncd_common.sh
+ sudo LANG=C cp $SCRIPTS_DIR/gbsyncd.sh $FILESYSTEM_ROOT/usr/local/bin/gbsyncd.sh
+ sudo LANG=C cp $SCRIPTS_DIR/gbsyncd-platform.sh $FILESYSTEM_ROOT/usr/bin/gbsyncd-platform.sh
++sudo LANG=C cp $SCRIPTS_DIR/poesyncd.sh $FILESYSTEM_ROOT/usr/local/bin/poesyncd.sh
++sudo LANG=C cp $SCRIPTS_DIR/poesyncd-platform.sh $FILESYSTEM_ROOT/usr/bin/poesyncd-platform.sh
+ sudo LANG=C cp $SCRIPTS_DIR/bgp.sh $FILESYSTEM_ROOT/usr/local/bin/bgp.sh
+ sudo LANG=C cp $SCRIPTS_DIR/teamd.sh $FILESYSTEM_ROOT/usr/local/bin/teamd.sh
+ sudo LANG=C cp $SCRIPTS_DIR/lldp.sh $FILESYSTEM_ROOT/usr/local/bin/lldp.sh
+diff --git a/files/scripts/poesyncd-platform.sh b/files/scripts/poesyncd-platform.sh
+new file mode 100755
+index 000000000000..d8ffb09176c0
+--- /dev/null
++++ b/files/scripts/poesyncd-platform.sh
+@@ -0,0 +1,12 @@
++#!/bin/bash
++
++PLATFORM=${PLATFORM:-`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`}
++HWSKU=${HWSKU:-`sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku`}
++POECONFIG="/usr/share/sonic/device/${PLATFORM}/${HWSKU}/poe_config.json"
++
++if [ ! -f "$POECONFIG" ]; then
++    sudo config feature state poesyncd disabled
++    exit 1
++fi
++
++exit 0
+diff --git a/files/scripts/poesyncd.sh b/files/scripts/poesyncd.sh
+new file mode 100755
+index 000000000000..797e4aade677
+--- /dev/null
++++ b/files/scripts/poesyncd.sh
+@@ -0,0 +1,83 @@
++#!/bin/bash
++
++. /usr/local/bin/syncd_common.sh
++
++function startplatform() {
++
++    declare -A DbCliArray=([0]=$SONIC_GLOBAL_DB_CLI [1]=$SONIC_DB_CLI)
++    for DB_CLI in "${DbCliArray[@]}"; do
++        # Add poesyncd to FEATURE table, if not in. It did have same config as syncd.
++        if [ -z $($DB_CLI CONFIG_DB HGET 'FEATURE|poesyncd' state) ]; then
++            local CMD="local r=redis.call('DUMP', KEYS[1]); redis.call('RESTORE', KEYS[2], 0, r)"
++            $DB_CLI CONFIG_DB EVAL "$CMD" 2 'FEATURE|syncd' 'FEATURE|poesyncd'
++            $DB_CLI CONFIG_DB EVAL "$CMD" 2 'SYSLOG_CONFIG_FEATURE|syncd' 'SYSLOG_CONFIG_FEATURE|poesyncd'
++        fi
++    done
++}
++
++function waitplatform() {
++    :
++}
++
++function stopplatform1() {
++    if ! docker top poesyncd$DEV | grep -q /usr/bin/syncd; then
++        debug "syncd process in container poesyncd$DEV is not running"
++        return
++    fi
++
++    # Invoke platform specific pre shutdown routine.
++    PLATFORM=`$SONIC_DB_CLI CONFIG_DB hget 'DEVICE_METADATA|localhost' platform`
++    PLATFORM_PRE_SHUTDOWN="/usr/share/sonic/device/$PLATFORM/plugins/poesyncd_request_pre_shutdown"
++    [ -f $PLATFORM_PRE_SHUTDOWN ] && \
++        /usr/bin/docker exec -i poesyncd$DEV /usr/share/sonic/platform/plugins/poesyncd_request_pre_shutdown --${TYPE}
++
++    debug "${TYPE} shutdown syncd process in container poesyncd$DEV ..."
++    /usr/bin/docker exec -i poesyncd$DEV /usr/bin/syncd_request_shutdown -g 1 -x /usr/share/sonic/hwsku/context_config.json --${TYPE}
++
++    # wait until syncd quits gracefully or force syncd to exit after
++    # waiting for 20 seconds
++    start_in_secs=${SECONDS}
++    end_in_secs=${SECONDS}
++    timer_threshold=20
++    while docker top poesyncd$DEV | grep -q /usr/bin/syncd \
++            && [[ $((end_in_secs - start_in_secs)) -le $timer_threshold ]]; do
++        sleep 0.1
++        end_in_secs=${SECONDS}
++    done
++
++    if [[ $((end_in_secs - start_in_secs)) -gt $timer_threshold ]]; then
++        debug "syncd process in container poesyncd$DEV did not exit gracefully"
++    fi
++
++    /usr/bin/docker exec -i poesyncd$DEV /bin/sync
++    debug "Finished ${TYPE} shutdown syncd process in container poesyncd$DEV ..."
++}
++
++function stopplatform2() {
++    :
++}
++
++OP=$1
++DEV=$2
++
++SERVICE="$poesyncd_platform"
++PEER="swss"
++DEBUGLOG="/tmp/swss-$SERVICE-debug$DEV.log"
++LOCKFILE="/tmp/swss-$SERVICE-lock$DEV"
++NAMESPACE_PREFIX="asic"
++SONIC_GLOBAL_DB_CLI="sonic-db-cli"
++SONIC_DB_CLI="sonic-db-cli"
++if [ "$DEV" ]; then
++    NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
++    SONIC_DB_CLI="sonic-db-cli -n $NET_NS"
++fi
++
++case "$1" in
++    start|wait|stop)
++        $1
++        ;;
++    *)
++        echo "Usage: $0 {start|wait|stop}"
++        exit 1
++        ;;
++esac
+diff --git a/files/scripts/swss.sh b/files/scripts/swss.sh
+index aa4c4ee1f77b..2c251bcfcd20 100755
+--- a/files/scripts/swss.sh
++++ b/files/scripts/swss.sh
+@@ -335,7 +335,8 @@ start() {
+         $SONIC_DB_CLI GB_ASIC_DB FLUSHDB
+         $SONIC_DB_CLI GB_COUNTERS_DB FLUSHDB
+         $SONIC_DB_CLI RESTAPI_DB FLUSHDB
+-        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*', 'MUX_CABLE_TABLE*', 'ADVERTISE_NETWORK_TABLE*', 'VXLAN_TUNNEL_TABLE*', 'VNET_ROUTE*', 'MACSEC_PORT_TABLE*', 'MACSEC_INGRESS_SA_TABLE*', 'MACSEC_EGRESS_SA_TABLE*', 'MACSEC_INGRESS_SC_TABLE*', 'MACSEC_EGRESS_SC_TABLE*', 'VRF_OBJECT_TABLE*', 'VNET_MONITOR_TABLE*', 'BFD_SESSION_TABLE*', 'SYSTEM_NEIGH_TABLE*', 'FABRIC_PORT_TABLE*', 'TUNNEL_DECAP_TABLE*', 'TUNNEL_DECAP_TERM_TABLE*'"
++        $SONIC_DB_CLI POE_ASIC_DB FLUSHDB
++        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*', 'MUX_CABLE_TABLE*', 'ADVERTISE_NETWORK_TABLE*', 'VXLAN_TUNNEL_TABLE*', 'VNET_ROUTE*', 'MACSEC_PORT_TABLE*', 'MACSEC_INGRESS_SA_TABLE*', 'MACSEC_EGRESS_SA_TABLE*', 'MACSEC_INGRESS_SC_TABLE*', 'MACSEC_EGRESS_SC_TABLE*', 'VRF_OBJECT_TABLE*', 'VNET_MONITOR_TABLE*', 'BFD_SESSION_TABLE*', 'SYSTEM_NEIGH_TABLE*', 'FABRIC_PORT_TABLE*', 'TUNNEL_DECAP_TABLE*', 'TUNNEL_DECAP_TERM_TABLE*', 'POE_DEVICE_TABLE*', 'POE_PSE_TABLE*', 'POE_PORT_TABLE*'"
+         $SONIC_DB_CLI APPL_STATE_DB FLUSHDB
+         clean_up_chassis_db_tables
+         rm -rf /tmp/cache
+diff --git a/platform/template/docker-poesyncd-base.mk b/platform/template/docker-poesyncd-base.mk
+new file mode 100644
+index 000000000000..37131d421e1c
+--- /dev/null
++++ b/platform/template/docker-poesyncd-base.mk
+@@ -0,0 +1,32 @@
++# docker image for poesyncd
++
++
++DOCKER_POESYNCD_BASE_STEM = docker-poesyncd-$(DOCKER_POESYNCD_PLATFORM_CODE)
++DOCKER_POESYNCD_BASE = $(DOCKER_POESYNCD_BASE_STEM).gz
++DOCKER_POESYNCD_BASE_DBG = $(DOCKER_POESYNCD_BASE_STEM)-$(DBG_IMAGE_MARK).gz
++
++$(DOCKER_POESYNCD_BASE)_PATH = $(PLATFORM_PATH)/docker-poesyncd-$(DOCKER_POESYNCD_PLATFORM_CODE)
++
++$(DOCKER_POESYNCD_BASE)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
++
++$(DOCKER_POESYNCD_BASE)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE_BOOKWORM)
++
++$(DOCKER_POESYNCD_BASE)_DBG_DEPENDS += $($(DOCKER_CONFIG_ENGINE_BOOKWORM)_DBG_DEPENDS)
++
++$(DOCKER_POESYNCD_BASE)_DBG_IMAGE_PACKAGES = $($(DOCKER_CONFIG_ENGINE_BOOKWORM)_DBG_IMAGE_PACKAGES)
++
++ifeq ($(INCLUDE_POE), y)
++SONIC_DOCKER_IMAGES += $(DOCKER_POESYNCD_BASE)
++SONIC_BOOKWORM_DOCKERS += $(DOCKER_POESYNCD_BASE)
++SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_POESYNCD_BASE)
++
++SONIC_DOCKER_DBG_IMAGES += $(DOCKER_POESYNCD_BASE_DBG)
++SONIC_BOOKWORM_DBG_DOCKERS += $(DOCKER_POESYNCD_BASE_DBG)
++SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_POESYNCD_BASE_DBG)
++endif
++
++$(DOCKER_POESYNCD_BASE)_CONTAINER_NAME = poesyncd
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += --privileged -t
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
+diff --git a/platform/vs/docker-poesyncd-vs.dep b/platform/vs/docker-poesyncd-vs.dep
+new file mode 100644
+index 000000000000..ce7bd272b7b1
+--- /dev/null
++++ b/platform/vs/docker-poesyncd-vs.dep
+@@ -0,0 +1,11 @@
++#DPKG FRK
++DPATH       := $($(DOCKER_POESYNCD_BASE)_PATH)
++DEP_FILES   := $(SONIC_COMMON_FILES_LIST) platform/vs/docker-poesyncd-vs.mk platform/vs/docker-poesyncd-vs.dep
++DEP_FILES   += $(SONIC_COMMON_BASE_FILES_LIST)
++DEP_FILES   += $(shell git ls-files $(DPATH))
++
++$(DOCKER_POESYNCD_BASE)_CACHE_MODE  := GIT_CONTENT_SHA
++$(DOCKER_POESYNCD_BASE)_DEP_FLAGS   := $(SONIC_COMMON_FLAGS_LIST)
++$(DOCKER_POESYNCD_BASE)_DEP_FILES   := $(DEP_FILES)
++
++$(eval $(call add_dbg_docker,$(DOCKER_POESYNCD_BASE),$(DOCKER_POESYNCD_BASE_DBG)))
+diff --git a/platform/vs/docker-poesyncd-vs.mk b/platform/vs/docker-poesyncd-vs.mk
+new file mode 100644
+index 000000000000..c342d8674722
+--- /dev/null
++++ b/platform/vs/docker-poesyncd-vs.mk
+@@ -0,0 +1,17 @@
++# docker image for vs poesyncd
++
++DOCKER_POESYNCD_PLATFORM_CODE = vs
++include $(PLATFORM_PATH)/../template/docker-poesyncd-base.mk
++
++$(DOCKER_POESYNCD_BASE)_DEPENDS += $(SYNCD_VS)
++
++$(DOCKER_POESYNCD_BASE)_DBG_DEPENDS += $(SYNCD_VS_DBG) \
++                                $(LIBSWSSCOMMON_DBG) \
++                                $(LIBSAIMETADATA_DBG) \
++                                $(LIBSAIREDIS_DBG) \
++                                $(LIBSAIVS_DBG)
++
++$(DOCKER_POESYNCD_BASE)_VERSION = 1.0.0
++$(DOCKER_POESYNCD_BASE)_PACKAGE_NAME = poesyncd
++
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
+diff --git a/platform/vs/docker-poesyncd-vs/Dockerfile.j2 b/platform/vs/docker-poesyncd-vs/Dockerfile.j2
+new file mode 100644
+index 000000000000..6850caf3fb8d
+--- /dev/null
++++ b/platform/vs/docker-poesyncd-vs/Dockerfile.j2
+@@ -0,0 +1,38 @@
++FROM docker-config-engine-bookworm-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
++
++ARG docker_container_name
++
++## Make apt-get non-interactive
++ENV DEBIAN_FRONTEND=noninteractive
++
++RUN apt-get update
++
++RUN apt-get install -f -y iproute2 libcap2-bin
++
++# For DASH engine
++
++COPY debs/libnl-3-dev_*_amd64.deb debs/libnl-route-3-dev_*_amd64.deb debs/
++RUN dpkg -i debs/libnl-3-dev_*_amd64.deb debs/libnl-route-3-dev_*_amd64.deb
++
++RUN apt-get install -f -y libabsl20220623 libc-ares2 python3-six libboost-thread1.74.0 libboost-dev libboost-system-dev libboost-thread-dev libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0 libnanomsg5 libpcap0.8 libthrift-0.17.0 libboost-dev libboost-filesystem-dev libboost-program-options-dev libgmp-dev libnanomsg-dev libpcap-dev libtool pkg-config libthrift-dev python3-thrift thrift-compiler libboost-iostreams1.74.0 libgc1 cpp libboost-dev libboost-all-dev libboost-graph-dev libboost-iostreams-dev libfl-dev libgc-dev libgmp-dev libbpf-dev tcpdump libelf-dev llvm clang python3-pyroute2 python3-ply python3-scapy python3-setuptools python3-thrift libthrift-0.17.0 libgrpc++1.51 libgrpc29 libprotobuf32 libboost-dev libboost-system-dev libboost-thread-dev libprotoc-dev protobuf-compiler python3-protobuf libgrpc++-dev libgrpc-dev protobuf-compiler-grpc python3-grpcio
++
++COPY \
++{% for deb in docker_poesyncd_vs_debs.split(' ') -%}
++debs/{{ deb }}{{' '}}
++{%- endfor -%}
++debs/
++
++RUN dpkg -i \
++{% for deb in docker_poesyncd_vs_debs.split(' ') -%}
++debs/{{ deb }}{{' '}}
++{%- endfor %}
++
++COPY ["start.sh", "/usr/bin/"]
++COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
++#COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
++COPY ["critical_processes", "/etc/supervisor/"]
++
++## Clean up
++RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
++
++ENTRYPOINT ["/usr/local/bin/supervisord"]
+diff --git a/platform/vs/docker-poesyncd-vs/critical_processes b/platform/vs/docker-poesyncd-vs/critical_processes
+new file mode 100644
+index 000000000000..bdd6903c5690
+--- /dev/null
++++ b/platform/vs/docker-poesyncd-vs/critical_processes
+@@ -0,0 +1 @@
++program:syncd
+diff --git a/platform/vs/docker-poesyncd-vs/start.sh b/platform/vs/docker-poesyncd-vs/start.sh
+new file mode 100755
+index 000000000000..1e1a33f323b8
+--- /dev/null
++++ b/platform/vs/docker-poesyncd-vs/start.sh
+@@ -0,0 +1,14 @@
++#!/usr/bin/env bash
++
++HWSKU_DIR=/usr/share/sonic/hwsku
++
++mkdir -p /etc/sai.d/
++
++# Create/Copy the poe.profile to /etc/sai.d/poe.profile
++if [ -f $HWSKU_DIR/poe.profile.j2 ]; then
++    sonic-cfggen -d -t $HWSKU_DIR/poe.profile.j2 > /etc/sai.d/poe.profile
++else
++    if [ -f $HWSKU_DIR/poe.profile ]; then
++        cp $HWSKU_DIR/poe.profile /etc/sai.d/poe.profile
++    fi
++fi
+diff --git a/platform/vs/docker-poesyncd-vs/supervisord.conf b/platform/vs/docker-poesyncd-vs/supervisord.conf
+new file mode 100644
+index 000000000000..3705a4059b44
+--- /dev/null
++++ b/platform/vs/docker-poesyncd-vs/supervisord.conf
+@@ -0,0 +1,50 @@
++[supervisord]
++logfile_maxbytes=1MB
++logfile_backups=2
++nodaemon=true
++
++[eventlistener:dependent-startup]
++command=python3 -m supervisord_dependent_startup
++autostart=true
++autorestart=unexpected
++startretries=0
++exitcodes=0,3
++events=PROCESS_STATE
++buffer_size=1024
++
++[eventlistener:supervisor-proc-exit-listener]
++command=/usr/local/bin/supervisor-proc-exit-listener --container-name poesyncd
++events=PROCESS_STATE_EXITED,PROCESS_STATE_RUNNING
++autostart=true
++autorestart=unexpected
++buffer_size=1024
++
++[program:rsyslogd]
++command=/usr/sbin/rsyslogd -n -iNONE
++priority=1
++autostart=false
++autorestart=unexpected
++stdout_logfile=syslog
++stderr_logfile=syslog
++dependent_startup=true
++
++[program:start]
++command=/usr/bin/start.sh
++priority=2
++autostart=false
++autorestart=false
++startsecs=0
++stdout_logfile=syslog
++stderr_logfile=syslog
++dependent_startup=true
++dependent_startup_wait_for=rsyslogd:running
++
++[program:syncd]
++command=/usr/bin/syncd -s -p /etc/sai.d/poe.profile -x /usr/share/sonic/hwsku/context_config.json -g 1
++priority=3
++autostart=false
++autorestart=false
++stdout_logfile=syslog
++stderr_logfile=syslog
++dependent_startup=true
++dependent_startup_wait_for=start:exited
+diff --git a/platform/vs/docker-sonic-vs/database_config.json b/platform/vs/docker-sonic-vs/database_config.json
+index 4d5354659671..4364d77529c8 100644
+--- a/platform/vs/docker-sonic-vs/database_config.json
++++ b/platform/vs/docker-sonic-vs/database_config.json
+@@ -87,6 +87,21 @@
+             "id" : 16,
+             "separator": "|",
+             "instance" : "redis"
++        },
++        "POE_ASIC_DB" : {
++            "id" : 17,
++            "separator": ":",
++            "instance" : "redis"
++        },
++        "POE_COUNTERS_DB" : {
++            "id" : 18,
++            "separator": ":",
++            "instance" : "redis"
++        },
++        "POE_FLEX_COUNTER_DB" : {
++            "id" : 19,
++            "separator": ":",
++            "instance" : "redis"
+         }
+     },
+     "VERSION" : "1.0"
+diff --git a/platform/vs/docker-sonic-vs/supervisord.conf.j2 b/platform/vs/docker-sonic-vs/supervisord.conf.j2
+index a394d29d406c..9035c72b6024 100644
+--- a/platform/vs/docker-sonic-vs/supervisord.conf.j2
++++ b/platform/vs/docker-sonic-vs/supervisord.conf.j2
+@@ -78,6 +78,15 @@ stdout_syslog=true
+ stderr_logfile=NONE
+ stderr_syslog=true
+ 
++[program:poesyncd]
++command=/usr/bin/poesyncd -p /usr/share/sonic/hwsku/poe_config.json
++startsecs=0
++priority=5
++autostart=false
++autorestart=false
++stdout_logfile=syslog
++stderr_logfile=syslog
++
+ [program:portsyncd]
+ command=/usr/bin/portsyncd
+ priority=5
+@@ -156,6 +165,17 @@ stderr_syslog=true
+ environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log{{ asan_extra_options }}"
+ {% endif %}
+ 
++[program:poemgrd]
++command=/usr/bin/poemgrd
++priority=10
++autostart=false
++autorestart=false
++stdout_logfile=syslog
++stderr_logfile=syslog
++{% if ENABLE_ASAN == "y" %}
++environment=ASAN_OPTIONS="log_path=/var/log/asan/poemgrd-asan.log{{ asan_extra_options }}"
++{% endif %}
++
+ [program:intfmgrd]
+ command=/usr/bin/intfmgrd
+ priority=11
+diff --git a/platform/vs/rules.mk b/platform/vs/rules.mk
+index c03e386b8bb9..dbf0fbc79b3d 100644
+--- a/platform/vs/rules.mk
++++ b/platform/vs/rules.mk
+@@ -3,6 +3,7 @@ include $(PLATFORM_PATH)/sonic-version.mk
+ include $(PLATFORM_PATH)/docker-sonic-vs.mk
+ include $(PLATFORM_PATH)/docker-syncd-vs.mk
+ include $(PLATFORM_PATH)/docker-gbsyncd-vs.mk
++include $(PLATFORM_PATH)/docker-poesyncd-vs.mk
+ include $(PLATFORM_PATH)/docker-ptf.mk
+ include $(PLATFORM_PATH)/docker-ptf-sai.mk
+ include $(PLATFORM_PATH)/libsaithrift-dev.mk
+diff --git a/rules/config b/rules/config
+index ef18ef9b0b2b..62b35967b6dc 100644
+--- a/rules/config
++++ b/rules/config
+@@ -185,6 +185,9 @@ INCLUDE_MACSEC = y
+ # INCLUDE_GBSYNCD - build docker-gbsyncd-* for gearbox support
+ INCLUDE_GBSYNCD ?= y
+ 
++# INCLUDE_POE - build docker-poesyncd-* for PoE support
++INCLUDE_POE = y
++
+ # INCLUDE_TEAMD - build docker-teamd for LAG protocol support
+ INCLUDE_TEAMD ?= y
+ 
+diff --git a/slave.mk b/slave.mk
+index dfd6d49ba479..080fc7f56acf 100644
+--- a/slave.mk
++++ b/slave.mk
+@@ -458,6 +458,7 @@ $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
+ $(info "INCLUDE_KUBERNETES_MASTER"       : "$(INCLUDE_KUBERNETES_MASTER)")
+ $(info "INCLUDE_MACSEC"                  : "$(INCLUDE_MACSEC)")
+ $(info "INCLUDE_MUX"                     : "$(INCLUDE_MUX)")
++$(info "INCLUDE_POE"                     : "$(INCLUDE_POE)")
+ $(info "INCLUDE_TEAMD"                   : "$(INCLUDE_TEAMD)")
+ $(info "INCLUDE_DASH_HA"                 : "$(INCLUDE_DASH_HA)")
+ $(info "INCLUDE_ROUTER_ADVERTISER"       : "$(INCLUDE_ROUTER_ADVERTISER)")
+@@ -1516,6 +1517,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
+ 	export include_bootchart="$(INCLUDE_BOOTCHART)"
+ 	export enable_bootchart="$(ENABLE_BOOTCHART)"
+ 	export enable_multidb="$(ENABLE_MULTIDB)"
++	export include_poe="$(INCLUDE_POE)"
+ 	$(foreach docker, $($*_DOCKERS),\
+ 		export docker_image="$(docker)"
+ 		export docker_image_name="$(basename $(docker))"
