@@ -36,7 +36,7 @@
             "lm75",
             "gpio-pca953x",
             "ucd9000",
-            "eeprom"
+            "at24"
         ],
         "pddf_kos": [
             "pddf_client_module",
@@ -1078,7 +1078,7 @@
             "topo_info":{
                 "parent_bus":"0x2",
                 "dev_addr":"0x50",
-                "dev_type":"eeprom"
+                "dev_type":"24c02"
             },
             "attr_list":
             [
@@ -1272,7 +1272,7 @@
             "topo_info":{
                 "parent_bus":"0x2",
                 "dev_addr":"0x51",
-                "dev_type":"eeprom"
+                "dev_type":"24c02"
             },
             "attr_list":
             [
