@@ -164,6 +164,48 @@
             },
             {
                 "name": "TEMP_PSU1_TEMP1"
+            },
+            {
+                "name": "asic_max_peak"
+            },
+            {
+                "name": "top.pvtmon1"
+            },
+            {
+                "name": "top.pvtmon2"
+            },
+            {
+                "name": "top.pvtmon3"
+            },
+            {
+                "name": "top.pvtmon4"
+            },
+            {
+                "name": "top.pvtmon5"
+            },
+            {
+                "name": "top.pvtmon6"
+            },
+            {
+                "name": "top.pvtmon7"
+            },
+            {
+                "name": "top.pvtmon8"
+            },
+            {
+                "name": "top.pvtmon9"
+            },
+            {
+                "name": "top.pvtmon10"
+            },
+            {
+                "name": "top.pvtmon11"
+            },
+            {
+                "name": "top.pvtmon12"
+            },
+            {
+                "name": "top.pvtmon13"
             }
         ],
         "sfps": [

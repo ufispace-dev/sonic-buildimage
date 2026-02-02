@@ -1,0 +1,39 @@
+From ccb7d459786fbdeeafe262c52328fd60390118b3 Mon Sep 17 00:00:00 2001
+From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
+Date: Fri, 30 Jan 2026 17:22:35 +0800
+Subject: [PATCH] sonic-buildimage enable ztp and dhcp l2
+
+---
+ files/image_config/copp/copp_cfg.j2 | 2 +-
+ rules/config                        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/files/image_config/copp/copp_cfg.j2 b/files/image_config/copp/copp_cfg.j2
+index fc2002cff..d319ac4e5 100755
+--- a/files/image_config/copp/copp_cfg.j2
++++ b/files/image_config/copp/copp_cfg.j2
+@@ -107,7 +107,7 @@
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "dhcp_relay": {
+-		    "trap_ids": "dhcp,dhcpv6",
++		    "trap_ids": "dhcp,dhcp_l2,dhcpv6,dhcpv6_l2",
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "udld": {
+diff --git a/rules/config b/rules/config
+index 516efe5cb..caee03de9 100644
+--- a/rules/config
++++ b/rules/config
+@@ -41,7 +41,7 @@ DEFAULT_USERNAME = admin
+ DEFAULT_PASSWORD = YourPaSsWoRd
+ 
+ # ENABLE_ZTP - installs Zero Touch Provisioning support.
+-# ENABLE_ZTP = y
++ENABLE_ZTP = y
+ 
+ # INCLUDE_PDE - Enable platform development environment
+ # INCLUDE_PDE = y
+-- 
+2.25.1
+

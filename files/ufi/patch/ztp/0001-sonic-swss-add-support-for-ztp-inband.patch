@@ -1,0 +1,86 @@
+From 6026d567cb768919b07dfb81bed50d65c2f37150 Mon Sep 17 00:00:00 2001
+From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
+Date: Fri, 30 Jan 2026 17:24:08 +0800
+Subject: [PATCH] sonic-swss add dhcp l2
+
+---
+ orchagent/copporch.cpp         | 4 ++++
+ tests/mock_tests/copp_cfg.json | 2 +-
+ tests/test_copp.py             | 4 +++-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/orchagent/copporch.cpp b/orchagent/copporch.cpp
+index 05080c8d..da3fdb87 100644
+--- a/orchagent/copporch.cpp
++++ b/orchagent/copporch.cpp
+@@ -68,11 +68,13 @@ static map<string, sai_hostif_trap_type_t> trap_id_map = {
+     {"arp_req", SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST},
+     {"arp_resp", SAI_HOSTIF_TRAP_TYPE_ARP_RESPONSE},
+     {"dhcp", SAI_HOSTIF_TRAP_TYPE_DHCP},
++    {"dhcp_l2", SAI_HOSTIF_TRAP_TYPE_DHCP_L2},
+     {"ospf", SAI_HOSTIF_TRAP_TYPE_OSPF},
+     {"pim", SAI_HOSTIF_TRAP_TYPE_PIM},
+     {"vrrp", SAI_HOSTIF_TRAP_TYPE_VRRP},
+     {"bgp", SAI_HOSTIF_TRAP_TYPE_BGP},
+     {"dhcpv6", SAI_HOSTIF_TRAP_TYPE_DHCPV6},
++    {"dhcpv6_l2", SAI_HOSTIF_TRAP_TYPE_DHCPV6_L2},
+     {"ospfv6", SAI_HOSTIF_TRAP_TYPE_OSPFV6},
+     {"isis", SAI_HOSTIF_TRAP_TYPE_ISIS},
+     {"vrrpv6", SAI_HOSTIF_TRAP_TYPE_VRRPV6},
+@@ -119,11 +121,13 @@ const vector<sai_hostif_trap_type_t> default_supported_trap_ids = {
+     SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST,
+     SAI_HOSTIF_TRAP_TYPE_ARP_RESPONSE,
+     SAI_HOSTIF_TRAP_TYPE_DHCP,
++    SAI_HOSTIF_TRAP_TYPE_DHCP_L2,
+     SAI_HOSTIF_TRAP_TYPE_OSPF,
+     SAI_HOSTIF_TRAP_TYPE_PIM,
+     SAI_HOSTIF_TRAP_TYPE_VRRP,
+     SAI_HOSTIF_TRAP_TYPE_BGP,
+     SAI_HOSTIF_TRAP_TYPE_DHCPV6,
++    SAI_HOSTIF_TRAP_TYPE_DHCPV6_L2,
+     SAI_HOSTIF_TRAP_TYPE_OSPFV6,
+     SAI_HOSTIF_TRAP_TYPE_ISIS,
+     SAI_HOSTIF_TRAP_TYPE_VRRPV6,
+diff --git a/tests/mock_tests/copp_cfg.json b/tests/mock_tests/copp_cfg.json
+index f23228ed..0ce6d376 100644
+--- a/tests/mock_tests/copp_cfg.json
++++ b/tests/mock_tests/copp_cfg.json
+@@ -92,7 +92,7 @@
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "dhcp_relay": {
+-		    "trap_ids": "dhcp,dhcpv6",
++		    "trap_ids": "dhcp,dhcp_l2,dhcpv6,dhcpv6_l2",
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "udld": {
+diff --git a/tests/test_copp.py b/tests/test_copp.py
+index c9dd5140..2ec011f1 100644
+--- a/tests/test_copp.py
++++ b/tests/test_copp.py
+@@ -44,11 +44,13 @@ traps_to_trap_type = {
+         "arp_req": "SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST",
+         "arp_resp": "SAI_HOSTIF_TRAP_TYPE_ARP_RESPONSE",
+         "dhcp": "SAI_HOSTIF_TRAP_TYPE_DHCP",
++        "dhcp_l2": "SAI_HOSTIF_TRAP_TYPE_DHCP_L2",
+         "ospf": "SAI_HOSTIF_TRAP_TYPE_OSPF",
+         "pim": "SAI_HOSTIF_TRAP_TYPE_PIM",
+         "vrrp": "SAI_HOSTIF_TRAP_TYPE_VRRP",
+         "bgp": "SAI_HOSTIF_TRAP_TYPE_BGP",
+         "dhcpv6": "SAI_HOSTIF_TRAP_TYPE_DHCPV6",
++        "dhcpv6_l2": "SAI_HOSTIF_TRAP_TYPE_DHCPV6_L2",
+         "ospfv6": "SAI_HOSTIF_TRAP_TYPE_OSPFV6",
+         "isis": "SAI_HOSTIF_TRAP_TYPE_ISIS",
+         "vrrpv6": "SAI_HOSTIF_TRAP_TYPE_VRRPV6",
+@@ -169,7 +171,7 @@ copp_trap = {
+         "lacp": ["lacp", copp_group_queue4_group1, "always_enabled"],
+         "arp": ["arp_req;arp_resp;neigh_discovery", copp_group_queue4_group2, "always_enabled"],
+         "lldp": ["lldp", copp_group_queue4_group3],
+-        "dhcp": ["dhcp;dhcpv6", copp_group_queue4_group3],
++        "dhcp": ["dhcp;dhcp_l2;dhcpv6;dhcpv6_l2", copp_group_queue4_group3],
+         "udld": ["udld", copp_group_queue4_group3, "always_enabled"],
+         "ip2me": ["ip2me", copp_group_queue1_group1, "always_enabled"],
+         "nat": ["src_nat_miss;dest_nat_miss", copp_group_queue1_group2],
+-- 
+2.25.1
+

@@ -20,6 +20,8 @@ extern FAN_SYSFS_ATTR_DATA data_fan3_present;
 extern FAN_SYSFS_ATTR_DATA data_fan4_present;
 extern FAN_SYSFS_ATTR_DATA data_fan5_present;
 
+int sonic_i2c_get_fan_present_custom(void *client, FAN_DATA_ATTR *udata, void *info);
+
 int sonic_i2c_get_fan_present_custom(void *client, FAN_DATA_ATTR *udata, void *info)
 {
     int status = 0;

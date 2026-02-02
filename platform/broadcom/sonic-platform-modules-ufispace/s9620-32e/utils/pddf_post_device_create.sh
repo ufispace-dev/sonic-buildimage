@@ -73,33 +73,23 @@ function check_filepath {
     return $TRUE
 }
 
-function init_bcm88870 {
+function init_bcm82399 {
+    local epdm_cli_path="/usr/share/sonic/device/$PLATFORM/epdm_cli"
 
-    local epdm_cli_path="/usr/share/sonic/device/$PLATFORM/epdm_cli"  
-
-    if ! check_filepath "$epdm_cli_path"; then
-        echo "[ERROR] epdm_cli not found at $epdm_cli_path. Aborting." 
+    if [[ ! -x "$epdm_cli_path" ]]; then
+        echo "[ERROR] epdm_cli not found at $epdm_cli_path. Aborting."
         return $FALSE
     fi
 
-    local cmds=(
-        "$epdm_cli_path init -s 10G"
-        "$epdm_cli_path polarity set 0 line 1 0"
-        "$epdm_cli_path polarity set 1 sys 0 0"
-    )
-
-    for cmd in "${cmds[@]}"; do
-        echo "Executing: $cmd"
-        eval "$cmd"
+    echo "Executing: $epdm_cli_path init -s 10G"
+    
+    if ! "$epdm_cli_path" init -s 10G; then
         local retcode=$?
-        
-        if [[ $retcode -ne 0 ]]; then
-            echo "[WARNING] Command failed: $cmd, retcode=$retcode"
-            return $retcode  
-        fi
-    done
+        echo "[WARNING] Command failed: retcode=$retcode"
+        return $retcode
+    fi
 
-    echo "[INFO] init_bcm88870 completed successfully."
+    echo "[INFO] init_bcm82399 completed successfully."
     return $TRUE
 }
 
@@ -226,7 +216,7 @@ set_bmc_sel_time
 enable_i2c_relay
 enable_event_control
 set_mac_rov
-init_bcm88870
+init_bcm82399
 set_led_default_val
 platform_firmware_versions
 echo "PDDF device post-create completed"

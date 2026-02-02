@@ -34,6 +34,8 @@
             "pddf_cpld_driver",
             "pddf_mux_module",
             "pddf_xcvr_module",
+            "pddf_multifpgapci_i2c_module",
+            "pddf_multifpgapci_driver",
             "pddf_fpgapci_driver",
             "pddf_xcvr_driver_module",
             "pddf_psu_driver_module",
