@@ -1,0 +1,400 @@
+{
+    "PORT_MEDIA_SETTINGS": {
+        "0": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a" 
+                }
+            }
+        },
+        "1": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0f370a" 
+                }
+            }
+        },
+        "2": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "3": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0f370a"  
+                }
+            }
+        },
+        "4": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "5": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0f370a" 
+                }
+            }
+        },
+        "6": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "7": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0f370a"
+                }
+            }
+        },
+        "8": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "9": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0f370a"
+                }
+            }
+        },
+        "10": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "11": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0f370a"
+                }
+            }
+        },
+        "12": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "13": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0f370a"
+                }
+            }
+        },
+        "14": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "15": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c05"
+                }
+            }
+        },
+        "16": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a370a"
+                }
+            }
+        },
+        "17": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c05"
+                }
+            }
+        },
+        "18": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x05370a"
+                }
+            }
+        },
+        "19": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3408"
+                }
+            }
+        },
+        "20": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "21": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0c370a"
+                }
+            }
+        },
+        "22": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "23": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0c370a"
+                }
+            }
+        },
+        "24": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "25": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0c370a"
+                }
+            }
+        },
+        "26": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "27": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0c370a"
+                }
+            }
+        },
+        "28": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "29": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "30": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "31": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "32": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "33": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3702"
+                }
+            }
+        },
+        "34": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "35": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3702"
+                }
+            }
+        },
+        "36": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "37": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3702"
+                }
+            }
+        },
+        "38": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "39": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3702"
+                }
+            }
+        },
+        "40": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "41": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3702"
+                }
+            }
+        },
+        "42": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "43": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c05"
+                }
+            }
+        },
+        "44": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c0a"
+                }
+            }
+        },
+        "45": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c05"
+                }
+            }
+        },
+        "46": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c05"
+                }
+            }
+        },
+        "47": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x0a3c05"
+                }
+            }
+        },
+        "48": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x143c0a",
+                    "lane1": "0x143c05",
+                    "lane2": "0x143c05",
+                    "lane3": "0x143c05"
+                }
+            }
+        },
+        "49": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x143c0a",
+                    "lane1": "0x143c0a",
+                    "lane2": "0x14410a",
+                    "lane3": "0x143c05"
+                }
+            }
+        },
+        "50": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x14410a",
+                    "lane1": "0x14410a",
+                    "lane2": "0x14410a",
+                    "lane3": "0x0f3c0a"
+                }
+            }
+        },
+        "51": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x14410a",
+                    "lane1": "0x14410a",
+                    "lane2": "0x14410a",
+                    "lane3": "0x143c0a"
+                }
+            }
+        },
+        "52": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x14410a",
+                    "lane1": "0x14410a",
+                    "lane2": "0x14410a",
+                    "lane3": "0x143c0a"
+                }
+            }
+        },
+        "53": {
+            "Default": {
+                "preemphasis": {
+                    "lane0": "0x14410a",
+                    "lane1": "0x14410a",
+                    "lane2": "0x14410a",
+                    "lane3": "0x143c0a"
+                }
+            }
+        }
+    }
+}
