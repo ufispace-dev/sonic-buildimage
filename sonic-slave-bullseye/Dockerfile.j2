@@ -491,6 +491,7 @@ RUN pip3 install --upgrade pip==24.2
 RUN apt-get purge -y python3-pip python3-yaml
 
 # For building Python packages
+RUN pip3 install requests==2.31.0
 RUN pip3 install setuptools==49.6.00
 RUN pip3 install wheel==0.38.1
 
