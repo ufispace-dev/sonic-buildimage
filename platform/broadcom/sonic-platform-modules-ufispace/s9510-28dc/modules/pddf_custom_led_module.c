@@ -64,6 +64,16 @@ extern ssize_t store_pddf_data(struct device *dev, struct device_attribute *da, 
 extern ssize_t show_pddf_s3ip_data(struct device *dev, struct device_attribute *da, char *buf);
 extern ssize_t store_pddf_s3ip_data(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
 
+ssize_t get_status_led(struct device_attribute *da);
+ssize_t set_status_led(struct device_attribute *da);
+static int load_led_ops_data(struct device_attribute *da, LED_STATUS state);
+ssize_t dev_operation(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t store_config_data(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t store_bits_data(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+void free_kobjs(void);
+int KBOJ_CREATE(char* name, struct kobject* parent, struct kobject** child);
+int LED_DEV_ATTR_CREATE(struct kobject *kobj, const struct attribute_group *attr, const char* name);
+
 static LED_STATUS find_state_index(const char* state_str) {
     int index;
     char *ptr = (char *)state_str;
@@ -505,11 +515,6 @@ static int load_led_ops_data(struct device_attribute *da, LED_STATUS state)
         return(-1);
     }
 
-    if(ptr->device_name)
-    {
-        pddf_dbg(LED, KERN_INFO "[%s]: load_led_ops_data: index=%d addr=0x%x;0x%x devtype:%s devname=%s valu=%s\n",
-                ptr->device_name, ptr->index, ptr->swpld_addr, ptr->swpld_addr_offset, ptr->attr_devtype, ptr->attr_devname, ptr->data[0].value);
-    }
     if((led_type=get_dev_type(ptr->device_name))==LED_TYPE_MAX) {
         pddf_dbg(LED, KERN_ERR "PDDF_LED ERROR *%s Unsupported Led Type\n", __func__);
         return(-1);

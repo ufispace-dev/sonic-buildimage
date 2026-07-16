@@ -164,6 +164,48 @@
             },
             {
                 "name": "TEMP_PSU1_TEMP1"
+            },
+            {
+                "name": "TEMP_MAC0_PVT0"
+            },
+            {
+                "name": "TEMP_MAC0_PVT1"
+            },
+            {
+                "name": "TEMP_MAC0_PVT2"
+            },
+            {
+                "name": "TEMP_MAC0_PVT3"
+            },
+            {
+                "name": "TEMP_MAC0_PVT4"
+            },
+            {
+                "name": "TEMP_MAC0_PVT5"
+            },
+            {
+                "name": "TEMP_MAC0_PVT6"
+            },
+            {
+                "name": "TEMP_MAC0_PVT7"
+            },
+            {
+                "name": "TEMP_MAC0_PVT8"
+            },
+            {
+                "name": "TEMP_MAC0_PVT9"
+            },
+            {
+                "name": "TEMP_MAC0_PVT10"
+            },
+            {
+                "name": "TEMP_MAC0_PVT11"
+            },
+            {
+                "name": "TEMP_MAC0_PVT12"
+            },
+            {
+                "name": "TEMP_MAC0_PVT13"
             }
         ],
         "sfps": [

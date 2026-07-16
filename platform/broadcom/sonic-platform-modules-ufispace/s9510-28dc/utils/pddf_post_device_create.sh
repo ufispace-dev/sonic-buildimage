@@ -1,5 +1,16 @@
 #!/bin/bash
 
+function execute_post_device_init {
+    local pddf_py_script="/usr/local/bin/pddf_post_device_create.py"
+
+    if [ -f "$pddf_py_script" ]; then
+        echo "Executing post device create Python script..."
+        if ! python3 "$pddf_py_script"; then
+            echo "[WARNING] Python script execution failed"
+        fi
+    fi
+}
+
 #disable bmc watchdog
 echo "Disable BMC watchdog"
 timeout 3 ipmitool mc watchdog off
@@ -12,5 +23,7 @@ printf "Set GNSS_LED off %s\n" "$(pddf_ledutil setstatusled GNSS_LED off)"
 printf "Set SYNC_LED off %s\n" "$(pddf_ledutil setstatusled SYNC_LED off)"
 printf "Set SYS_LED off %s\n" "$(pddf_ledutil setstatusled SYS_LED off)"
 printf "Set SYS_LED %s to green %s\n" "$(pddf_ledutil getstatusled SYS_LED)" "$(pddf_ledutil setstatusled SYS_LED green)"
+
+execute_post_device_init
 
 echo "PDDF device post-create completed"
