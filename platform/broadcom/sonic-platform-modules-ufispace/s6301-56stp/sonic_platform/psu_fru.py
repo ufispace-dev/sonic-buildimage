@@ -6,10 +6,10 @@ class PsuFru:
     mfr_id = "not available"
     model = "not available"
     serial = "not available"
-        
-    def __init__(self, psu_index):
+
+    def __init__(self, pddf_data, psu_index):
         self.psu_index = psu_index
-        self.eeprom = "/sys/bus/i2c/devices/2-00{}/eeprom".format(49 + psu_index)
+        self.eeprom = pddf_data.get_path('PSU{}'.format(psu_index), "eeprom")
         self._parse_fru_eeprom()
 
     def _parse_fru_eeprom(self):

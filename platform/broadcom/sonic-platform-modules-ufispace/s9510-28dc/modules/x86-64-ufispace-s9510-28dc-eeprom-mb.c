@@ -102,7 +102,7 @@ static ssize_t mb_eeprom_read(struct file *filp, struct kobject *kobj,
     struct eeprom_data *data = i2c_get_clientdata(client);
     u8 slice;
 
-    if (off > EEPROM_SIZE) {
+    if (off >= EEPROM_SIZE) {
         return 0;
     }
     if (off + count > EEPROM_SIZE) {
@@ -135,7 +135,7 @@ static ssize_t mb_eeprom_write(struct file *filp, struct kobject *kobj,
 
     dev_dbg(&client->dev, "mb_eeprom_write off=%d, count=%d\n", (int)off, (int)count);
 
-    if (off > EEPROM_SIZE) {
+    if (off >= EEPROM_SIZE) {
         return 0;
     }
     if (off + count > EEPROM_SIZE) {
@@ -192,22 +192,36 @@ static int mb_eeprom_detect(struct i2c_client *client, struct i2c_board_info *in
     /* EDID EEPROMs are often 24C00 EEPROMs, which answer to all
        addresses 0x50-0x57, but we only care about 0x51 and 0x55. So decline
        attaching to addresses >= 0x56 on DDC buses */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 10, 0)
     if (!(adapter->class & I2C_CLASS_SPD) && client->addr >= 0x56) {
         return -ENODEV;
     }
+#else
+    if (client->addr >= 0x56) {
+        return -ENODEV;
+    }
+#endif
 
     if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE)
      && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
         return -ENODEV;
     }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
     strlcpy(info->type, "eeprom", I2C_NAME_SIZE);
+#else
+    strscpy(info->type, "eeprom", I2C_NAME_SIZE);
+#endif
 
     return 0;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
 static int mb_eeprom_probe(struct i2c_client *client,
             const struct i2c_device_id *id)
+#else
+static int mb_eeprom_probe(struct i2c_client *client)
+#endif
 {
     struct eeprom_data *data;
     int err;
@@ -236,11 +250,10 @@ exit:
 }
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
-static int
+static int mb_eeprom_remove(struct i2c_client *client)
 #else
-static void
+static void mb_eeprom_remove(struct i2c_client *client)
 #endif
-mb_eeprom_remove(struct i2c_client *client)
 {
     sysfs_remove_bin_file(&client->dev.kobj, &mb_eeprom_attr);
     kfree(i2c_get_clientdata(client));
@@ -263,7 +276,13 @@ static struct i2c_driver mb_eeprom_driver = {
     .remove     = mb_eeprom_remove,
     .id_table   = mb_eeprom_id,
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
     .class      = I2C_CLASS_DDC | I2C_CLASS_SPD,
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 10, 0)
+    .class      = I2C_CLASS_SPD,
+#else
+    .class      = 0,
+#endif
     .detect     = mb_eeprom_detect,
     .address_list   = normal_i2c,
 };

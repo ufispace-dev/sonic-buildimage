@@ -24,6 +24,8 @@ extern int board_i2c_cpld_read_custom(unsigned short cpld_addr, u8 reg);
 extern PSU_SYSFS_ATTR_DATA access_psu_present;
 extern PSU_SYSFS_ATTR_DATA access_psu_power_good;
 
+int sonic_i2c_get_psu_byte_custom(void *client, PSU_DATA_ATTR *adata, void *data);
+
 int sonic_i2c_get_psu_byte_custom(void *client, PSU_DATA_ATTR *adata, void *data)
 {
     int status = 0;
