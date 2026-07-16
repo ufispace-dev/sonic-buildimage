@@ -21,6 +21,7 @@
 #include <linux/list.h>
 #include <linux/dmi.h>
 #include <linux/io.h>
+#include <linux/version.h>
 #include "../../../../pddf/i2c/modules/include/pddf_cpld_defs.h"
 
 #define REG_BASE_MB 0x700
@@ -30,6 +31,12 @@ extern PDDF_CPLD_DATA pddf_cpld_data;
 
 static LIST_HEAD(cpld_client_list);
 static struct mutex	 list_lock;
+
+int board_i2c_cpld_read_new_custom(unsigned short cpld_addr, char *name, u8 reg);
+int board_i2c_cpld_write_new_custom(unsigned short cpld_addr, char *name, u8 reg, u8 value);
+int board_i2c_cpld_read_custom(unsigned short cpld_addr, u8 reg);
+int board_i2c_cpld_write_custom(unsigned short cpld_addr, u8 reg, u8 value);
+ssize_t regval_show(struct device *dev, struct device_attribute *attr, char *buf);
 
 struct cpld_client_node {
 	struct i2c_client *client;
@@ -214,9 +221,15 @@ static void board_i2c_cpld_remove_client(struct i2c_client *client)
 	mutex_unlock(&list_lock);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
 static int board_i2c_cpld_probe(struct i2c_client *client,
 			const struct i2c_device_id *dev_id)
 {
+#else
+static int board_i2c_cpld_probe(struct i2c_client *client)
+{
+#endif
+
 	int status;
     /* Register sysfs hooks */
     status = sysfs_create_group(&client->dev.kobj, &cpld_attribute_group);
@@ -233,7 +246,12 @@ exit:
 	return status;
 }
 
-static void board_i2c_cpld_remove(struct i2c_client *client)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
+static int
+#else
+static void
+#endif
+board_i2c_cpld_remove(struct i2c_client *client)
 {
 	/* Platform data is just a char string */
 	char *platdata = (char *)client->dev.platform_data;
@@ -244,6 +262,9 @@ static void board_i2c_cpld_remove(struct i2c_client *client)
 	    kfree(platdata);
 	}
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
+    return 0;
+#endif
 }
 
 static const struct i2c_device_id board_i2c_cpld_id[] = {

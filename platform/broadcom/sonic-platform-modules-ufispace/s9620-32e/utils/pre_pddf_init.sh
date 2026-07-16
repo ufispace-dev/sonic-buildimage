@@ -91,17 +91,31 @@ function config_pcie {
 function config_bcm_file {
     local src_bcm_file
     case $HW_REV_ID in
-        $ALPHA)
-            src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-alpha.config"
-            ;;
-        *)
-            src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-beta.config"
-            ;;
+        $ALPHA) src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-alpha-config.bcm";;
+        *) src_bcm_file="$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-beta-config.bcm";;
     esac
-    if _check_filepath "$src_bcm_file"; then
-        ln -rsf "$src_bcm_file" "$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G.config"
-        ln -rsf "$src_bcm_file" "$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G.config.bcm"
+    _check_filepath "$src_bcm_file" && ln -rsf "$src_bcm_file" "$BCM_CONF_FILE_PATH/q3d-s9620-32e-32x800G-config.bcm"
+}
+
+# Ensure a clean state by removing pmon container and its hardware mounts
+function clean_pmon() {
+    local max_retries=15
+    local count=0
+
+    while [ $count -lt $max_retries ]; do
+        if timeout 3 docker info > /dev/null 2>&1; then
+            break
+        fi
+        sleep 1
+        ((count++))
+    done
+
+    if [ $count -eq $max_retries ]; then
+        echo "Docker socket timed out!"
+        return 1
     fi
+
+    docker rm -f pmon > /dev/null 2>&1
 }
 
 # Execute functions
@@ -110,5 +124,6 @@ config_device
 config_platform_files
 config_pcie
 config_bcm_file
+clean_pmon
 
 echo "PDDF/PLATFORM/CONFIG pre-init completed"

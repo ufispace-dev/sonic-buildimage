@@ -167,6 +167,9 @@
             },
             {
                 "name": "TEMP_PSU1_TEMP1"
+            },
+            {
+                "name": "TEMP_MAC_HWM"
             }
         ],
         "sfps": [
