@@ -1,0 +1,1072 @@
+From 3638fbf18077548120095b2078ca29faec22d4fe Mon Sep 17 00:00:00 2001
+From: fengkm <chifeng.km@gmail.com>
+Date: Mon, 13 Jul 2026 11:38:09 +0800
+Subject: [PATCH] [sonic-sairedis] Add support for PoE
+
+Add SwitchPoe to vslib
+Add a python script to spawn the PoE syncd process
+Add PoE unittests
+Update aspell for POE
+
+Note: original from Serhiy Boiko <serhiy.boiko@plvision.eu>
+---
+ meta/Meta.cpp                       |  24 ++
+ meta/SaiSerialize.cpp               |   8 +
+ meta/sai_serialize.h                |   3 +
+ syncd/SaiSwitch.cpp                 |  11 +-
+ syncd/scripts/poesyncdmgrd          |  76 ++++++
+ tests/aspell.en.pws                 |   2 +
+ unittest/vslib/Makefile.am          |   1 +
+ unittest/vslib/TestSwitchConfig.cpp |   6 +
+ unittest/vslib/TestSwitchPoe.cpp    | 173 ++++++++++++++
+ vslib/Makefile.am                   |   1 +
+ vslib/SwitchConfig.cpp              |  12 +-
+ vslib/SwitchConfig.h                |   2 +
+ vslib/SwitchPoE.cpp                 | 346 ++++++++++++++++++++++++++++
+ vslib/SwitchPoE.h                   |  68 ++++++
+ vslib/SwitchStateBase.cpp           |  13 ++
+ vslib/SwitchStateBase.h             |   3 +
+ vslib/VirtualSwitchSaiInterface.cpp |   6 +
+ vslib/saivs.h                       |   2 +
+ 18 files changed, 753 insertions(+), 4 deletions(-)
+ create mode 100755 syncd/scripts/poesyncdmgrd
+ create mode 100644 unittest/vslib/TestSwitchPoe.cpp
+ create mode 100644 vslib/SwitchPoE.cpp
+ create mode 100644 vslib/SwitchPoE.h
+
+diff --git a/meta/Meta.cpp b/meta/Meta.cpp
+index ac5d6993..1abe38bd 100644
+--- a/meta/Meta.cpp
++++ b/meta/Meta.cpp
+@@ -2041,6 +2041,10 @@ void Meta::meta_generic_validation_post_remove(
+                 // no special action required
+                 break;
+ 
++            case SAI_ATTR_VALUE_TYPE_POE_PORT_POWER_CONSUMPTION:
++                // no special action required
++                break;
++
+             default:
+                 META_LOG_THROW(md, "serialization type is not supported yet FIXME");
+         }
+@@ -3835,6 +3839,9 @@ sai_status_t Meta::meta_generic_validation_create(
+                 VALIDATION_LIST(md, value.portserdestaps);
+                 break;
+ 
++            case SAI_ATTR_VALUE_TYPE_POE_PORT_POWER_CONSUMPTION:
++                break;
++
+             default:
+ 
+                 META_LOG_THROW(md, "serialization type is not supported yet FIXME");
+@@ -4488,6 +4495,9 @@ sai_status_t Meta::meta_generic_validation_set(
+             VALIDATION_LIST(md, value.portserdestaps);
+             break;
+ 
++        case SAI_ATTR_VALUE_TYPE_POE_PORT_POWER_CONSUMPTION:
++            break;
++
+         default:
+ 
+             META_LOG_THROW(md, "serialization type is not supported yet FIXME");
+@@ -4898,6 +4908,9 @@ sai_status_t Meta::meta_generic_validation_get(
+                 VALIDATION_LIST(md, value.portserdestaps);
+                 break;
+ 
++            case SAI_ATTR_VALUE_TYPE_POE_PORT_POWER_CONSUMPTION:
++                break;
++
+             default:
+ 
+                 // acl capability will is more complex since is in/out we need to check stage
+@@ -5216,6 +5229,9 @@ void Meta::meta_generic_validation_post_get(
+                 VALIDATION_LIST_GET(md, value.portserdestaps);
+                 break;
+ 
++            case SAI_ATTR_VALUE_TYPE_POE_PORT_POWER_CONSUMPTION:
++                break;
++
+             default:
+ 
+                 META_LOG_THROW(md, "serialization type is not supported yet FIXME");
+@@ -6118,6 +6134,10 @@ void Meta::meta_generic_validation_post_create(
+                 // no special action required
+                 break;
+ 
++            case SAI_ATTR_VALUE_TYPE_POE_PORT_POWER_CONSUMPTION:
++                // no special action required
++                break;
++
+             default:
+ 
+                 META_LOG_THROW(md, "serialization type is not supported yet FIXME");
+@@ -6368,6 +6388,10 @@ void Meta::meta_generic_validation_post_set(
+             // no special action required
+             break;
+ 
++        case SAI_ATTR_VALUE_TYPE_POE_PORT_POWER_CONSUMPTION:
++            // no special action required
++            break;
++
+         default:
+             META_LOG_THROW(md, "serialization type is not supported yet FIXME");
+     }
+diff --git a/meta/SaiSerialize.cpp b/meta/SaiSerialize.cpp
+index a556dc01..6004ba8c 100644
+--- a/meta/SaiSerialize.cpp
++++ b/meta/SaiSerialize.cpp
+@@ -940,6 +940,14 @@ std::string sai_serialize_object_type(
+     return sai_serialize_enum(object_type, &sai_metadata_enum_sai_object_type_t);
+ }
+ 
++std::string sai_serialize_switch_type(
++        _In_ const sai_switch_type_t switch_type)
++{
++    SWSS_LOG_ENTER();
++
++    return sai_serialize_enum(switch_type, &sai_metadata_enum_sai_switch_type_t);
++}
++
+ std::string sai_serialize_log_level(
+         _In_ sai_log_level_t log_level)
+ {
+diff --git a/meta/sai_serialize.h b/meta/sai_serialize.h
+index 2a9ec673..7794872b 100644
+--- a/meta/sai_serialize.h
++++ b/meta/sai_serialize.h
+@@ -97,6 +97,9 @@ std::string sai_serialize_vlan_id(
+ std::string sai_serialize_object_type(
+         _In_ const sai_object_type_t object_type);
+ 
++std::string sai_serialize_switch_type(
++        _In_ const sai_switch_type_t switch_type);
++
+ std::string sai_serialize_object_id(
+         _In_ const sai_object_id_t object_id);
+ 
+diff --git a/syncd/SaiSwitch.cpp b/syncd/SaiSwitch.cpp
+index 4d29d719..b483a0fb 100644
+--- a/syncd/SaiSwitch.cpp
++++ b/syncd/SaiSwitch.cpp
+@@ -168,6 +168,7 @@ void SaiSwitch::getVxlanDefaultRouterMacAddress(
+ sai_switch_type_t SaiSwitch::getSwitchType() const
+ {
+     SWSS_LOG_ENTER();
++    sai_switch_type_t switch_type;
+     sai_attribute_t attr;
+ 
+     attr.id = SAI_SWITCH_ATTR_TYPE;
+@@ -180,12 +181,16 @@ sai_switch_type_t SaiSwitch::getSwitchType() const
+                 sai_serialize_status(status).c_str());
+ 
+         // Set to SAI_SWITCH_TYPE_NPU and move on
+-        attr.value.s32 = SAI_SWITCH_TYPE_NPU;
++        switch_type = SAI_SWITCH_TYPE_NPU;
++    }
++    else
++    {
++        switch_type = (sai_switch_type_t) attr.value.s32;
+     }
+ 
+-    SWSS_LOG_INFO("switch type: '%s'", (attr.value.s32 == SAI_SWITCH_TYPE_NPU ? "SAI_SWITCH_TYPE_NPU" : "SAI_SWITCH_TYPE_PHY"));
++    SWSS_LOG_INFO("switch type: '%s'", sai_serialize_switch_type(switch_type).c_str());
+ 
+-    return (sai_switch_type_t) attr.value.s32;
++    return switch_type;
+ }
+ 
+ #define MAX_HARDWARE_INFO_LENGTH 0x1000
+diff --git a/syncd/scripts/poesyncdmgrd b/syncd/scripts/poesyncdmgrd
+new file mode 100755
+index 00000000..8a5b9203
+--- /dev/null
++++ b/syncd/scripts/poesyncdmgrd
+@@ -0,0 +1,76 @@
++#!/usr/bin/env python3
++
++import os
++import signal
++import subprocess
++import sys
++import syslog
++import time
++
++
++SYSLOG_IDENTIFIER = os.path.basename(__file__)
++
++EXIT_SUCCESS = 0
++EXIT_INSUFFICIENT_PERMISSIONS = 1
++EXIT_UNKNOWN = 2
++
++running = True
++exit_code = EXIT_UNKNOWN
++
++
++def fatal_signal_handler(sig, frame):
++    global running
++
++    signal_name = signal.Signals(sig).name
++
++    syslog.syslog(syslog.LOG_NOTICE, 'Caught signal {} - exiting...'.format(signal_name))
++    exit_code = sig + 128
++    running = False
++
++
++def main():
++    # Only privileged users can run this daemon
++    if os.geteuid() != 0:
++        print('Root privileges required for this operation')
++        return EXIT_INSUFFICIENT_PERMISSIONS
++
++    syslog.openlog(SYSLOG_IDENTIFIER)
++
++    # Register our signal handlers
++    signal.signal(signal.SIGTERM, fatal_signal_handler)
++
++    # Check if a poe config exists
++    if not os.path.isfile('/usr/share/sonic/hwsku/poe_config.json'):
++        syslog.syslog(syslog.LOG_NOTICE, 'PoE is not supported on this platform. Exiting ...')
++        syslog.closelog()
++        time.sleep(2)
++        return EXIT_SUCCESS
++
++    # Spawn poe syncd process
++    cmd = '/usr/bin/syncd -s -p /etc/sai.d/poe.profile -x /usr/share/sonic/hwsku/context_config.json -g 1'
++    proc = subprocess.Popen(cmd.split(), close_fds=True)
++
++    global running
++
++    # Check all of our subprocesses. If any exit, we should too.
++    while running:
++        proc.poll()
++        if proc.returncode is not None:
++            syslog.syslog(syslog.LOG_NOTICE, 'Subprocess PID {} exited. Shutting down ...'.format(proc.pid))
++            running = False
++            break
++        time.sleep(1)
++
++    # If we get here, either the subprocess exited or we recieved a signal to exit
++    # so we send SIGTERM to the subprocesses (if it is still running) before exiting
++    if proc.returncode is None:
++        syslog.syslog(syslog.LOG_INFO, 'Terminating PID {} ...'.format(proc.pid))
++        proc.terminate()
++
++    syslog.closelog()
++
++    return exit_code
++
++
++if __name__ == '__main__':
++    sys.exit(main())
+diff --git a/tests/aspell.en.pws b/tests/aspell.en.pws
+index 323134f9..b33c6915 100644
+--- a/tests/aspell.en.pws
++++ b/tests/aspell.en.pws
+@@ -325,6 +325,8 @@ pn
+ PN
+ policer
+ PORTs
++POE
++PSE
+ pre
+ printf
+ ptr
+diff --git a/unittest/vslib/Makefile.am b/unittest/vslib/Makefile.am
+index 85cbb910..8fe2fe08 100644
+--- a/unittest/vslib/Makefile.am
++++ b/unittest/vslib/Makefile.am
+@@ -44,6 +44,7 @@ tests_SOURCES = main.cpp \
+ 				TestSwitchBCM56971B0.cpp \
+ 				TestSwitchBCM56850.cpp \
+ 				TestSwitchBCM81724.cpp \
++				TestSwitchPoe.cpp \
+ 				TestSwitchStateBaseMACsec.cpp \
+ 				TestMACsecManager.cpp \
+ 				TestSwitchStateBase.cpp \
+diff --git a/unittest/vslib/TestSwitchConfig.cpp b/unittest/vslib/TestSwitchConfig.cpp
+index 36cd9c62..3b82c752 100644
+--- a/unittest/vslib/TestSwitchConfig.cpp
++++ b/unittest/vslib/TestSwitchConfig.cpp
+@@ -19,6 +19,9 @@ TEST(SwitchConfig, parseSaiSwitchType)
+ 
+     EXPECT_TRUE(SwitchConfig::parseSaiSwitchType(SAI_VALUE_SAI_SWITCH_TYPE_PHY, type));
+     EXPECT_EQ(type, SAI_SWITCH_TYPE_PHY);
++
++    EXPECT_TRUE(SwitchConfig::parseSaiSwitchType(SAI_VALUE_SAI_SWITCH_TYPE_POE, type));
++    EXPECT_EQ(type, SAI_SWITCH_TYPE_POE);
+ }
+ 
+ TEST(SwitchConfig, parseSwitchType)
+@@ -36,6 +39,9 @@ TEST(SwitchConfig, parseSwitchType)
+ 
+     EXPECT_TRUE(SwitchConfig::parseSwitchType(SAI_VALUE_VS_SWITCH_TYPE_MLNX2700, type));
+     EXPECT_EQ(type, SAI_VS_SWITCH_TYPE_MLNX2700);
++
++    EXPECT_TRUE(SwitchConfig::parseSwitchType(SAI_VALUE_VS_SWITCH_TYPE_POE, type));
++    EXPECT_EQ(type, SAI_VS_SWITCH_TYPE_POE);
+ }
+ 
+ 
+diff --git a/unittest/vslib/TestSwitchPoe.cpp b/unittest/vslib/TestSwitchPoe.cpp
+new file mode 100644
+index 00000000..eede39bd
+--- /dev/null
++++ b/unittest/vslib/TestSwitchPoe.cpp
+@@ -0,0 +1,173 @@
++#include "SwitchPoE.h"
++
++#include "meta/sai_serialize.h"
++
++#include <gtest/gtest.h>
++
++#include <memory>
++
++using namespace saivs;
++
++TEST(SwitchPoE, ctr)
++{
++    auto sc = std::make_shared<SwitchConfig>(0, "");
++    auto signal = std::make_shared<Signal>();
++    auto eventQueue = std::make_shared<EventQueue>(signal);
++
++    sc->m_saiSwitchType = SAI_SWITCH_TYPE_POE;
++    sc->m_switchType = SAI_VS_SWITCH_TYPE_POE;
++    sc->m_bootType = SAI_VS_BOOT_TYPE_COLD;
++    sc->m_useTapDevice = false;
++    sc->m_laneMap = LaneMap::getDefaultLaneMap(0);
++    sc->m_eventQueue = eventQueue;
++
++    auto scc = std::make_shared<SwitchConfigContainer>();
++
++    scc->insert(sc);
++
++    SwitchPoE sw(
++            0x2100000000,
++            std::make_shared<RealObjectIdManager>(0, scc),
++            sc);
++
++    SwitchPoE sw2(
++            0x2100000000,
++            std::make_shared<RealObjectIdManager>(0, scc),
++            sc,
++            nullptr);
++
++    sai_attribute_t attr;
++
++    attr.id = SAI_SWITCH_ATTR_INIT_SWITCH;
++    attr.value.booldata = true;
++
++    EXPECT_EQ(sw.initialize_default_objects(1, &attr), SAI_STATUS_SUCCESS);
++}
++
++TEST(SwitchPoE, refresh_read_only)
++{
++    auto sc = std::make_shared<SwitchConfig>(0, "");
++    auto signal = std::make_shared<Signal>();
++    auto eventQueue = std::make_shared<EventQueue>(signal);
++
++    sc->m_saiSwitchType = SAI_SWITCH_TYPE_POE;
++    sc->m_switchType = SAI_VS_SWITCH_TYPE_POE;
++    sc->m_bootType = SAI_VS_BOOT_TYPE_COLD;
++    sc->m_useTapDevice = false;
++    sc->m_laneMap = LaneMap::getDefaultLaneMap(0);
++    sc->m_eventQueue = eventQueue;
++
++    auto scc = std::make_shared<SwitchConfigContainer>();
++
++    scc->insert(sc);
++
++    auto mgr = std::make_shared<RealObjectIdManager>(0, scc);
++
++    auto switchId = mgr->allocateNewSwitchObjectId("");
++    auto strSwitchId = sai_serialize_object_id(switchId);
++
++    SwitchPoE sw(switchId, mgr, sc);
++
++    const uint32_t oidListLength = 5;
++    sai_object_id_t oidList[oidListLength];
++    sai_attribute_t attrs[2];
++
++    attrs[0].id = SAI_SWITCH_ATTR_INIT_SWITCH;
++    attrs[0].value.booldata = true;
++    EXPECT_EQ(sw.initialize_default_objects(1, attrs), SAI_STATUS_SUCCESS);
++
++    attrs[0].id = SAI_SWITCH_ATTR_DEFAULT_1Q_BRIDGE_ID;
++    attrs[0].value.oid = SAI_NULL_OBJECT_ID;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_SWITCH, strSwitchId, 1, attrs), SAI_STATUS_NOT_IMPLEMENTED);
++
++    attrs[0].id = SAI_SWITCH_ATTR_POE_DEVICE_LIST;
++    attrs[0].value.objlist.count = oidListLength;
++    attrs[0].value.objlist.list = oidList;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_SWITCH, strSwitchId, 1, attrs), SAI_STATUS_SUCCESS);
++    EXPECT_EQ(attrs[0].value.objlist.count, 0);
++
++    // create POE device, PSE, and 2 POE ports
++
++    // device
++    sai_object_id_t devId = mgr->allocateNewObjectId(SAI_OBJECT_TYPE_POE_DEVICE, switchId);
++    auto strDevId = sai_serialize_object_id(devId);
++    attrs[0].id = SAI_POE_DEVICE_ATTR_HARDWARE_INFO;
++    strncpy(attrs[0].value.chardata, "hw info", sizeof(attrs[0].value.chardata) - 1);
++    EXPECT_EQ(sw.create(SAI_OBJECT_TYPE_POE_DEVICE, strDevId, switchId, 1, attrs), SAI_STATUS_SUCCESS);
++
++    // PSE
++    sai_object_id_t pseId = mgr->allocateNewObjectId(SAI_OBJECT_TYPE_POE_PSE, switchId);
++    auto strPseId = sai_serialize_object_id(pseId);
++    attrs[0].id = SAI_POE_PSE_ATTR_ID;
++    attrs[0].value.u32 = 1;
++    attrs[1].id = SAI_POE_PSE_ATTR_DEVICE_ID;
++    attrs[1].value.oid = devId;
++    EXPECT_EQ(sw.create(SAI_OBJECT_TYPE_POE_PSE, strPseId, switchId, 2, attrs), SAI_STATUS_SUCCESS);
++
++    // port 1
++    sai_object_id_t firstPortId = mgr->allocateNewObjectId(SAI_OBJECT_TYPE_POE_PORT, switchId);
++    auto strFirstPortId = sai_serialize_object_id(firstPortId);
++    attrs[0].id = SAI_POE_PORT_ATTR_FRONT_PANEL_ID;
++    attrs[0].value.u32 = 1;
++    attrs[1].id = SAI_POE_PORT_ATTR_DEVICE_ID;
++    attrs[1].value.oid = devId;
++    EXPECT_EQ(sw.create(SAI_OBJECT_TYPE_POE_PORT, strFirstPortId, switchId, 2, attrs), SAI_STATUS_SUCCESS);
++
++    // port 2
++    sai_object_id_t secondPortId = mgr->allocateNewObjectId(SAI_OBJECT_TYPE_POE_PORT, switchId);
++    auto strSecondPortId = sai_serialize_object_id(secondPortId);
++    attrs[0].id = SAI_POE_PORT_ATTR_FRONT_PANEL_ID;
++    attrs[0].value.u32 = 2;
++    EXPECT_EQ(sw.create(SAI_OBJECT_TYPE_POE_PORT, strSecondPortId, switchId, 2, attrs), SAI_STATUS_SUCCESS);
++
++    // verify number of created objects
++    attrs[0].id = SAI_SWITCH_ATTR_POE_DEVICE_LIST;
++    attrs[0].value.objlist.count = oidListLength;
++    attrs[0].value.objlist.list = oidList;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_SWITCH, strSwitchId, 1, attrs), SAI_STATUS_SUCCESS);
++    EXPECT_EQ(attrs[0].value.objlist.count, 1);
++
++    attrs[0].id = SAI_POE_DEVICE_ATTR_POE_PSE_LIST;
++    attrs[0].value.objlist.count = oidListLength;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_DEVICE, strDevId, 1, attrs), SAI_STATUS_SUCCESS);
++    EXPECT_EQ(attrs[0].value.objlist.count, 1);
++
++    attrs[0].id = SAI_POE_DEVICE_ATTR_POE_PORT_LIST;
++    attrs[0].value.objlist.count = oidListLength;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_DEVICE, strDevId, 1, attrs), SAI_STATUS_SUCCESS);
++    EXPECT_EQ(attrs[0].value.objlist.count, 2);
++
++    // verify readonly values
++    attrs[0].id = SAI_POE_DEVICE_ATTR_HARDWARE_INFO;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_DEVICE, strDevId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_DEVICE_ATTR_TOTAL_POWER;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_DEVICE, strDevId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_DEVICE_ATTR_POWER_CONSUMPTION;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_DEVICE, strDevId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_DEVICE_ATTR_VERSION;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_DEVICE, strDevId, 1, attrs), SAI_STATUS_SUCCESS);
++
++    attrs[0].id = SAI_POE_PSE_ATTR_TEMPERATURE;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PSE, strPseId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PSE_ATTR_STATUS;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PSE, strPseId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PSE_ATTR_SOFTWARE_VERSION;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PSE, strPseId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PSE_ATTR_HARDWARE_VERSION;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PSE, strPseId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PSE_ATTR_ID;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PSE, strPseId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PSE_ATTR_DEVICE_ID;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PSE, strPseId, 1, attrs), SAI_STATUS_SUCCESS);
++
++    attrs[0].id = SAI_POE_PORT_ATTR_STANDARD;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PORT, strFirstPortId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PORT_ATTR_CONSUMPTION;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PORT, strFirstPortId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PORT_ATTR_STATUS;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PORT, strFirstPortId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PORT_ATTR_FRONT_PANEL_ID;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PORT, strFirstPortId, 1, attrs), SAI_STATUS_SUCCESS);
++    attrs[0].id = SAI_POE_PORT_ATTR_DEVICE_ID;
++    EXPECT_EQ(sw.get(SAI_OBJECT_TYPE_POE_PORT, strFirstPortId, 1, attrs), SAI_STATUS_SUCCESS);
++}
+diff --git a/vslib/Makefile.am b/vslib/Makefile.am
+index 718e7cb9..1e658f95 100644
+--- a/vslib/Makefile.am
++++ b/vslib/Makefile.am
+@@ -62,6 +62,7 @@ libSaiVS_a_SOURCES = \
+ 					  SwitchMLNX2700.cpp \
+ 					  SwitchNokiaVS.cpp \
+ 					  SwitchNvdaMBF2H536C.cpp \
++					  SwitchPoE.cpp \
+ 					  SwitchStateBase.cpp \
+ 					  SwitchStateBaseFdb.cpp \
+ 					  SwitchStateBaseHostif.cpp \
+diff --git a/vslib/SwitchConfig.cpp b/vslib/SwitchConfig.cpp
+index 945cebea..0b7d48c2 100644
+--- a/vslib/SwitchConfig.cpp
++++ b/vslib/SwitchConfig.cpp
+@@ -42,11 +42,16 @@ bool SwitchConfig::parseSaiSwitchType(
+     {
+         saiSwitchType = SAI_SWITCH_TYPE_PHY;
+     }
++    else if (st == SAI_VALUE_SAI_SWITCH_TYPE_POE)
++    {
++        saiSwitchType = SAI_SWITCH_TYPE_POE;
++    }
+     else
+     {
+-        SWSS_LOG_ERROR("unknown SAI switch type: '%s', expected (%s|%s)",
++        SWSS_LOG_ERROR("unknown SAI switch type: '%s', expected (%s|%s|%s)",
+                 saiSwitchTypeStr,
+                 SAI_VALUE_SAI_SWITCH_TYPE_NPU,
++                SAI_VALUE_SAI_SWITCH_TYPE_POE,
+                 SAI_VALUE_SAI_SWITCH_TYPE_PHY);
+ 
+         return false;
+@@ -75,6 +80,10 @@ bool SwitchConfig::parseSwitchType(
+     {
+         switchType = SAI_VS_SWITCH_TYPE_BCM81724;
+     }
++    else if (st == SAI_VALUE_VS_SWITCH_TYPE_POE)
++    {
++        switchType = SAI_VS_SWITCH_TYPE_POE;
++    }
+     else if (st == SAI_VALUE_VS_SWITCH_TYPE_MLNX2700)
+     {
+         switchType = SAI_VS_SWITCH_TYPE_MLNX2700;
+@@ -106,6 +115,7 @@ bool SwitchConfig::parseSwitchType(
+                 SAI_VALUE_VS_SWITCH_TYPE_BCM81724,
+                 SAI_VALUE_VS_SWITCH_TYPE_BCM56850,
+                 SAI_VALUE_VS_SWITCH_TYPE_BCM56971B0,
++                SAI_VALUE_VS_SWITCH_TYPE_POE,
+                 SAI_VALUE_VS_SWITCH_TYPE_MLNX2700,
+                 SAI_VALUE_VS_SWITCH_TYPE_NVDA_MBF2H536C,
+                 SAI_VALUE_VS_SWITCH_TYPE_DPU_SIMU_2P,
+diff --git a/vslib/SwitchConfig.h b/vslib/SwitchConfig.h
+index f043f2fb..8c9233af 100644
+--- a/vslib/SwitchConfig.h
++++ b/vslib/SwitchConfig.h
+@@ -33,6 +33,8 @@ namespace saivs
+ 
+         SAI_VS_SWITCH_TYPE_NOKIA_VS,
+ 
++        SAI_VS_SWITCH_TYPE_POE,
++
+     } sai_vs_switch_type_t;
+ 
+     typedef enum _sai_vs_boot_type_t
+diff --git a/vslib/SwitchPoE.cpp b/vslib/SwitchPoE.cpp
+new file mode 100644
+index 00000000..95020b46
+--- /dev/null
++++ b/vslib/SwitchPoE.cpp
+@@ -0,0 +1,346 @@
++#include "SwitchPoE.h"
++
++#include "swss/logger.h"
++#include "meta/sai_serialize.h"
++
++using namespace saivs;
++
++SwitchPoE::SwitchPoE(
++        _In_ sai_object_id_t switch_id,
++        _In_ std::shared_ptr<RealObjectIdManager> manager,
++        _In_ std::shared_ptr<SwitchConfig> config):
++    SwitchStateBase(switch_id, manager, config)
++{
++    SWSS_LOG_ENTER();
++
++    // empty
++}
++
++SwitchPoE::SwitchPoE(
++    _In_ sai_object_id_t switch_id,
++    _In_ std::shared_ptr<RealObjectIdManager> manager,
++    _In_ std::shared_ptr<SwitchConfig> config,
++    _In_ std::shared_ptr<WarmBootState> warmBootState):
++    SwitchStateBase(switch_id, manager, config, warmBootState)
++{
++    SWSS_LOG_ENTER();
++
++    // empty
++}
++
++SwitchPoE::~SwitchPoE()
++{
++    SWSS_LOG_ENTER();
++
++    // empty
++}
++
++sai_status_t SwitchPoE::set_switch_default_attributes()
++{
++    SWSS_LOG_ENTER();
++
++    sai_status_t ret;
++
++    // Fill this with supported SAI_OBJECT_TYPEs
++    int32_t supported_obj_list[] = {
++        SAI_OBJECT_TYPE_NULL,
++        SAI_OBJECT_TYPE_POE_DEVICE,
++        SAI_OBJECT_TYPE_POE_PSE,
++        SAI_OBJECT_TYPE_POE_PORT,
++    };
++    sai_attribute_t attr;
++
++    attr.id = SAI_SWITCH_ATTR_POE_DEVICE_LIST;
++    attr.value.objlist.count = 0;
++    attr.value.objlist.list = NULL;
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_SWITCH, m_switch_id, &attr));
++
++    attr.id = SAI_SWITCH_ATTR_WARM_RECOVER;
++    attr.value.booldata = false;
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_SWITCH, m_switch_id, &attr));
++
++    attr.id = SAI_SWITCH_ATTR_TYPE;
++    attr.value.s32 = SAI_SWITCH_TYPE_POE;
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_SWITCH, m_switch_id, &attr));
++
++    // v0.1
++    attr.id = SAI_SWITCH_ATTR_FIRMWARE_MAJOR_VERSION;
++    attr.value.u32 = 0;
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_SWITCH, m_switch_id, &attr));
++
++    attr.id = SAI_SWITCH_ATTR_FIRMWARE_MINOR_VERSION;
++    attr.value.u32 = 1;
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_SWITCH, m_switch_id, &attr));
++
++    attr.id = SAI_SWITCH_ATTR_SUPPORTED_OBJECT_TYPE_LIST;
++    attr.value.s32list.count = sizeof(supported_obj_list) / sizeof(int32_t);
++    attr.value.s32list.list = supported_obj_list;
++    ret = set(SAI_OBJECT_TYPE_SWITCH, m_switch_id, &attr);
++
++    return ret;
++}
++
++sai_status_t SwitchPoE::initialize_default_objects(
++    _In_ uint32_t attr_count,
++    _In_ const sai_attribute_t *attr_list)
++{
++    SWSS_LOG_ENTER();
++
++    CHECK_STATUS(set_switch_default_attributes());
++
++    return SAI_STATUS_SUCCESS;
++}
++
++sai_status_t SwitchPoE::create(
++        _In_ sai_object_type_t object_type,
++        _In_ const std::string &serializedObjectId,
++        _In_ sai_object_id_t switch_id,
++        _In_ uint32_t attr_count,
++        _In_ const sai_attribute_t *attr_list)
++{
++    SWSS_LOG_ENTER();
++
++    if (object_type == SAI_OBJECT_TYPE_POE_DEVICE)
++    {
++        sai_object_id_t object_id;
++        sai_deserialize_object_id(serializedObjectId, object_id);
++        return createPoeDevice(object_id, switch_id, attr_count, attr_list);
++    }
++
++    if (object_type == SAI_OBJECT_TYPE_POE_PORT)
++    {
++        sai_object_id_t object_id;
++        sai_deserialize_object_id(serializedObjectId, object_id);
++        return createPoePort(object_id, switch_id, attr_count, attr_list);
++    }
++
++    return create_internal(object_type, serializedObjectId, switch_id, attr_count, attr_list);
++}
++
++sai_status_t SwitchPoE::createPoeDevice(
++        _In_ sai_object_id_t object_id,
++        _In_ sai_object_id_t switch_id,
++        _In_ uint32_t attr_count,
++        _In_ const sai_attribute_t *attr_list)
++{
++    SWSS_LOG_ENTER();
++
++    auto sid = sai_serialize_object_id(object_id);
++
++    auto power_limit = sai_metadata_get_attr_by_id(SAI_POE_DEVICE_ATTR_POWER_LIMIT_MODE, attr_count, attr_list);
++
++    CHECK_STATUS(create_internal(SAI_OBJECT_TYPE_POE_DEVICE, sid, switch_id, attr_count, attr_list));
++
++    sai_attribute_t attr;
++
++    /* if not set in create_internal then use default values*/
++    if (!power_limit)
++    {
++        attr.id = SAI_POE_DEVICE_ATTR_POWER_LIMIT_MODE;
++        attr.value.u32 = SAI_POE_DEVICE_LIMIT_MODE_CLASS;
++        CHECK_STATUS(set(SAI_OBJECT_TYPE_POE_DEVICE, object_id, &attr));
++    }
++
++    /* update the list of all POE devices on switch */
++    m_poe_device_list.push_back(object_id);
++
++    auto device_count = (uint32_t)m_poe_device_list.size();
++    attr.id = SAI_SWITCH_ATTR_POE_DEVICE_LIST;
++    attr.value.objlist.count = device_count;
++    attr.value.objlist.list = m_poe_device_list.data();
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_SWITCH, switch_id, &attr));
++
++    return SAI_STATUS_SUCCESS;
++}
++
++sai_status_t SwitchPoE::createPoePort(
++        _In_ sai_object_id_t object_id,
++        _In_ sai_object_id_t switch_id,
++        _In_ uint32_t attr_count,
++        _In_ const sai_attribute_t *attr_list)
++{
++    SWSS_LOG_ENTER();
++
++    auto sid = sai_serialize_object_id(object_id);
++
++    auto power_limit = sai_metadata_get_attr_by_id(SAI_POE_PORT_ATTR_POWER_LIMIT, attr_count, attr_list);
++    auto power_priority = sai_metadata_get_attr_by_id(SAI_POE_PORT_ATTR_POWER_PRIORITY, attr_count, attr_list);
++
++    CHECK_STATUS(create_internal(SAI_OBJECT_TYPE_POE_PORT, sid, switch_id, attr_count, attr_list));
++
++    sai_attribute_t attr;
++
++    /* default admin state is down as defined in SAI */
++    attr.id = SAI_POE_PORT_ATTR_ADMIN_ENABLED_STATE;
++    attr.value.booldata = false;
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_POE_PORT, object_id, &attr));
++
++    /* if not set in create_internal then use default values*/
++    if (!power_limit)
++    {
++        attr.id = SAI_POE_PORT_ATTR_POWER_LIMIT;
++        attr.value.u32 = 0;
++        CHECK_STATUS(set(SAI_OBJECT_TYPE_POE_PORT, object_id, &attr));
++    }
++    if (!power_priority)
++    {
++        attr.id = SAI_POE_PORT_ATTR_POWER_PRIORITY;
++        attr.value.u32 = SAI_POE_PORT_POWER_PRIORITY_TYPE_HIGH;
++        CHECK_STATUS(set(SAI_OBJECT_TYPE_POE_PORT, object_id, &attr));
++    }
++    return SAI_STATUS_SUCCESS;
++}
++
++sai_status_t SwitchPoE::refresh_read_only(
++        _In_ const sai_attr_metadata_t *meta,
++        _In_ sai_object_id_t object_id)
++{
++    SWSS_LOG_ENTER();
++
++    sai_attribute_t attr;
++    attr.id = meta->attrid;
++    if (meta->objecttype == SAI_OBJECT_TYPE_POE_DEVICE)
++    {
++        switch (meta->attrid)
++        {
++        case SAI_POE_DEVICE_ATTR_HARDWARE_INFO:
++            strncpy(attr.value.chardata, "hardware info", sizeof(attr.value.chardata));
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_DEVICE_ATTR_POE_PSE_LIST:
++            return refresh_poe_pse_list(meta, object_id);
++        case SAI_POE_DEVICE_ATTR_POE_PORT_LIST:
++            return refresh_poe_port_list(meta, object_id);
++        case SAI_POE_DEVICE_ATTR_TOTAL_POWER:
++            attr.value.u32 = 100;
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_DEVICE_ATTR_POWER_CONSUMPTION:
++            attr.value.u32 = 10000;
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_DEVICE_ATTR_VERSION:
++            strncpy(attr.value.chardata, "version", sizeof(attr.value.chardata));
++            return set(meta->objecttype, object_id, &attr);
++        }
++
++    }
++    if (meta->objecttype == SAI_OBJECT_TYPE_POE_PSE)
++    {
++        switch (meta->attrid)
++        {
++        case SAI_POE_PSE_ATTR_TEMPERATURE:
++            attr.value.u32 = 25;
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_PSE_ATTR_STATUS:
++            attr.value.u32 = SAI_POE_PSE_STATUS_TYPE_ACTIVE;
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_PSE_ATTR_SOFTWARE_VERSION:
++            strncpy(attr.value.chardata, "software version", sizeof(attr.value.chardata));
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_PSE_ATTR_HARDWARE_VERSION:
++            strncpy(attr.value.chardata, "hardware version", sizeof(attr.value.chardata));
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_PSE_ATTR_ID:
++        case SAI_POE_PSE_ATTR_DEVICE_ID:
++            return SAI_STATUS_SUCCESS;
++        }
++    }
++    if (meta->objecttype == SAI_OBJECT_TYPE_POE_PORT)
++    {
++        switch (meta->attrid)
++        {
++        case SAI_POE_PORT_ATTR_STANDARD:
++            attr.value.u32 = SAI_POE_PORT_STANDARD_TYPE_BT_TYPE3;
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_PORT_ATTR_CONSUMPTION:
++            /* random values */
++            attr.value.portpowerconsumption = (sai_poe_port_power_consumption_t){
++                .active_channel=SAI_POE_PORT_ACTIVE_CHANNEL_TYPE_A_AND_B,
++                .voltage=50000,
++                .current=200,
++                .consumption=10000,
++                .signature_type=SAI_POE_PORT_SIGNATURE_TYPE_DUAL,
++                .class_method=SAI_POE_PORT_CLASS_METHOD_TYPE_AUTO_CLASS,
++                .measured_class_a=1,
++                .assigned_class_a=2,
++                .measured_class_b=3,
++                .assigned_class_b=4
++            };
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_PORT_ATTR_STATUS:
++            attr.value.u32 = SAI_POE_PORT_STATUS_TYPE_DELIVERING_POWER;
++            return set(meta->objecttype, object_id, &attr);
++        case SAI_POE_PORT_ATTR_FRONT_PANEL_ID:
++        case SAI_POE_PORT_ATTR_DEVICE_ID:
++            return SAI_STATUS_SUCCESS;
++        }
++    }
++
++    auto mmeta = m_meta.lock();
++
++    if (mmeta)
++    {
++        if (mmeta->meta_unittests_enabled())
++        {
++            SWSS_LOG_NOTICE("unittests enabled, SET could be performed on %s, not recalculating", meta->attridname);
++
++            return SAI_STATUS_SUCCESS;
++        }
++    }
++    else
++    {
++        SWSS_LOG_WARN("meta pointer expired");
++    }
++
++    SWSS_LOG_WARN("need to recalculate RO: %s", meta->attridname);
++
++    return SAI_STATUS_NOT_IMPLEMENTED;
++}
++
++sai_status_t SwitchPoE::refresh_poe_pse_list(
++        _In_ const sai_attr_metadata_t *meta,
++        _In_ sai_object_id_t poe_device_id)
++{
++    SWSS_LOG_ENTER();
++
++    sai_attribute_t attr;
++    attr.id = SAI_POE_PSE_ATTR_DEVICE_ID;
++    attr.value.oid = poe_device_id;
++
++    findObjects(SAI_OBJECT_TYPE_POE_PSE, attr, m_poe_pse_list);
++    std::sort(m_poe_pse_list.begin(), m_poe_pse_list.end());
++
++    auto pse_count = (uint32_t)m_poe_pse_list.size();
++
++    attr.id = SAI_POE_DEVICE_ATTR_POE_PSE_LIST;
++    attr.value.objlist.count = pse_count;
++    attr.value.objlist.list = m_poe_pse_list.data();
++
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_POE_DEVICE, poe_device_id, &attr));
++
++    SWSS_LOG_NOTICE("refreshed POE PSE list, current PSE number: %u", pse_count);
++    return SAI_STATUS_SUCCESS;
++}
++
++sai_status_t SwitchPoE::refresh_poe_port_list(
++        _In_ const sai_attr_metadata_t *meta,
++        _In_ sai_object_id_t poe_device_id)
++{
++    SWSS_LOG_ENTER();
++
++    sai_attribute_t attr;
++    attr.id = SAI_POE_PORT_ATTR_DEVICE_ID;
++    attr.value.oid = poe_device_id;
++
++    findObjects(SAI_OBJECT_TYPE_POE_PORT, attr, m_poe_port_list);
++    std::sort(m_poe_port_list.begin(), m_poe_port_list.end());
++
++    auto port_count = (uint32_t)m_poe_port_list.size();
++
++    attr.id = SAI_POE_DEVICE_ATTR_POE_PORT_LIST;
++    attr.value.objlist.count = port_count;
++    attr.value.objlist.list = m_poe_port_list.data();
++
++    CHECK_STATUS(set(SAI_OBJECT_TYPE_POE_DEVICE, poe_device_id, &attr));
++
++    SWSS_LOG_NOTICE("refreshed POE port list, current port number: %u", port_count);
++    return SAI_STATUS_SUCCESS;
++}
+diff --git a/vslib/SwitchPoE.h b/vslib/SwitchPoE.h
+new file mode 100644
+index 00000000..6a16eb44
+--- /dev/null
++++ b/vslib/SwitchPoE.h
+@@ -0,0 +1,68 @@
++#pragma once
++
++#include "SwitchStateBase.h"
++
++namespace saivs
++{
++    class SwitchPoE:
++        public SwitchStateBase
++    {
++        public:
++
++            SwitchPoE(
++                    _In_ sai_object_id_t switch_id,
++                    _In_ std::shared_ptr<RealObjectIdManager> manager,
++                    _In_ std::shared_ptr<SwitchConfig> config);
++
++            SwitchPoE(
++                    _In_ sai_object_id_t switch_id,
++                    _In_ std::shared_ptr<RealObjectIdManager> manager,
++                    _In_ std::shared_ptr<SwitchConfig> config,
++                    _In_ std::shared_ptr<WarmBootState> warmBootState);
++
++            virtual ~SwitchPoE();
++
++            virtual sai_status_t create(
++                    _In_ sai_object_type_t object_type,
++                    _In_ const std::string &serializedObjectId,
++                    _In_ sai_object_id_t switch_id,
++                    _In_ uint32_t attr_count,
++                    _In_ const sai_attribute_t *attr_list) override;
++
++        protected:
++            std::vector<sai_object_id_t> m_poe_device_list;
++            std::vector<sai_object_id_t> m_poe_pse_list;
++            std::vector<sai_object_id_t> m_poe_port_list;
++
++            sai_status_t createPoeDevice(
++                    _In_ sai_object_id_t object_id,
++                    _In_ sai_object_id_t switch_id,
++                    _In_ uint32_t attr_count,
++                    _In_ const sai_attribute_t *attr_list);
++
++            sai_status_t createPoePort(
++                    _In_ sai_object_id_t object_id,
++                    _In_ sai_object_id_t switch_id,
++                    _In_ uint32_t attr_count,
++                    _In_ const sai_attribute_t *attr_list);
++
++            virtual sai_status_t refresh_read_only(
++                    _In_ const sai_attr_metadata_t *meta,
++                    _In_ sai_object_id_t object_id) override;
++
++            virtual sai_status_t refresh_poe_pse_list(
++                    _In_ const sai_attr_metadata_t *meta,
++                    _In_ sai_object_id_t poe_device_id);
++
++            virtual sai_status_t refresh_poe_port_list(
++                    _In_ const sai_attr_metadata_t *meta,
++                    _In_ sai_object_id_t poe_device_id);
++
++        public:
++            virtual sai_status_t set_switch_default_attributes();
++            virtual sai_status_t initialize_default_objects(
++                    _In_ uint32_t attr_count,
++                    _In_ const sai_attribute_t *attr_list) override;
++
++    };
++}
+diff --git a/vslib/SwitchStateBase.cpp b/vslib/SwitchStateBase.cpp
+index ce145686..fdb5b355 100644
+--- a/vslib/SwitchStateBase.cpp
++++ b/vslib/SwitchStateBase.cpp
+@@ -2413,6 +2413,16 @@ sai_status_t SwitchStateBase::refresh_bridge_port_list(
+     return SAI_STATUS_NOT_IMPLEMENTED;
+ }
+ 
++sai_status_t SwitchStateBase::refresh_port_poe_port_id(
++        _In_ sai_object_id_t port_id)
++{
++    SWSS_LOG_ENTER();
++
++    SWSS_LOG_ERROR("implement in child class");
++
++    return SAI_STATUS_NOT_IMPLEMENTED;
++}
++
+ sai_status_t SwitchStateBase::refresh_vlan_member_list(
+         _In_ const sai_attr_metadata_t *meta,
+         _In_ sai_object_id_t vlan_id)
+@@ -2847,6 +2857,9 @@ sai_status_t SwitchStateBase::refresh_read_only(
+ 
+             case SAI_PORT_ATTR_OPER_SPEED:
+                 return refresh_port_oper_speed(object_id);
++
++            case SAI_PORT_ATTR_POE_PORT_ID:
++                return refresh_port_poe_port_id(object_id);
+         }
+     }
+ 
+diff --git a/vslib/SwitchStateBase.h b/vslib/SwitchStateBase.h
+index ea1b844b..c6c98c42 100644
+--- a/vslib/SwitchStateBase.h
++++ b/vslib/SwitchStateBase.h
+@@ -166,6 +166,9 @@ namespace saivs
+                     _In_ const sai_attr_metadata_t *meta,
+                     _In_ sai_object_id_t bridge_id);
+ 
++            virtual sai_status_t refresh_port_poe_port_id(
++                    _In_ sai_object_id_t port_id);
++
+             virtual sai_status_t refresh_vlan_member_list(
+                     _In_ const sai_attr_metadata_t *meta,
+                     _In_ sai_object_id_t vlan_id);
+diff --git a/vslib/VirtualSwitchSaiInterface.cpp b/vslib/VirtualSwitchSaiInterface.cpp
+index 81c5763e..7d0ef7f0 100644
+--- a/vslib/VirtualSwitchSaiInterface.cpp
++++ b/vslib/VirtualSwitchSaiInterface.cpp
+@@ -10,6 +10,7 @@
+ #include "meta/Globals.h"
+ 
+ #include "SwitchStateBase.h"
++#include "SwitchPoE.h"
+ #include "SwitchBCM81724.h"
+ #include "SwitchBCM56850.h"
+ #include "SwitchBCM56971B0.h"
+@@ -620,6 +621,11 @@ std::shared_ptr<SwitchStateBase> VirtualSwitchSaiInterface::init_switch(
+             return nullptr;
+ #endif
+ 
++        case SAI_VS_SWITCH_TYPE_POE:
++
++            m_switchStateMap[switch_id] = std::make_shared<SwitchPoE>(switch_id, m_realObjectIdManager, config, warmBootState);
++            break;
++
+         default:
+ 
+             SWSS_LOG_WARN("unknown switch type: %d", config->m_switchType);
+diff --git a/vslib/saivs.h b/vslib/saivs.h
+index ea5fc3c2..a6fbce75 100644
+--- a/vslib/saivs.h
++++ b/vslib/saivs.h
+@@ -9,6 +9,7 @@ extern "C" {
+ 
+ #define SAI_VALUE_SAI_SWITCH_TYPE_NPU       "SAI_SWITCH_TYPE_NPU"
+ #define SAI_VALUE_SAI_SWITCH_TYPE_PHY       "SAI_SWITCH_TYPE_PHY"
++#define SAI_VALUE_SAI_SWITCH_TYPE_POE       "SAI_SWITCH_TYPE_POE"
+ 
+ /**
+  * @def SAI_KEY_VS_INTERFACE_LANE_MAP_FILE
+@@ -117,6 +118,7 @@ extern "C" {
+ #define SAI_VALUE_VS_SWITCH_TYPE_DPU_SIMU_2P       "SAI_VS_SWITCH_TYPE_DPU_SIMU_2P"
+ #define SAI_VALUE_VS_SWITCH_TYPE_VPP               "SAI_VS_SWITCH_TYPE_VPP"
+ #define SAI_VALUE_VS_SWITCH_TYPE_NOKIA_VS          "SAI_VS_SWITCH_TYPE_NOKIA_VS"
++#define SAI_VALUE_VS_SWITCH_TYPE_POE               "SAI_VS_SWITCH_TYPE_POE"
+ 
+ /*
+  * Values for SAI_KEY_BOOT_TYPE (defined in saiswitch.h)
+-- 
+2.25.1
+

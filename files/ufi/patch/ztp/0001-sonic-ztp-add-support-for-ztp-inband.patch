@@ -1,0 +1,82 @@
+From e0f35b96f5d34f22fbd671df759f22752cbb1c12 Mon Sep 17 00:00:00 2001
+From: fengkm <chifeng.km@gmail.com>
+Date: Thu, 21 May 2026 09:35:10 +0800
+Subject: [PATCH] sonic-ztp set device type to ToRRouter to enable dhcp_relay
+
+---
+ src/usr/lib/ztp/sonic-ztp               |  9 +++++++++
+ src/usr/lib/ztp/templates/ztp-config.j2 |  2 +-
+ src/usr/lib/ztp/ztp-profile.sh          | 10 ++++++++++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/src/usr/lib/ztp/sonic-ztp b/src/usr/lib/ztp/sonic-ztp
+index 5239d94..64d177d 100755
+--- a/src/usr/lib/ztp/sonic-ztp
++++ b/src/usr/lib/ztp/sonic-ztp
+@@ -57,6 +57,15 @@ start()
+ 
+ trap 'sighandle'  TERM INT
+ 
++PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
++PRESET=(`head -n 1 /usr/share/sonic/device/$PLATFORM/default_sku`)
++HW_KEY=${PRESET[0]}
++DEFAULT_PRESET="l3"
++DEST_FILE=/tmp/${DEFAULT_PRESET}.json
++
++sonic-cfggen -H -k ${HW_KEY} --preset ${DEFAULT_PRESET} > ${DEST_FILE}
++sudo sonic-cfggen -j ${DEST_FILE} --write-to-db
++
+ start
+ 
+ exit 0
+diff --git a/src/usr/lib/ztp/templates/ztp-config.j2 b/src/usr/lib/ztp/templates/ztp-config.j2
+index 40fd1e0..12591d4 100644
+--- a/src/usr/lib/ztp/templates/ztp-config.j2
++++ b/src/usr/lib/ztp/templates/ztp-config.j2
+@@ -4,7 +4,7 @@
+        "hwsku" : "{{ DEVICE_METADATA.localhost.hwsku }}",
+        "mac" : "{{ DEVICE_METADATA.localhost.mac }}",
+        "platform" : "{{ DEVICE_METADATA.localhost.platform }}",
+-       "type" : "not-provisioned",
++       "type" : "ToRRouter",
+        "hostname" : "sonic"
+       }
+     },
+diff --git a/src/usr/lib/ztp/ztp-profile.sh b/src/usr/lib/ztp/ztp-profile.sh
+index d8afbe8..12b057f 100755
+--- a/src/usr/lib/ztp/ztp-profile.sh
++++ b/src/usr/lib/ztp/ztp-profile.sh
+@@ -40,6 +40,7 @@ ZTP_ACTIVITY=/var/run/ztp/activity
+ PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
+ PRESET=(`head -n 1 /usr/share/sonic/device/$PLATFORM/default_sku`)
+ HW_KEY=${PRESET[0]}
++DEFAULT_PRESET="l3"
+ 
+ # Command usage and help
+ usage()
+@@ -122,6 +123,7 @@ ztp_config_create()
+              \"ZTP_IPV4\": \"$(get_feature ipv4)\", \"ZTP_IPV6\": \"$(get_feature ipv6)\", \
+              \"PRODUCT_NAME\": \"${PRODUCT_NAME}\",  \"SERIAL_NO\": \"${SERIAL_NO}\"}" \
+              -p -t ${ZTP_CONFIG_TEMPLATE} > ${DEST_FILE}
++
+     dhcp_policy_create
+ }
+ 
+@@ -140,6 +142,14 @@ load_config()
+     if [ -e ${DEST_FILE} ]; then
+         config reload ${DEST_FILE} -y -f
+         rm -f ${TMP_ZTP_CONFIG_DB_JSON}
++
++        if [ "$1" = "ztp" ]; then
++            dest_file="/tmp/${DEFAULT_PRESET}.json"
++            sonic-cfggen -H -k ${HW_KEY} --preset ${DEFAULT_PRESET}  > ${dest_file}
++            sudo sonic-cfggen -j ${dest_file} --write-to-db
++            rm -f ${dest_file}
++        fi
++
+         return 0
+     else
+         echo "Failed to generate and apply ${1} configuration profile."
+-- 
+2.25.1
+

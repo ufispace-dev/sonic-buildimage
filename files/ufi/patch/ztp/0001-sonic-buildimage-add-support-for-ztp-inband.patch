@@ -1,0 +1,39 @@
+From af08b5411ba550d9e3bffa43f3d5ffb31f54c69b Mon Sep 17 00:00:00 2001
+From: fengkm <chifeng.km@gmail.com>
+Date: Thu, 21 May 2026 09:24:57 +0800
+Subject: [PATCH] sonic-buildimage enable ztp and dhcp l2
+
+---
+ files/image_config/copp/copp_cfg.j2 | 2 +-
+ rules/config                        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/files/image_config/copp/copp_cfg.j2 b/files/image_config/copp/copp_cfg.j2
+index fc2002cff..d319ac4e5 100755
+--- a/files/image_config/copp/copp_cfg.j2
++++ b/files/image_config/copp/copp_cfg.j2
+@@ -107,7 +107,7 @@
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "dhcp_relay": {
+-		    "trap_ids": "dhcp,dhcpv6",
++		    "trap_ids": "dhcp,dhcp_l2,dhcpv6,dhcpv6_l2",
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "udld": {
+diff --git a/rules/config b/rules/config
+index ab1eb74ec..3b347d390 100644
+--- a/rules/config
++++ b/rules/config
+@@ -87,7 +87,7 @@ BMC_NOS_ACCOUNT_USERNAME ?= yormnAnb
+ BMC_ROOT_ACCOUNT_DEFAULT_PASSWORD ?=
+ 
+ # ENABLE_ZTP - installs Zero Touch Provisioning support.
+-# ENABLE_ZTP = y
++ENABLE_ZTP = y
+ 
+ # INCLUDE_PDE - Enable platform development environment
+ # INCLUDE_PDE = y
+-- 
+2.25.1
+

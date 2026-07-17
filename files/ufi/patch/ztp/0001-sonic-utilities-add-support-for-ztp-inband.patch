@@ -1,0 +1,101 @@
+From 6038d1552ec18d7b14fa015016171a790ab78049 Mon Sep 17 00:00:00 2001
+From: fengkm <chifeng.km@gmail.com>
+Date: Thu, 21 May 2026 09:30:52 +0800
+Subject: [PATCH] sonic-utilities add dhcp l2
+
+---
+ doc/Command-Reference.md                        | 2 ++
+ dump/plugins/copp.py                            | 2 ++
+ tests/copp_input/mock_config/mock_copp_cfg.json | 2 +-
+ tests/copp_test.py                              | 2 ++
+ tests/dump_input/copp_cfg.json                  | 2 +-
+ tests/dump_tests/module_tests/copp_test.py      | 2 +-
+ 6 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/doc/Command-Reference.md b/doc/Command-Reference.md
+index 99f28367..3482a4d8 100644
+--- a/doc/Command-Reference.md
++++ b/doc/Command-Reference.md
+@@ -16436,7 +16436,9 @@ bgp              queue4_group1  trap       6000   6000  packets       sr_tcm  no
+ bgpv6            queue4_group1  trap       6000   6000  packets       sr_tcm  not-installed
+ dest_nat_miss    queue1_group2  trap        600    600  packets       sr_tcm  installed
+ dhcp             queue4_group3  trap        100    100  packets       sr_tcm  installed
++dhcp_l2          queue4_group3  trap        100    100  packets       sr_tcm  installed
+ dhcpv6           queue4_group3  trap        100    100  packets       sr_tcm  installed
++dhcpv6_l2        queue4_group3  trap        100    100  packets       sr_tcm  installed
+ eapol            queue4_group1  trap       6000   6000  packets       sr_tcm  installed
+ ip2me            queue1_group1  trap       6000   6000  packets       sr_tcm  installed
+ lacp             queue4_group1  trap       6000   6000  packets       sr_tcm  installed
+diff --git a/dump/plugins/copp.py b/dump/plugins/copp.py
+index dfec9907..25ced1fb 100644
+--- a/dump/plugins/copp.py
++++ b/dump/plugins/copp.py
+@@ -20,11 +20,13 @@ TRAP_ID_MAP = {
+     "arp_req": "SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST",
+     "arp_resp": "SAI_HOSTIF_TRAP_TYPE_ARP_RESPONSE",
+     "dhcp": "SAI_HOSTIF_TRAP_TYPE_DHCP",
++    "dhcp_l2": "SAI_HOSTIF_TRAP_TYPE_DHCP_L2",
+     "ospf": "SAI_HOSTIF_TRAP_TYPE_OSPF",
+     "pim": "SAI_HOSTIF_TRAP_TYPE_PIM",
+     "vrrp": "SAI_HOSTIF_TRAP_TYPE_VRRP",
+     "bgp": "SAI_HOSTIF_TRAP_TYPE_BGP",
+     "dhcpv6": "SAI_HOSTIF_TRAP_TYPE_DHCPV6",
++    "dhcpv6_l2": "SAI_HOSTIF_TRAP_TYPE_DHCPV6_L2",
+     "ospfv6": "SAI_HOSTIF_TRAP_TYPE_OSPFV6",
+     "vrrpv6": "SAI_HOSTIF_TRAP_TYPE_VRRPV6",
+     "bgpv6": "SAI_HOSTIF_TRAP_TYPE_BGPV6",
+diff --git a/tests/copp_input/mock_config/mock_copp_cfg.json b/tests/copp_input/mock_config/mock_copp_cfg.json
+index 5499f9b0..45939274 100644
+--- a/tests/copp_input/mock_config/mock_copp_cfg.json
++++ b/tests/copp_input/mock_config/mock_copp_cfg.json
+@@ -102,7 +102,7 @@
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "dhcp_relay": {
+-		    "trap_ids": "dhcp,dhcpv6",
++		    "trap_ids": "dhcp,dhcp_l2,dhcpv6,dhcpv6_l2",
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "udld": {
+diff --git a/tests/copp_test.py b/tests/copp_test.py
+index 18d0b169..668fe2aa 100644
+--- a/tests/copp_test.py
++++ b/tests/copp_test.py
+@@ -26,7 +26,9 @@ bgp              queue4_group1  trap       2000   2000  packets       sr_tcm  in
+ bgpv6            queue4_group1  trap       2000   2000  packets       sr_tcm  not-installed
+ dest_nat_miss    queue1_group2  trap        600    600  packets       sr_tcm  not-installed
+ dhcp             queue4_group3  trap        100    100  packets       sr_tcm  not-installed
++dhcp_l2          queue4_group3  trap        100    100  packets       sr_tcm  not-installed
+ dhcpv6           queue4_group3  trap        100    100  packets       sr_tcm  not-installed
++dhcpv6_l2        queue4_group3  trap        100    100  packets       sr_tcm  not-installed
+ eapol            queue4_group1  trap       2000   2000  packets       sr_tcm  not-installed
+ ip2me            queue1_group1  trap       6000   6000  packets       sr_tcm  not-installed
+ lacp             queue4_group1  trap       2000   2000  packets       sr_tcm  not-installed
+diff --git a/tests/dump_input/copp_cfg.json b/tests/dump_input/copp_cfg.json
+index cae5f4e8..a6831044 100644
+--- a/tests/dump_input/copp_cfg.json
++++ b/tests/dump_input/copp_cfg.json
+@@ -80,7 +80,7 @@
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "dhcp": {
+-		    "trap_ids": "dhcp,dhcpv6",
++		    "trap_ids": "dhcp,dhcp_l2,dhcpv6,dhcpv6_l2",
+ 		    "trap_group": "queue4_group3"
+ 	    },
+ 	    "udld": {
+diff --git a/tests/dump_tests/module_tests/copp_test.py b/tests/dump_tests/module_tests/copp_test.py
+index 56ed3dc6..c627dae2 100644
+--- a/tests/dump_tests/module_tests/copp_test.py
++++ b/tests/dump_tests/module_tests/copp_test.py
+@@ -209,6 +209,6 @@ class TestCoppModule:
+         params = {}
+         m_copp = Copp(match_engine)
+         returned = m_copp.get_all_args("")
+-        expect = ["bgp", "bgpv6", "lacp", "arp_req", "arp_resp", "neigh_discovery", "lldp", "dhcp", "dhcpv6", "udld", "ip2me", "src_nat_miss", "dest_nat_miss", "sample_packet", "snmp", "bfd", "vrrpv6", "ospf", "ospfv6"]
++        expect = ["bgp", "bgpv6", "lacp", "arp_req", "arp_resp", "neigh_discovery", "lldp", "dhcp", "dhcp_l2", "dhcpv6", "dhcpv6_l2", "udld", "ip2me", "src_nat_miss", "dest_nat_miss", "sample_packet", "snmp", "bfd", "vrrpv6", "ospf", "ospfv6"]
+         ddiff = DeepDiff(expect, returned, ignore_order=True)
+         assert not ddiff, ddiff
+-- 
+2.25.1
+

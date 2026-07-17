@@ -106,14 +106,19 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += \
                                $(TENCENT_TCS9400_PLATFORM_MODULE) \
                                $(UFISPACE_S9311_64D_PLATFORM_MODULE) \
                                $(UFISPACE_S6301_56ST_PLATFORM_MODULE) \
+                               $(UFISPACE_S6301_56STP_PLATFORM_MODULE) \
                                $(UFISPACE_S7801_54XS_PLATFORM_MODULE) \
                                $(UFISPACE_S8901_54XC_PLATFORM_MODULE) \
                                $(UFISPACE_S9110_32X_PLATFORM_MODULE) \
                                $(UFISPACE_S9300_32D_PLATFORM_MODULE) \
                                $(UFISPACE_S9301_32D_PLATFORM_MODULE) \
                                $(UFISPACE_S9301_32DB_PLATFORM_MODULE) \
+                               $(UFISPACE_S9311_64D_PLATFORM_MODULE) \
                                $(UFISPACE_S9321_64E_PLATFORM_MODULE) \
                                $(UFISPACE_S9321_64EO_PLATFORM_MODULE) \
+                               $(UFISPACE_S9321_64EO3_PLATFORM_MODULE) \
+                               $(UFISPACE_S9510_28DC_PLATFORM_MODULE) \
+                               $(UFISPACE_S9620_32E_PLATFORM_MODULE) \
                                $(NEXTHOP_COMMON_PLATFORM_MODULE) \
                                $(NEXTHOP_KOMODO_PLATFORM_MODULE) \
                                $(NEXTHOP_4010_PLATFORM_MODULE) \
