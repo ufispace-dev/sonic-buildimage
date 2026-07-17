@@ -1,12 +1,12 @@
-From dcffdeedbccc11c937297424e48f36f9129821f1 Mon Sep 17 00:00:00 2001
-From: Serhiy Boiko <serhiy.boiko@plvision.eu>
-Date: Mon, 8 Jul 2024 10:09:54 +0300
+From 4ac8b261ed66823c8552d8f1d5f622c50d8ea957 Mon Sep 17 00:00:00 2001
+From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
+Date: Fri, 26 Jun 2026 14:43:17 +0800
 Subject: [PATCH] [swss] Add support for PoE
 
 Add poesyncd daemon
 Parse PoE-related configs
 
-*What I did*
+*What I did* 
 
 Add support for PoE based on sonic-sairedis support of multiple switches.
 
@@ -14,7 +14,7 @@ Add support for PoE based on sonic-sairedis support of multiple switches.
 
 Builds and tests using VS builds.
 
-Signed-off-by: Serhiy Boiko <serhiy.boiko@plvision.eu>
+Note: Originally authored by Serhiy Boiko <serhiy.boiko@plvision.eu>
 ---
  .gitignore                               |   1 +
  Makefile.am                              |   4 +-
@@ -25,21 +25,21 @@ Signed-off-by: Serhiy Boiko <serhiy.boiko@plvision.eu>
  configure.ac                             |   1 +
  lib/poecfg.cpp                           | 301 +++++++++++
  lib/poecfg.h                             |  75 +++
- orchagent/Makefile.am                    |   4 +-
- orchagent/main.cpp                       |  33 +-
+ orchagent/Makefile.am                    |   2 +
+ orchagent/main.cpp                       |  31 ++
  orchagent/orchdaemon.cpp                 |   6 +
  orchagent/poeorch.cpp                    | 662 +++++++++++++++++++++++
  orchagent/poeorch.h                      |  38 ++
  orchagent/saihelper.cpp                  |  32 ++
  orchagent/saihelper.h                    |   2 +
- poesyncd/Makefile.am                     |  24 +
+ poesyncd/Makefile.am                     |  23 +
  poesyncd/poeparser.cpp                   | 163 ++++++
  poesyncd/poeparser.h                     |  47 ++
  poesyncd/poesyncd.cpp                    |  83 +++
- tests/mock_tests/Makefile.am             |   4 +-
+ tests/mock_tests/Makefile.am             |   2 +
  tests/mock_tests/mock_orchagent_main.cpp |   1 +
  tests/mock_tests/mock_orchagent_main.h   |   1 +
- 23 files changed, 1633 insertions(+), 6 deletions(-)
+ 23 files changed, 1629 insertions(+), 3 deletions(-)
  create mode 100644 cfgmgr/poemgr.cpp
  create mode 100644 cfgmgr/poemgr.h
  create mode 100644 cfgmgr/poemgrd.cpp
@@ -53,7 +53,7 @@ Signed-off-by: Serhiy Boiko <serhiy.boiko@plvision.eu>
  create mode 100644 poesyncd/poesyncd.cpp
 
 diff --git a/.gitignore b/.gitignore
-index e115801e48..71036e0d9b 100644
+index 21558894..7824acdd 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -52,6 +52,7 @@ cfgmgr/portmgrd
@@ -65,7 +65,7 @@ index e115801e48..71036e0d9b 100644
  cfgmgr/vxlanmgrd
  cfgmgr/natmgrd
 diff --git a/Makefile.am b/Makefile.am
-index 757db0d8d6..ea7708f280 100644
+index 757db0d8..ea7708f2 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -1,7 +1,7 @@
@@ -79,7 +79,7 @@ index 757db0d8d6..ea7708f280 100644
  
  
 diff --git a/cfgmgr/Makefile.am b/cfgmgr/Makefile.am
-index 096c222418..68476cf435 100644
+index 0f71ad7b..a297f608 100644
 --- a/cfgmgr/Makefile.am
 +++ b/cfgmgr/Makefile.am
 @@ -5,7 +5,7 @@ LIBNL_LIBS = -lnl-genl-3 -lnl-route-3 -lnl-3
@@ -120,7 +120,7 @@ index 096c222418..68476cf435 100644
  
 diff --git a/cfgmgr/poemgr.cpp b/cfgmgr/poemgr.cpp
 new file mode 100644
-index 0000000000..31f61ed227
+index 00000000..31f61ed2
 --- /dev/null
 +++ b/cfgmgr/poemgr.cpp
 @@ -0,0 +1,50 @@
@@ -176,7 +176,7 @@ index 0000000000..31f61ed227
 +}
 diff --git a/cfgmgr/poemgr.h b/cfgmgr/poemgr.h
 new file mode 100644
-index 0000000000..bc657696cc
+index 00000000..bc657696
 --- /dev/null
 +++ b/cfgmgr/poemgr.h
 @@ -0,0 +1,28 @@
@@ -210,7 +210,7 @@ index 0000000000..bc657696cc
 +#endif
 diff --git a/cfgmgr/poemgrd.cpp b/cfgmgr/poemgrd.cpp
 new file mode 100644
-index 0000000000..868de05e5a
+index 00000000..868de05e
 --- /dev/null
 +++ b/cfgmgr/poemgrd.cpp
 @@ -0,0 +1,70 @@
@@ -285,10 +285,10 @@ index 0000000000..868de05e5a
 +    return -1;
 +}
 diff --git a/configure.ac b/configure.ac
-index 145231749c..17a5e9668a 100644
+index 63379cc0..9492c14d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -156,6 +156,7 @@ AC_CONFIG_FILES([
+@@ -158,6 +158,7 @@ AC_CONFIG_FILES([
      fpmsyncd/Makefile
      neighsyncd/Makefile
      gearsyncd/Makefile
@@ -298,7 +298,7 @@ index 145231749c..17a5e9668a 100644
      portsyncd/Makefile
 diff --git a/lib/poecfg.cpp b/lib/poecfg.cpp
 new file mode 100644
-index 0000000000..3d4167e1d7
+index 00000000..3d4167e1
 --- /dev/null
 +++ b/lib/poecfg.cpp
 @@ -0,0 +1,301 @@
@@ -605,7 +605,7 @@ index 0000000000..3d4167e1d7
 +}
 diff --git a/lib/poecfg.h b/lib/poecfg.h
 new file mode 100644
-index 0000000000..0fe23c8a95
+index 00000000..0fe23c8a
 --- /dev/null
 +++ b/lib/poecfg.h
 @@ -0,0 +1,75 @@
@@ -685,45 +685,46 @@ index 0000000000..0fe23c8a95
 +
 +#endif /* SWSS_COMMON_POE_CONFIG_H */
 diff --git a/orchagent/Makefile.am b/orchagent/Makefile.am
-index 8f3b3bc17a..bea07f47e4 100644
+index b0cbceb2..f7273da8 100644
 --- a/orchagent/Makefile.am
 +++ b/orchagent/Makefile.am
-@@ -46,5 +46,6 @@ endif
+@@ -50,6 +50,7 @@ endif
  orchagent_SOURCES = \
              main.cpp \
              $(top_srcdir)/lib/gearboxutils.cpp \
 +            $(top_srcdir)/lib/poecfg.cpp \
              $(top_srcdir)/lib/subintf.cpp \
              $(top_srcdir)/lib/recorder.cpp \
-@@ -124,6 +125,7 @@ orchagent_SOURCES = \
-             dash/pbutils.cpp \
-             dash/dashhaorch.cpp \
+             $(top_srcdir)/lib/orch_zmq_config.cpp \
+@@ -138,6 +139,7 @@ orchagent_SOURCES = \
+             dash/dashportmaporch.cpp \
+             dash/dashresulthelper.cpp \
              twamporch.cpp \
 +            poeorch.cpp \
-             stporch.cpp
- 
- orchagent_SOURCES += flex_counter/flex_counter_manager.cpp flex_counter/flex_counter_stat_manager.cpp flex_counter/flow_counter_handler.cpp flex_counter/flowcounterrouteorch.cpp
+             stporch.cpp \
+             nexthopkey.cpp \
+             macsecpost.cpp \
 diff --git a/orchagent/main.cpp b/orchagent/main.cpp
-index 395c7a7e48..8051d3c941 100644
+index d3ae18dd..c2dfbfed 100644
 --- a/orchagent/main.cpp
 +++ b/orchagent/main.cpp
-@@ -29,6 +29,7 @@ extern "C" {
+@@ -32,6 +32,7 @@ extern "C" {
  #include <signal.h>
  #include "warm_restart.h"
  #include "gearboxutils.h"
 +#include "poecfg.h"
+ #include "macsecpost.h"
  
  using namespace std;
- using namespace swss;
-@@ -44,6 +45,7 @@ extern sai_router_interface_api_t *sai_router_intfs_api;
+@@ -48,6 +49,7 @@ extern sai_router_interface_api_t *sai_router_intfs_api;
  sai_object_id_t gVirtualRouterId;
  sai_object_id_t gUnderlayIfId;
  sai_object_id_t gSwitchId = SAI_NULL_OBJECT_ID;
 +sai_object_id_t gPoeSwitchId = SAI_NULL_OBJECT_ID;
  MacAddress gMacAddress;
  MacAddress gVxlanMacAddress;
- 
-@@ -168,6 +170,34 @@ void init_gearbox_phys(DBConnector *applDb)
+ extern volatile sig_atomic_t gOrchShutdownRequested;
+@@ -238,6 +240,34 @@ void init_gearbox_phys(DBConnector *applDb)
      delete tmpGearboxTable;
  }
  
@@ -758,16 +759,7 @@ index 395c7a7e48..8051d3c941 100644
  void getCfgSwitchType(DBConnector *cfgDb, string &switch_type, string &switch_sub_type)
  {
      Table cfgDeviceMetaDataTable(cfgDb, CFG_DEVICE_METADATA_TABLE_NAME);
-@@ -396,7 +426,7 @@ int main(int argc, char **argv)
-             // Disable all recordings if atoi() fails i.e. returns 0 due to
-             // invalid command line argument.
-             record_type = atoi(optarg);
--            if (record_type < 0 || record_type > 7) 
-+            if (record_type < 0 || record_type > 7)
-             {
-                 usage();
-                 exit(EXIT_FAILURE);
-@@ -802,6 +832,7 @@ int main(int argc, char **argv)
+@@ -980,6 +1010,7 @@ int main(int argc, char **argv)
          /* Initialize orchestration components */
  
          init_gearbox_phys(&appl_db);
@@ -776,18 +768,18 @@ index 395c7a7e48..8051d3c941 100644
  
      shared_ptr<OrchDaemon> orchDaemon;
 diff --git a/orchagent/orchdaemon.cpp b/orchagent/orchdaemon.cpp
-index 83ff5136dd..2eb0f0f05d 100644
+index 90637c7e..50e98538 100644
 --- a/orchagent/orchdaemon.cpp
 +++ b/orchagent/orchdaemon.cpp
-@@ -7,6 +7,7 @@
- #include <sairedis.h>
- #include "warm_restart.h"
+@@ -11,6 +11,7 @@
  #include <iostream>
+ #include "orch_zmq_config.h"
+ #include "saihelper.h"
 +#include "poeorch.h"
  
  #define SAI_SWITCH_ATTR_CUSTOM_RANGE_BASE SAI_SWITCH_ATTR_CUSTOM_RANGE_START
  #include "sairedis.h"
-@@ -52,6 +53,7 @@ SwitchOrch *gSwitchOrch;
+@@ -58,6 +59,7 @@ SwitchOrch *gSwitchOrch;
  Directory<Orch*> gDirectory;
  NatOrch *gNatOrch;
  PolicerOrch *gPolicerOrch;
@@ -795,9 +787,9 @@ index 83ff5136dd..2eb0f0f05d 100644
  MlagOrch *gMlagOrch;
  IsoGrpOrch *gIsoGrpOrch;
  MACsecOrch *gMacsecOrch;
-@@ -815,6 +817,10 @@ bool OrchDaemon::init()
-     TwampOrch *twamp_orch = new TwampOrch(confDbTwampTable, stateDbTwampTable, gSwitchOrch, gPortsOrch, vrf_orch);
-     m_orchList.push_back(twamp_orch);
+@@ -909,6 +911,10 @@ bool OrchDaemon::init()
+         SWSS_LOG_NOTICE("High Frequency Telemetry is not supported on this platform");
+     }
  
 +    vector<string> poe_tables = {APP_POE_TABLE_NAME};
 +    gPoeOrch = new PoeOrch(m_applDb, m_configDb, m_stateDb, poe_tables);
@@ -808,7 +800,7 @@ index 83ff5136dd..2eb0f0f05d 100644
          bool suc = warmRestoreAndSyncUp();
 diff --git a/orchagent/poeorch.cpp b/orchagent/poeorch.cpp
 new file mode 100644
-index 0000000000..5c1e19935e
+index 00000000..c5b11d9f
 --- /dev/null
 +++ b/orchagent/poeorch.cpp
 @@ -0,0 +1,662 @@
@@ -1476,7 +1468,7 @@ index 0000000000..5c1e19935e
 +}
 diff --git a/orchagent/poeorch.h b/orchagent/poeorch.h
 new file mode 100644
-index 0000000000..ac1ebec822
+index 00000000..ac1ebec8
 --- /dev/null
 +++ b/orchagent/poeorch.h
 @@ -0,0 +1,38 @@
@@ -1519,18 +1511,18 @@ index 0000000000..ac1ebec822
 +    void doTask(SelectableTimer &timer);
 +};
 diff --git a/orchagent/saihelper.cpp b/orchagent/saihelper.cpp
-index 70df01d667..baeec94771 100644
+index 7c867130..93a1bc1f 100644
 --- a/orchagent/saihelper.cpp
 +++ b/orchagent/saihelper.cpp
-@@ -91,6 +91,7 @@ sai_twamp_api_t*                    sai_twamp_api;
- sai_tam_api_t*                      sai_tam_api;
- sai_stp_api_t*                      sai_stp_api;
- sai_dash_meter_api_t*               sai_dash_meter_api;
+@@ -105,6 +105,7 @@ sai_dash_meter_api_t*               sai_dash_meter_api;
+ sai_dash_outbound_port_map_api_t*   sai_dash_outbound_port_map_api;
+ sai_dash_trusted_vni_api_t*         sai_dash_trusted_vni_api;
+ sai_dash_flow_api_t*                sai_dash_flow_api;
 +sai_poe_api_t*                      sai_poe_api;
  
  extern sai_object_id_t gSwitchId;
  extern bool gTraditionalFlexCounter;
-@@ -247,6 +248,7 @@ void initSaiApi()
+@@ -330,6 +331,7 @@ void initSaiApi()
      sai_api_query(SAI_API_TWAMP,                (void **)&sai_twamp_api);
      sai_api_query(SAI_API_TAM,                  (void **)&sai_tam_api);
      sai_api_query(SAI_API_STP,                  (void **)&sai_stp_api);
@@ -1538,7 +1530,7 @@ index 70df01d667..baeec94771 100644
  
      sai_log_set(SAI_API_SWITCH,                 SAI_LOG_LEVEL_NOTICE);
      sai_log_set(SAI_API_BRIDGE,                 SAI_LOG_LEVEL_NOTICE);
-@@ -290,6 +292,7 @@ void initSaiApi()
+@@ -377,6 +379,7 @@ void initSaiApi()
      sai_log_set(SAI_API_TWAMP,                  SAI_LOG_LEVEL_NOTICE);
      sai_log_set(SAI_API_TAM,                    SAI_LOG_LEVEL_NOTICE);
      sai_log_set(SAI_API_STP,                    SAI_LOG_LEVEL_NOTICE);
@@ -1546,7 +1538,7 @@ index 70df01d667..baeec94771 100644
  }
  
  void initFlexCounterTables()
-@@ -554,6 +557,35 @@ sai_status_t initSaiPhyApi(swss::gearbox_phy_t *phy)
+@@ -641,6 +644,35 @@ sai_status_t initSaiPhyApi(swss::gearbox_phy_t *phy)
      return status;
  }
  
@@ -1583,7 +1575,7 @@ index 70df01d667..baeec94771 100644
  {
      /*
 diff --git a/orchagent/saihelper.h b/orchagent/saihelper.h
-index fab2d9ae91..b14486059f 100644
+index c149b45e..3dac9a2b 100644
 --- a/orchagent/saihelper.h
 +++ b/orchagent/saihelper.h
 @@ -1,6 +1,7 @@
@@ -1592,19 +1584,19 @@ index fab2d9ae91..b14486059f 100644
  #include "gearboxutils.h"
 +#include "poecfg.h"
  
+ #include <iosfwd>
  #include <string>
- #include "orch.h"
-@@ -14,6 +15,7 @@ void initFlexCounterTables();
+@@ -20,6 +21,7 @@ void initFlexCounterTables();
  void initSaiApi();
  void initSaiRedis();
  sai_status_t initSaiPhyApi(swss::gearbox_phy_t *phy);
 +sai_status_t initSaiPoeApi(sai_object_id_t &switchOid);
  
- /* Handling SAI status*/
- task_process_status handleSaiCreateStatus(sai_api_t api, sai_status_t status, void *context = nullptr);
+ sai_redis_communication_mode_t resolveCommunicationModeFromContextConfig(
+         std::istream& jsonStream,
 diff --git a/poesyncd/Makefile.am b/poesyncd/Makefile.am
 new file mode 100644
-index 0000000000..ad9ac1f6ac
+index 00000000..ba110cf5
 --- /dev/null
 +++ b/poesyncd/Makefile.am
 @@ -0,0 +1,23 @@
@@ -1633,7 +1625,7 @@ index 0000000000..ad9ac1f6ac
 +endif
 diff --git a/poesyncd/poeparser.cpp b/poesyncd/poeparser.cpp
 new file mode 100644
-index 0000000000..1bf8ebace1
+index 00000000..1bf8ebac
 --- /dev/null
 +++ b/poesyncd/poeparser.cpp
 @@ -0,0 +1,163 @@
@@ -1802,7 +1794,7 @@ index 0000000000..1bf8ebace1
 +}
 diff --git a/poesyncd/poeparser.h b/poesyncd/poeparser.h
 new file mode 100644
-index 0000000000..38ebf05f85
+index 00000000..38ebf05f
 --- /dev/null
 +++ b/poesyncd/poeparser.h
 @@ -0,0 +1,47 @@
@@ -1855,7 +1847,7 @@ index 0000000000..38ebf05f85
 +};
 diff --git a/poesyncd/poesyncd.cpp b/poesyncd/poesyncd.cpp
 new file mode 100644
-index 0000000000..7bf1920d12
+index 00000000..7bf1920d
 --- /dev/null
 +++ b/poesyncd/poesyncd.cpp
 @@ -0,0 +1,83 @@
@@ -1943,28 +1935,27 @@ index 0000000000..7bf1920d12
 +    return EXIT_SUCCESS;
 +}
 diff --git a/tests/mock_tests/Makefile.am b/tests/mock_tests/Makefile.am
-index e952720afb..145a792155 100644
+index 815ce861..839ab1d8 100644
 --- a/tests/mock_tests/Makefile.am
 +++ b/tests/mock_tests/Makefile.am
-@@ -79,6 +79,7 @@ tests_SOURCES = aclorch_ut.cpp \
-                 mock_saihelper.cpp \
+@@ -107,6 +107,7 @@ tests_SOURCES = aclorch_ut.cpp \
+                 notifications_ut.cpp \
                  $(top_srcdir)/warmrestart/warmRestartHelper.cpp \
                  $(top_srcdir)/lib/gearboxutils.cpp \
 +                $(top_srcdir)/lib/poecfg.cpp \
                  $(top_srcdir)/lib/subintf.cpp \
                  $(top_srcdir)/lib/recorder.cpp \
-                 $(top_srcdir)/orchagent/orchdaemon.cpp \
-@@ -161,7 +162,8 @@ tests_SOURCES = aclorch_ut.cpp \
-                 $(top_srcdir)/orchagent/dash/pbutils.cpp \
+                 $(top_srcdir)/lib/orch_zmq_config.cpp \
+@@ -201,6 +202,7 @@ tests_SOURCES = aclorch_ut.cpp \
                  $(top_srcdir)/cfgmgr/coppmgr.cpp \
                  $(top_srcdir)/orchagent/twamporch.cpp \
+                 $(top_srcdir)/orchagent/stporch.cpp \
 +                $(top_srcdir)/orchagent/poeorch.cpp \
-                 $(top_srcdir)/orchagent/stporch.cpp
- 
- tests_SOURCES += $(FLEX_CTR_DIR)/flex_counter_manager.cpp $(FLEX_CTR_DIR)/flex_counter_stat_manager.cpp $(FLEX_CTR_DIR)/flow_counter_handler.cpp $(FLEX_CTR_DIR)/flowcounterrouteorch.cpp
- tests_SOURCES += $(DEBUG_CTR_DIR)/debug_counter.cpp $(DEBUG_CTR_DIR)/drop_counter.cpp
+                 $(top_srcdir)/orchagent/nexthopkey.cpp \
+                 $(top_srcdir)/orchagent/high_frequency_telemetry/hftelorch.cpp \
+                 $(top_srcdir)/orchagent/high_frequency_telemetry/hftelprofile.cpp \
 diff --git a/tests/mock_tests/mock_orchagent_main.cpp b/tests/mock_tests/mock_orchagent_main.cpp
-index c14753c62a..1f13d6333b 100644
+index ae1a5ac8..6da1c7d6 100644
 --- a/tests/mock_tests/mock_orchagent_main.cpp
 +++ b/tests/mock_tests/mock_orchagent_main.cpp
 @@ -9,6 +9,7 @@ extern "C" {
@@ -1973,16 +1964,20 @@ index c14753c62a..1f13d6333b 100644
  sai_object_id_t gSwitchId = SAI_NULL_OBJECT_ID;
 +sai_object_id_t gPoeSwitchId = SAI_NULL_OBJECT_ID;
  MacAddress gMacAddress;
+ MacAddress gSagMacAddress;
  MacAddress gVxlanMacAddress;
- 
 diff --git a/tests/mock_tests/mock_orchagent_main.h b/tests/mock_tests/mock_orchagent_main.h
-index 517c47f8a2..f2d02a9ed9 100644
+index 1894d385..9bf65bb4 100644
 --- a/tests/mock_tests/mock_orchagent_main.h
 +++ b/tests/mock_tests/mock_orchagent_main.h
-@@ -45,5 +45,6 @@ extern MacAddress gMacAddress;
+@@ -51,6 +51,7 @@ extern MacAddress gMacAddress;
  extern MacAddress gVxlanMacAddress;
  
  extern sai_object_id_t gSwitchId;
 +extern sai_object_id_t gPoeSwitchId;
  extern sai_object_id_t gVirtualRouterId;
  extern sai_object_id_t gUnderlayIfId;
+ 
+-- 
+2.25.1
+

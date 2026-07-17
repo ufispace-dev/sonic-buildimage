@@ -5,6 +5,7 @@
         "num_fans_pertray": 2,
         "num_ports": 38,
         "num_temps": 12,
+        "num_asic_temps": 1,
         "num_components":8,
         "pddf_dev_types": {
             "description": "PDDF supported devices",
@@ -30,33 +31,33 @@
             "i2c_dev",
             "i2c_mux_pca954x",
             "optoe",
-            "ice",
-            "irdma"
+            "irdma",
+            "ice"
         ],
         "pddf_kos": [
-            "pddf_client_module",
-            "pddf_cpld_module",
-            "pddf_cpld_driver",
-            "pddf_mux_module",
-            "pddf_cpldmux_module",
-            "pddf_xcvr_module",
+            "pddf_custom_sysstatus_module",
+            "pddf_led_module",
+            "pddf_fan_module",
+            "pddf_fan_driver_module",
+            "pddf_fpgai2c_driver",
+            "pddf_fpgai2c_module",
+            "pddf_psu_module",
+            "pddf_psu_driver_module",
+            "pddf_xcvr_driver_module",
+            "pddf_fpgapci_driver",
+            "pddf_cpldmux_driver",
             "pddf_multifpgapci_i2c_module",
             "pddf_multifpgapci_driver",
-            "pddf_cpldmux_driver",
-            "pddf_fpgapci_driver",
-            "pddf_xcvr_driver_module",
-            "pddf_psu_driver_module",
-            "pddf_psu_module",
-            "pddf_fpgai2c_module",
-            "pddf_fpgai2c_driver",
-            "pddf_fan_driver_module",
-            "pddf_fan_module",
-            "pddf_led_module"
+            "pddf_xcvr_module",
+            "pddf_cpldmux_module",
+            "pddf_mux_module",
+            "pddf_cpld_driver",
+            "pddf_cpld_module",
+            "pddf_client_module"
         ],
         "custom_kos": [
             "x86-64-ufispace-s9620-32e-lpc",
-            "x86-64-ufispace-s9620-32e-sys-eeprom",
-            "pddf_custom_sysstatus_module"
+            "x86-64-ufispace-s9620-32e-sys-eeprom"
         ]
     },
     "COMPONENT1":
@@ -72,7 +73,7 @@
         "comp_attr":{ "name": "CPLD1", "type": "cpld", "description": "CPLD 1"},
         "attr_list":
         [
-            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld1_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld1_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld1_build)" }
+            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld1_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld1_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld1_build_ver)" }
         ]
     },
     "COMPONENT3":
@@ -80,7 +81,7 @@
         "comp_attr":{ "name": "CPLD2", "type": "cpld", "description":"CPLD 2"},
         "attr_list":
         [
-            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld2_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld2_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld2_build)" }
+            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld2_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld2_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld2_build_ver)" }
         ]
     },
     "COMPONENT4":
@@ -88,7 +89,7 @@
         "comp_attr":{ "name": "CPLD3", "type": "cpld", "description":"CPLD 3"},
         "attr_list":
         [
-            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld3_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld3_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld3_build)" }
+            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld3_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld3_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld3_build_ver)" }
         ]
     },
     "COMPONENT5":
@@ -96,7 +97,7 @@
         "comp_attr":{ "name": "CPLD4", "type": "cpld", "description":"CPLD 4"},
         "attr_list":
         [
-            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld4_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld4_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld4_build)" }
+            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld4_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld4_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/cpld4_build_ver)" }
         ]
     },
     "COMPONENT6":
@@ -104,7 +105,7 @@
         "comp_attr":{ "name": "FPGA", "type": "fpga", "description":"FPGA"},
         "attr_list":
         [
-            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/fpga_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/fpga_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/fpga_build)" }
+            { "attr_name":"version", "get_cmd": "printf '%d.%02d.%03d' $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/fpga_major_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/fpga_minor_ver) $(cat /sys/kernel/pddf/devices/sysstatus/sysstatus_data/fpga_build_ver)" }
         ]
     },
     "COMPONENT7":
@@ -1175,6 +1176,19 @@
                     }
                 ]
             }
+        }
+    },
+    "ASIC_TEMP1": {
+        "dev_info": {
+            "device_type": "ASIC_TEMP_SENSOR",
+            "device_name": "ASIC_TEMP1",
+            "device_parent": "None"
+        },
+        "dev_attr": {
+            "display_name": "TEMP_MAC_HWM",
+            "temp1_high_threshold": 95,
+            "temp1_high_crit_threshold": 105,
+            "table_index": "maximum_temperature"
         }
     },
     "PSU1": {

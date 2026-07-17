@@ -1,6 +1,6 @@
-From 1411752f510e2faa28d7e5ed1113b2f15665cff6 Mon Sep 17 00:00:00 2001
+From da0b5b7d441a7769a03fede570b90805b1c65ec1 Mon Sep 17 00:00:00 2001
 From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
-Date: Mon, 2 Feb 2026 11:23:22 +0800
+Date: Fri, 26 Jun 2026 14:50:15 +0800
 Subject: [PATCH] [sonic-utilities] Add PoE CLI
 
 Add show/config commands
@@ -244,10 +244,10 @@ index 00000000..0f0bf1dd
 +        raise Exception(f"{cli_node.name} already exists in CLI")
 +    cli.add_command(poe)
 diff --git a/doc/Command-Reference.md b/doc/Command-Reference.md
-index acb4963b..d88b2f97 100644
+index 9c0042bf..e7ad219c 100644
 --- a/doc/Command-Reference.md
 +++ b/doc/Command-Reference.md
-@@ -259,6 +259,10 @@
+@@ -276,6 +276,10 @@
  * [CoPP Commands](#copp-commands)
    * [Overview](#overview)
    * [CoPP show commands](#copp-show-commands)
@@ -258,7 +258,7 @@ index acb4963b..d88b2f97 100644
  ## Document History
  
  | Version | Modification Date | Details |
-@@ -15470,3 +15474,114 @@ Yellow Action............... forward
+@@ -16976,3 +16980,114 @@ Yellow Action............... forward
  Green Action................ forward
  Red Action.................. drop
  ```

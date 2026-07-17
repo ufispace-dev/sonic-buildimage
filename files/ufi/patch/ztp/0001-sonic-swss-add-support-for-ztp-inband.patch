@@ -1,6 +1,6 @@
-From 6026d567cb768919b07dfb81bed50d65c2f37150 Mon Sep 17 00:00:00 2001
+From e161a82f1f769dad465bb2484658d6cc0e28ca76 Mon Sep 17 00:00:00 2001
 From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
-Date: Fri, 30 Jan 2026 17:24:08 +0800
+Date: Fri, 26 Jun 2026 11:05:30 +0800
 Subject: [PATCH] sonic-swss add dhcp l2
 
 ---

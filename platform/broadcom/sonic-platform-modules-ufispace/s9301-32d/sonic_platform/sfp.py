@@ -29,3 +29,17 @@ class Sfp(PddfSfp):
             return self.SFP_STATUS_UNPLUGGED
 
         return self.SFP_STATUS_OK
+
+    def set_lpmode_hardware(self, lpmode):
+        """
+        Set the hardware LPMode for the SFP module
+        Args:
+            lpmode: True to enable hardware LPMode, False to disable
+        """
+        device = 'PORT{}'.format(self.port_index)
+        path = self.pddf_obj.get_path(device, 'xcvr_lpmode')
+
+        if not path:
+            return False
+
+        super()._set_lpmode_hardware(lpmode)

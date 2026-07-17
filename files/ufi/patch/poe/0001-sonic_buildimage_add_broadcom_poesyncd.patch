@@ -1,25 +1,26 @@
-From 79ba769ac4c5b0b17a7e4298226a52083587ba99 Mon Sep 17 00:00:00 2001
-From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
-Date: Mon, 2 Feb 2026 11:28:11 +0800
+From 076ec770ccfb45a7a7c6d1dfb372abd3713606b2 Mon Sep 17 00:00:00 2001
+From: fengkm <chifeng.km@gmail.com>
+Date: Fri, 3 Jul 2026 10:47:53 +0800
 Subject: [PATCH] [sonic-buildimage] add broadcom poesyncd
 
-add docker-poesyncd-brcm
 ---
  platform/broadcom/docker-poesyncd-brcm.dep    | 11 ++++
  platform/broadcom/docker-poesyncd-brcm.mk     | 22 ++++++++
- .../docker-poesyncd-brcm/Dockerfile.j2        | 38 ++++++++++++++
+ .../docker-poesyncd-brcm/Dockerfile.j2        | 43 ++++++++++++++++
  .../docker-poesyncd-brcm/critical_processes   |  1 +
  .../broadcom/docker-poesyncd-brcm/start.sh    | 14 ++++++
  .../docker-poesyncd-brcm/supervisord.conf     | 50 +++++++++++++++++++
  platform/broadcom/rules.dep                   |  1 +
  platform/broadcom/rules.mk                    |  1 +
- 8 files changed, 138 insertions(+)
+ platform/template/docker-poesyncd-trixie.mk   | 32 ++++++++++++
+ 9 files changed, 175 insertions(+)
  create mode 100644 platform/broadcom/docker-poesyncd-brcm.dep
  create mode 100644 platform/broadcom/docker-poesyncd-brcm.mk
  create mode 100644 platform/broadcom/docker-poesyncd-brcm/Dockerfile.j2
  create mode 100644 platform/broadcom/docker-poesyncd-brcm/critical_processes
  create mode 100755 platform/broadcom/docker-poesyncd-brcm/start.sh
  create mode 100644 platform/broadcom/docker-poesyncd-brcm/supervisord.conf
+ create mode 100644 platform/template/docker-poesyncd-trixie.mk
 
 diff --git a/platform/broadcom/docker-poesyncd-brcm.dep b/platform/broadcom/docker-poesyncd-brcm.dep
 new file mode 100644
@@ -40,7 +41,7 @@ index 000000000..266c2848c
 +$(eval $(call add_dbg_docker,$(DOCKER_POESYNCD_BASE),$(DOCKER_POESYNCD_BASE_DBG)))
 diff --git a/platform/broadcom/docker-poesyncd-brcm.mk b/platform/broadcom/docker-poesyncd-brcm.mk
 new file mode 100644
-index 000000000..134a0cd03
+index 000000000..d29ac169a
 --- /dev/null
 +++ b/platform/broadcom/docker-poesyncd-brcm.mk
 @@ -0,0 +1,22 @@
@@ -52,7 +53,7 @@ index 000000000..134a0cd03
 +$(UFI_POE_SAI)_SKIP_VERSION=y
 +
 +DOCKER_POESYNCD_PLATFORM_CODE = brcm
-+include $(PLATFORM_PATH)/../template/docker-poesyncd-base.mk
++include $(PLATFORM_PATH)/../template/docker-poesyncd-trixie.mk
 +
 +$(DOCKER_POESYNCD_BASE)_DEPENDS += $(SYNCD)
 +$(DOCKER_POESYNCD_BASE)_DEPENDS += $(UFI_POE_SAI)
@@ -68,11 +69,14 @@ index 000000000..134a0cd03
 +$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
 diff --git a/platform/broadcom/docker-poesyncd-brcm/Dockerfile.j2 b/platform/broadcom/docker-poesyncd-brcm/Dockerfile.j2
 new file mode 100644
-index 000000000..3499fb6c8
+index 000000000..6ba7cbdbb
 --- /dev/null
 +++ b/platform/broadcom/docker-poesyncd-brcm/Dockerfile.j2
-@@ -0,0 +1,38 @@
-+FROM docker-config-engine-bookworm-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
+@@ -0,0 +1,43 @@
++{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files, rsync_from_builder_stage %}
++ARG BASE=docker-config-engine-trixie-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
++
++FROM $BASE AS base
 +
 +ARG docker_container_name
 +
@@ -88,7 +92,7 @@ index 000000000..3499fb6c8
 +COPY debs/libnl-3-dev_*_amd64.deb debs/libnl-route-3-dev_*_amd64.deb debs/
 +RUN dpkg -i debs/libnl-3-dev_*_amd64.deb debs/libnl-route-3-dev_*_amd64.deb
 +
-+RUN apt-get install -f -y libabsl20220623 libc-ares2 python3-six libboost-thread1.74.0 libboost-dev libboost-system-dev libboost-thread-dev libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0 libnanomsg5 libpcap0.8 libthrift-0.17.0 libboost-dev libboost-filesystem-dev libboost-program-options-dev libgmp-dev libnanomsg-dev libpcap-dev libtool pkg-config libthrift-dev python3-thrift thrift-compiler libboost-iostreams1.74.0 libgc1 cpp libboost-dev libboost-all-dev libboost-graph-dev libboost-iostreams-dev libfl-dev libgc-dev libgmp-dev libbpf-dev tcpdump libelf-dev llvm clang python3-pyroute2 python3-ply python3-scapy python3-setuptools python3-thrift libthrift-0.17.0 libgrpc++1.51 libgrpc29 libprotobuf32 libboost-dev libboost-system-dev libboost-thread-dev libprotoc-dev protobuf-compiler python3-protobuf libgrpc++-dev libgrpc-dev protobuf-compiler-grpc python3-grpcio
++RUN apt-get install -f -y libabsl-dev libcares2 python3-six libboost-thread-dev libboost-dev libboost-system-dev libboost-thread-dev libboost-filesystem-dev libboost-program-options-dev libnanomsg5 libpcap0.8 libthrift-dev libboost-dev libboost-filesystem-dev libboost-program-options-dev libgmp-dev libnanomsg-dev libpcap-dev libtool pkg-config libthrift-dev python3-thrift thrift-compiler libboost-iostreams-dev libgc1 cpp libboost-dev libboost-all-dev libboost-graph-dev libboost-iostreams-dev libfl-dev libgc-dev libgmp-dev libbpf-dev tcpdump libelf-dev llvm clang python3-pyroute2 python3-ply python3-scapy python3-setuptools python3-thrift libgrpc++-dev libgrpc-dev libprotoc-dev libboost-dev libboost-system-dev libboost-thread-dev libprotoc-dev protobuf-compiler python3-protobuf libgrpc++-dev libgrpc-dev protobuf-compiler-grpc python3-grpcio
 +
 +COPY \
 +{% for deb in docker_poesyncd_brcm_debs.split(' ') -%}
@@ -106,9 +110,11 @@ index 000000000..3499fb6c8
 +#COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 +COPY ["critical_processes", "/etc/supervisor/"]
 +
-+## Clean up
-+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
++FROM $BASE
 +
++{{ rsync_from_builder_stage() }}
++
++ENV DEBIAN_FRONTEND=noninteractive
 +ENTRYPOINT ["/usr/local/bin/supervisord"]
 diff --git a/platform/broadcom/docker-poesyncd-brcm/critical_processes b/platform/broadcom/docker-poesyncd-brcm/critical_processes
 new file mode 100644
@@ -194,11 +200,11 @@ index 000000000..7173cdb1e
 +dependent_startup=true
 +dependent_startup_wait_for=start:exited
 diff --git a/platform/broadcom/rules.dep b/platform/broadcom/rules.dep
-index 806f8d50e..75ee062c8 100644
+index 5662eb499..fa9de1ed1 100644
 --- a/platform/broadcom/rules.dep
 +++ b/platform/broadcom/rules.dep
-@@ -24,6 +24,7 @@ include $(PLATFORM_PATH)/docker-syncd-brcm.dep
- include $(PLATFORM_PATH)/docker-syncd-brcm-rpc.dep
+@@ -26,6 +26,7 @@ include $(PLATFORM_PATH)/docker-syncd-brcm-legacy-th.dep
+ include $(PLATFORM_PATH)/docker-syncd-brcm-legacy-th-rpc.dep
  include $(PLATFORM_PATH)/docker-saiserver-brcm.dep
  include $(PLATFORM_PATH)/sswsyncd.dep
 +include $(PLATFORM_PATH)/docker-poesyncd-brcm.dep
@@ -206,17 +212,55 @@ index 806f8d50e..75ee062c8 100644
  include $(PLATFORM_PATH)/docker-pde.dep
  include $(PLATFORM_PATH)/sonic-pde-tests.dep
 diff --git a/platform/broadcom/rules.mk b/platform/broadcom/rules.mk
-index 26f24cb56..b4ec8e400 100755
+index 4cf165cc8..e029607fb 100644
 --- a/platform/broadcom/rules.mk
 +++ b/platform/broadcom/rules.mk
-@@ -26,6 +26,7 @@ include $(PLATFORM_PATH)/platform-modules-ufispace.mk
- include $(PLATFORM_PATH)/docker-syncd-brcm.mk
- include $(PLATFORM_PATH)/docker-syncd-brcm-rpc.mk
+@@ -29,6 +29,7 @@ include $(PLATFORM_PATH)/docker-syncd-brcm-rpc.mk
  include $(PLATFORM_PATH)/docker-saiserver-brcm.mk
+ include $(PLATFORM_PATH)/docker-syncd-brcm-legacy-th.mk
+ include $(PLATFORM_PATH)/docker-syncd-brcm-legacy-th-rpc.mk
 +include $(PLATFORM_PATH)/docker-poesyncd-brcm.mk
  ifeq ($(INCLUDE_PDE), y)
  include $(PLATFORM_PATH)/docker-pde.mk
  include $(PLATFORM_PATH)/sonic-pde-tests.mk
+diff --git a/platform/template/docker-poesyncd-trixie.mk b/platform/template/docker-poesyncd-trixie.mk
+new file mode 100644
+index 000000000..aa2e5a7d7
+--- /dev/null
++++ b/platform/template/docker-poesyncd-trixie.mk
+@@ -0,0 +1,32 @@
++# docker image for poesyncd
++
++
++DOCKER_POESYNCD_BASE_STEM = docker-poesyncd-$(DOCKER_POESYNCD_PLATFORM_CODE)
++DOCKER_POESYNCD_BASE = $(DOCKER_POESYNCD_BASE_STEM).gz
++DOCKER_POESYNCD_BASE_DBG = $(DOCKER_POESYNCD_BASE_STEM)-$(DBG_IMAGE_MARK).gz
++
++$(DOCKER_POESYNCD_BASE)_PATH = $(PLATFORM_PATH)/docker-poesyncd-$(DOCKER_POESYNCD_PLATFORM_CODE)
++
++$(DOCKER_POESYNCD_BASE)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
++
++$(DOCKER_POESYNCD_BASE)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE_TRIXIE)
++
++$(DOCKER_POESYNCD_BASE)_DBG_DEPENDS += $($(DOCKER_CONFIG_ENGINE_TRIXIE)_DBG_DEPENDS)
++
++$(DOCKER_POESYNCD_BASE)_DBG_IMAGE_PACKAGES = $($(DOCKER_CONFIG_ENGINE_TRIXIE)_DBG_IMAGE_PACKAGES)
++
++ifeq ($(INCLUDE_POE), y)
++SONIC_DOCKER_IMAGES += $(DOCKER_POESYNCD_BASE)
++SONIC_TRIXIE_DOCKERS += $(DOCKER_POESYNCD_BASE)
++SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_POESYNCD_BASE)
++
++SONIC_DOCKER_DBG_IMAGES += $(DOCKER_POESYNCD_BASE_DBG)
++SONIC_TRIXIE_DBG_DOCKERS += $(DOCKER_POESYNCD_BASE_DBG)
++SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_POESYNCD_BASE_DBG)
++endif
++
++$(DOCKER_POESYNCD_BASE)_CONTAINER_NAME = poesyncd
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += --privileged -t
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
++$(DOCKER_POESYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
 -- 
 2.25.1
 

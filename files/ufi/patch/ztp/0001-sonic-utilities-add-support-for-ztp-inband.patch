@@ -1,6 +1,6 @@
-From 1a06f22aeabeae19bc11cd45ae8cc936f882b489 Mon Sep 17 00:00:00 2001
+From 44c642a8c0340c26fc74719684841befb41d068d Mon Sep 17 00:00:00 2001
 From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
-Date: Fri, 30 Jan 2026 17:39:55 +0800
+Date: Fri, 26 Jun 2026 11:06:56 +0800
 Subject: [PATCH] sonic-utilities add dhcp l2
 
 ---
@@ -13,10 +13,10 @@ Subject: [PATCH] sonic-utilities add dhcp l2
  6 files changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/doc/Command-Reference.md b/doc/Command-Reference.md
-index acb4963b..3182582f 100644
+index 9c0042bf..515a7d5a 100644
 --- a/doc/Command-Reference.md
 +++ b/doc/Command-Reference.md
-@@ -15412,7 +15412,9 @@ bgp              queue4_group1  trap       6000   6000  packets       sr_tcm  no
+@@ -16918,7 +16918,9 @@ bgp              queue4_group1  trap       6000   6000  packets       sr_tcm  no
  bgpv6            queue4_group1  trap       6000   6000  packets       sr_tcm  not-installed
  dest_nat_miss    queue1_group2  trap        600    600  packets       sr_tcm  installed
  dhcp             queue4_group3  trap        100    100  packets       sr_tcm  installed
@@ -27,7 +27,7 @@ index acb4963b..3182582f 100644
  ip2me            queue1_group1  trap       6000   6000  packets       sr_tcm  installed
  lacp             queue4_group1  trap       6000   6000  packets       sr_tcm  installed
 diff --git a/dump/plugins/copp.py b/dump/plugins/copp.py
-index 16866244..d5fc2100 100644
+index dfec9907..25ced1fb 100644
 --- a/dump/plugins/copp.py
 +++ b/dump/plugins/copp.py
 @@ -20,11 +20,13 @@ TRAP_ID_MAP = {
@@ -58,7 +58,7 @@ index 5499f9b0..45939274 100644
  	    },
  	    "udld": {
 diff --git a/tests/copp_test.py b/tests/copp_test.py
-index c79584de..90142fdf 100644
+index 18d0b169..668fe2aa 100644
 --- a/tests/copp_test.py
 +++ b/tests/copp_test.py
 @@ -26,7 +26,9 @@ bgp              queue4_group1  trap       2000   2000  packets       sr_tcm  in

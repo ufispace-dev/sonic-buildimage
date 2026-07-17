@@ -30,38 +30,35 @@
             "i2c-ismt"
         ],
         "std_kos": [
-            "i2c_dev",
             "i2c_mux_pca954x",
             "optoe",
             "lm75",
             "gpio-pca953x",
             "ucd9000",
-            "at24"
+            "at24",
+            "i2c_dev"
         ],
         "pddf_kos": [
-            "pddf_client_module",
-            "pddf_cpld_module",
-            "pddf_cpld_driver",
+            "pddf_custom_psu",
             "pddf_mux_module",
             "pddf_xcvr_module",
-            "pddf_multifpgapci_i2c_module",
-            "pddf_multifpgapci_driver",
-            "pddf_fpgapci_driver",
             "pddf_xcvr_driver_module",
-            "pddf_psu_driver_module",
             "pddf_psu_module",
-            "pddf_fpgai2c_module",
-            "pddf_fpgai2c_driver",
-            "pddf_fan_driver_module",
+            "pddf_psu_driver_module",
             "pddf_fan_module",
+            "pddf_fan_driver_module",
             "pddf_led_module",
-            "pddf_gpio_module"
+            "pddf_gpio_module",
+            "pddf_cpld_driver",
+            "pddf_cpld_module",
+            "pddf_fpgai2c_driver",
+            "pddf_fpgai2c_module",
+            "pddf_multifpgapci_driver"
         ],
         "custom_kos": [
             "x86-64-ufispace-s6301-56stp-lpc",
             "x86-64-ufispace-s6301-56stp-sys-eeprom",
-            "x86-64-ufispace-s6301-56stp-poe",
-            "pddf_custom_psu"
+            "x86-64-ufispace-s6301-56stp-poe"
         ]
     },
     "COMPONENT1":
@@ -1086,6 +1083,15 @@
                     "attr_mask": "0x0",
                     "attr_cmpval": "0xff",
                     "attr_len": "2"
+                },
+                {
+                    "attr_name": "psu_temp1_high_threshold",
+                    "attr_devaddr": "0x58",
+                    "attr_devtype": "pmbus",
+                    "attr_offset": "0x51",
+                    "attr_mask": "0x0",
+                    "attr_cmpval": "0xff",
+                    "attr_len": "2"
                 }
             ]
         }
@@ -1277,6 +1283,15 @@
                     "attr_devaddr": "0x59",
                     "attr_devtype": "pmbus",
                     "attr_offset": "0x8d",
+                    "attr_mask": "0x0",
+                    "attr_cmpval": "0xff",
+                    "attr_len": "2"
+                },
+                {
+                    "attr_name": "psu_temp1_high_threshold",
+                    "attr_devaddr": "0x59",
+                    "attr_devtype": "pmbus",
+                    "attr_offset": "0x51",
                     "attr_mask": "0x0",
                     "attr_cmpval": "0xff",
                     "attr_len": "2"

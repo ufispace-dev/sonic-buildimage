@@ -1,36 +1,14 @@
-From dd9f2c405b45bc29c2058ed4ac82215418cf6511 Mon Sep 17 00:00:00 2001
-From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
-Date: Mon, 2 Feb 2026 10:22:49 +0800
+From 9099d9fcc52b694e467516c48230edd6eaee012d Mon Sep 17 00:00:00 2001
+From: feng.cf.lee <feng.cf.lee@ufispace.com>
+Date: Fri, 26 Jun 2026 11:03:03 +0800
 Subject: [PATCH] sonic-ztp set device type to ToRRouter to enable dhcp_relay
 
 ---
- src/usr/lib/ztp/plugins/configdb-json   |  3 ++-
  src/usr/lib/ztp/sonic-ztp               |  9 +++++++++
  src/usr/lib/ztp/templates/ztp-config.j2 |  2 +-
  src/usr/lib/ztp/ztp-profile.sh          | 10 ++++++++++
- 4 files changed, 22 insertions(+), 2 deletions(-)
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/src/usr/lib/ztp/plugins/configdb-json b/src/usr/lib/ztp/plugins/configdb-json
-index a527fbb..11cd0de 100755
---- a/src/usr/lib/ztp/plugins/configdb-json
-+++ b/src/usr/lib/ztp/plugins/configdb-json
-@@ -24,6 +24,7 @@ import time
- import stat
- import traceback
- import json
-+import shutil
- from swsscommon.swsscommon import ConfigDBConnector
- 
- from ztp.ZTPObjects import URL, DynamicURL
-@@ -226,7 +227,7 @@ class ConfigDBJson:
- 
-             # Move staged config file to requested destination file
-             if final_dest_file is not None:
--                os.rename(dest_file, final_dest_file)
-+                shutil.move(dest_file, final_dest_file)
-             else:
-                 os.remove(dest_file)
- 
 diff --git a/src/usr/lib/ztp/sonic-ztp b/src/usr/lib/ztp/sonic-ztp
 index 5239d94..64d177d 100755
 --- a/src/usr/lib/ztp/sonic-ztp

@@ -1,6 +1,6 @@
-From ccb7d459786fbdeeafe262c52328fd60390118b3 Mon Sep 17 00:00:00 2001
+From 4cde56d2e49a25cf89b3e33a8d4433bbf3cd0795 Mon Sep 17 00:00:00 2001
 From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
-Date: Fri, 30 Jan 2026 17:22:35 +0800
+Date: Fri, 26 Jun 2026 11:10:00 +0800
 Subject: [PATCH] sonic-buildimage enable ztp and dhcp l2
 
 ---
@@ -22,11 +22,11 @@ index fc2002cff..d319ac4e5 100755
  	    },
  	    "udld": {
 diff --git a/rules/config b/rules/config
-index 516efe5cb..caee03de9 100644
+index c660c2d31..19d40e79c 100644
 --- a/rules/config
 +++ b/rules/config
-@@ -41,7 +41,7 @@ DEFAULT_USERNAME = admin
- DEFAULT_PASSWORD = YourPaSsWoRd
+@@ -87,7 +87,7 @@ BMC_NOS_ACCOUNT_USERNAME ?= yormnAnb
+ BMC_ROOT_ACCOUNT_DEFAULT_PASSWORD ?=
  
  # ENABLE_ZTP - installs Zero Touch Provisioning support.
 -# ENABLE_ZTP = y

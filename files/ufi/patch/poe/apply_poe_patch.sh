@@ -8,31 +8,35 @@ COLOR_PASS="\033[42;30m"
 COLOR_WARNING="\033[43;30m"
 COLOR_END="\033[0m"
 
+log_title() { echo -e "${COLOR_TITLE} $* ${COLOR_END}"; }
+log_pass() { echo -e "${COLOR_PASS}PASS:${COLOR_END} $*"; }
+log_warn() { echo -e "${COLOR_WARNING}WARN:${COLOR_END} $*"; }
+log_err()  { echo -e "${COLOR_ERROR}ERROR:${COLOR_END} $*" >&2; }
+
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../" && pwd)"
-# master-0a0422cc for master branch on 2026/02/02
-# 202505-e7665a3b for 202505 branch on 2025/09/10,
-COMMIT_ID="master-0a0422cc"
-PATCH_DIR="${ROOT_DIR}/files/ufi/patch/poe/${COMMIT_ID}"
+PATCH_DIR="${ROOT_DIR}/files/ufi/patch/poe"
 
 function _make_init {
-    echo -e "${COLOR_TITLE} ==== ${FUNCNAME[0]} ==== ${COLOR_END}"
+    log_title "==== ${FUNCNAME[0]} ===="
 
     cd ${ROOT_DIR}/
     if [ ! -f "${ROOT_DIR}/.init" ]; then
-        make init
+        if [ ! -f "${ROOT_DIR}/src/sonic-linux-kernel/.git" ]; then
+            make init
+        fi
         touch ${ROOT_DIR}/.init
     fi
 
-    echo -e "${COLOR_PASS} ${FUNCNAME[0]}: PASS ${COLOR_END}"
+    log_pass "${FUNCNAME[0]}"
 }
 
 function _poe_patch {
-    echo -e "${COLOR_TITLE} ==== ${FUNCNAME[0]} ${1} ==== ${COLOR_END}"
+    log_title "==== ${FUNCNAME[0]} ${1} ===="
 
     if [ ! -f "${ROOT_DIR}/src/sonic-linux-kernel/.git" ]; then
-        echo -e "${COLOR_ERROR} ERROR!! Please run 'make init' first to download the submodule for patch!! ${COLOR_END}"
-        echo -e "${COLOR_ERROR} ERROR!! Please run 'make init' first to download the submodule for patch!! ${COLOR_END}"
-        echo -e "${COLOR_ERROR} ERROR!! Please run 'make init' first to download the submodule for patch!! ${COLOR_END}"
+        log_err "Please run 'make init' first to download the submodule for patch!!"
+        log_err "Please run 'make init' first to download the submodule for patch!!"
+        log_err "Please run 'make init' first to download the submodule for patch!!"
         sleep 60
         exit 1
     fi
@@ -65,11 +69,11 @@ function _poe_patch {
         fi
     fi
 
-    echo -e "${COLOR_PASS} ${FUNCNAME[0]} ${1}: PASS ${COLOR_END}"
+    log_pass "${FUNCNAME[0]} ${1}"
 }
 
 function _make_configure {
-    echo -e "${COLOR_TITLE} ==== ${FUNCNAME[0]} ==== ${COLOR_END}"
+    log_title "==== ${FUNCNAME[0]} ===="
 
     cd ${ROOT_DIR}/
     if [ ! -f "${ROOT_DIR}/.configure" ]; then
@@ -77,25 +81,25 @@ function _make_configure {
         touch ${ROOT_DIR}/.configure
     fi
 
-    echo -e "${COLOR_PASS} ${FUNCNAME[0]}: PASS ${COLOR_END}"
+    log_pass "${FUNCNAME[0]}"
 }
 
 function _build_image {
-    echo -e "${COLOR_TITLE} ==== ${FUNCNAME[0]} ==== ${COLOR_END}"
+    log_title "==== ${FUNCNAME[0]} ===="
 
     set +e
     cd ${ROOT_DIR}/
-    time make SONIC_BUILD_JOBS=8 target/sonic-broadcom.bin
+    time make SONIC_BUILD_JOBS=8 BUILD_SKIP_TEST=y target/sonic-broadcom.bin
     
     if [ -f "${ROOT_DIR}/target/sonic-broadcom.bin" ]; then
-        echo -e "${COLOR_PASS} ${FUNCNAME[0]}: PASS ${COLOR_END}"
+        log_pass "${FUNCNAME[0]}"
     else
-        echo -e "${COLOR_ERROR} ${FUNCNAME[0]}: FAIL ${COLOR_END}"
+        log_err "${FUNCNAME[0]}"
     fi
 }
 
 function _rebuild_image {
-    echo -e "${COLOR_TITLE} ==== ${FUNCNAME[0]} ==== ${COLOR_END}"
+    log_title "==== ${FUNCNAME[0]} ===="
 
     set +e
     cd ${ROOT_DIR}/
@@ -112,18 +116,18 @@ function _rebuild_image {
             echo -n "."
             sleep 10
         done
-        time make target/sonic-broadcom.bin
+        time make BUILD_SKIP_TEST=y target/sonic-broadcom.bin
     fi
     
     if [ -f "${ROOT_DIR}/target/sonic-broadcom.bin" ]; then
-        echo -e "${COLOR_PASS} ${FUNCNAME[0]}: PASS ${COLOR_END}"
+        log_pass "${FUNCNAME[0]}"
     else
-        echo -e "${COLOR_ERROR} ${FUNCNAME[0]}: FAIL ${COLOR_END}"
+        log_err "${FUNCNAME[0]}"
     fi
 }
 
 function _main {
-    echo -e "${COLOR_TITLE} ==== ${FUNCNAME[0]} ==== ${COLOR_END}"
+    log_title "==== ${FUNCNAME[0]} ===="
 
     codename_array=($@)
 
@@ -131,12 +135,14 @@ function _main {
         _poe_patch "--check"
         _poe_patch ""
     elif [ "${codename_array[0]}" == "build" ]; then
+        rm -rf ${ROOT_DIR}/.make_done
         _make_init
         _poe_patch "--check"
         _poe_patch ""
         _make_configure
         _build_image
         _rebuild_image
+        touch ${ROOT_DIR}/.make_done
     else
         _poe_patch "--check"
         _poe_patch ""

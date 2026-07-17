@@ -166,46 +166,46 @@
                 "name": "TEMP_PSU1_TEMP1"
             },
             {
-                "name": "asic_max_peak"
+                "name": "TEMP_MAC0_PVT0"
             },
             {
-                "name": "top.pvtmon1"
+                "name": "TEMP_MAC0_PVT1"
             },
             {
-                "name": "top.pvtmon2"
+                "name": "TEMP_MAC0_PVT2"
             },
             {
-                "name": "top.pvtmon3"
+                "name": "TEMP_MAC0_PVT3"
             },
             {
-                "name": "top.pvtmon4"
+                "name": "TEMP_MAC0_PVT4"
             },
             {
-                "name": "top.pvtmon5"
+                "name": "TEMP_MAC0_PVT5"
             },
             {
-                "name": "top.pvtmon6"
+                "name": "TEMP_MAC0_PVT6"
             },
             {
-                "name": "top.pvtmon7"
+                "name": "TEMP_MAC0_PVT7"
             },
             {
-                "name": "top.pvtmon8"
+                "name": "TEMP_MAC0_PVT8"
             },
             {
-                "name": "top.pvtmon9"
+                "name": "TEMP_MAC0_PVT9"
             },
             {
-                "name": "top.pvtmon10"
+                "name": "TEMP_MAC0_PVT10"
             },
             {
-                "name": "top.pvtmon11"
+                "name": "TEMP_MAC0_PVT11"
             },
             {
-                "name": "top.pvtmon12"
+                "name": "TEMP_MAC0_PVT12"
             },
             {
-                "name": "top.pvtmon13"
+                "name": "TEMP_MAC0_PVT13"
             }
         ],
         "sfps": [

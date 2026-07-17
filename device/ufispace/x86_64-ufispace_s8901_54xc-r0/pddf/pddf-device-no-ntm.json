@@ -5,6 +5,7 @@
         "num_fans_pertray": 1,
         "num_ports": 54,
         "num_temps": 8,
+        "num_asic_temps": 1,
         "num_components": 7,
         "pddf_dev_types": {
             "description": "PDDF supported devices",
@@ -31,28 +32,26 @@
             "gpio-pca953x"
         ],
         "pddf_kos": [
-            "pddf_client_module",
-            "pddf_cpld_module",
-            "pddf_cpld_driver",
+            "pddf_custom_sysstatus_module",
             "pddf_mux_module",
             "pddf_xcvr_module",
+            "pddf_xcvr_driver_module",
+            "pddf_psu_module",
+            "pddf_psu_driver_module",
+            "pddf_fan_module",
+            "pddf_fan_driver_module",
+            "pddf_led_module",
+            "pddf_cpld_driver",
+            "pddf_cpld_module",
+            "pddf_fpgai2c_driver",
+            "pddf_fpgai2c_module",
             "pddf_multifpgapci_i2c_module",
             "pddf_multifpgapci_driver",
-            "pddf_fpgapci_driver",
-            "pddf_xcvr_driver_module",
-            "pddf_psu_driver_module",
-            "pddf_psu_module",
-            "pddf_fpgai2c_module",
-            "pddf_fpgai2c_driver",
-            "pddf_fan_driver_module",
-            "pddf_fan_module",
-            "pddf_led_module",
             "pddf_gpio_module"
         ],
         "custom_kos": [
             "x86-64-ufispace-s8901-54xc-lpc",
-            "x86-64-ufispace-s8901-54xc-sys-eeprom",
-            "pddf_custom_sysstatus_module"
+            "x86-64-ufispace-s8901-54xc-sys-eeprom"
         ]
     },
     "COMPONENT1":
@@ -1830,7 +1829,7 @@
                         "separator": ","
                     },
                     {
-                        "attr_name": "temp1_high_crit_threshold",
+                        "attr_name": "temp1_high_threshold",
                         "bmc_cmd": "ipmitool sdr -c get PSU0_TEMP1",
                         "raw": "0",
                         "field_name": "PSU0_TEMP1",
@@ -1862,7 +1861,7 @@
                         "separator": ","
                     },
                     {
-                        "attr_name": "temp1_high_crit_threshold",
+                        "attr_name": "temp1_high_threshold",
                         "bmc_cmd": "ipmitool sdr -c get PSU1_TEMP1",
                         "raw": "0",
                         "field_name": "PSU1_TEMP1",
@@ -1871,6 +1870,19 @@
                     }
                 ]
             }
+        }
+    },
+    "ASIC_TEMP1": {
+        "dev_info": {
+            "device_type": "ASIC_TEMP_SENSOR",
+            "device_name": "ASIC_TEMP1",
+            "device_parent": "None"
+        },
+        "dev_attr": {
+            "display_name": "TEMP_MAC_HWM",
+            "temp1_high_threshold": 95,
+            "temp1_high_crit_threshold": 105,
+            "table_index": "maximum_temperature"
         }
     },
     "PSU1": {
@@ -1901,6 +1913,15 @@
                         "separator": ","
                     },
                     {
+                        "attr_name": "psu_temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sdr get -c PSU0_TEMP1 | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
+                        "raw": "0",
+                        "separator": ",",
+                        "field_name": "PSU0_TEMP1",
+                        "field_pos": "12",
+                        "mult": "1000"
+                    },
+                    {
                         "attr_name": "psu_fan1_speed_rpm",
                         "bmc_cmd": "ipmitool sdr -c get PSU0_FAN1 | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
                         "raw": "0",
@@ -1916,6 +1937,24 @@
                         "field_pos": "2",
                         "mult": "1000",
                         "separator": ","
+                    },
+                    {
+                        "attr_name": "psu_v_out_min",
+                        "bmc_cmd": "ipmitool sdr get -c PSU0_VOUT | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
+                        "raw": "0",
+                        "separator": ",",
+                        "field_name": "PSU0_VOUT",
+                        "field_pos": "14",
+                        "mult": "1000"
+                    },
+                    {
+                        "attr_name": "psu_v_out_max",
+                        "bmc_cmd": "ipmitool sdr get -c PSU0_VOUT | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
+                        "raw": "0",
+                        "separator": ",",
+                        "field_name": "PSU0_VOUT",
+                        "field_pos": "11",
+                        "mult": "1000"
                     },
                     {
                         "attr_name": "psu_i_out",
@@ -2041,6 +2080,15 @@
                         "separator": ","
                     },
                     {
+                        "attr_name": "psu_temp1_high_threshold",
+                        "bmc_cmd": "ipmitool sdr get -c PSU1_TEMP1 | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
+                        "raw": "0",
+                        "separator": ",",
+                        "field_name": "PSU1_TEMP1",
+                        "field_pos": "12",
+                        "mult": "1000"
+                    },
+                    {
                         "attr_name": "psu_fan1_speed_rpm",
                         "bmc_cmd": "ipmitool sdr -c get PSU1_FAN1 | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
                         "raw": "0",
@@ -2056,6 +2104,24 @@
                         "field_pos": "2",
                         "mult": "1000",
                         "separator": ","
+                    },
+                    {
+                        "attr_name": "psu_v_out_min",
+                        "bmc_cmd": "ipmitool sdr get -c PSU1_VOUT | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
+                        "raw": "0",
+                        "separator": ",",
+                        "field_name": "PSU1_VOUT",
+                        "field_pos": "14",
+                        "mult": "1000"
+                    },
+                    {
+                        "attr_name": "psu_v_out_max",
+                        "bmc_cmd": "ipmitool sdr get -c PSU1_VOUT | sed -e 's/,,/,N\\/A,/g' -e 's/,,/,N\\/A,/g'",
+                        "raw": "0",
+                        "separator": ",",
+                        "field_name": "PSU1_VOUT",
+                        "field_pos": "11",
+                        "mult": "1000"
                     },
                     {
                         "attr_name": "psu_i_out",

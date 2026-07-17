@@ -17,7 +17,10 @@ class AsicThermal(PddfAsicThermal):
     # Provide the functions/variables below for which implementation is to be overwritten
 
     def get_temperature(self):
-        db = SonicV2Connector()
-        db.connect(db.STATE_DB)
-        data_dict = db.get_all(db.STATE_DB, self.ASIC_TEMP_INFO)
-        return float(data_dict[self.table_index])
+        try:
+            db = SonicV2Connector()
+            db.connect(db.STATE_DB)
+            data_dict = db.get_all(db.STATE_DB, self.ASIC_TEMP_INFO)
+            return float(data_dict[self.table_index])
+        except:
+            return 0.0

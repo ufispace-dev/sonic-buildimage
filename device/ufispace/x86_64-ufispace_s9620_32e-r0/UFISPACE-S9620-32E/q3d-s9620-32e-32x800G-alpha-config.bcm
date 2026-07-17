@@ -1,4 +1,18 @@
-#2025.5.16 R0.4 
+#2026.5.12 R0.6 
+
+port_priorities=8
+port_priorities_sch=8
+port_priorities_0=2
+port_priorities_380=2
+port_priorities_381=2
+port_priorities_382=2
+port_priorities_383=2
+port_priorities_384=2
+port_priorities_385=2
+port_priorities_386=2
+port_priorities_387=2
+port_priorities_rcy=2
+appl_param_oam_enable=0
 
 dpp_db_path=/usr/share/bcm/db
 rif_id_max=0x2000
@@ -28,10 +42,10 @@ soc_family.BCM8887X=BCM8887X
 appl_param_rcy_mirror_ports_range.BCM8887X=500-1000
 
 # Alpha assign the PCIe unit
-#assign_units=1,0x1900,2,0x1600
+assign_units=1,0x1900,2,0x1600
 
 # Beta assign the PCIe unit
-assign_units=1,0x1800,2,0x1700
+#assign_units=1,0x1800,2,0x1700
 
 
 #enable HBM
@@ -188,8 +202,8 @@ tm_port_header_type_out_315.BCM8887X=CPU
 ### High Availability ###
 #########################
 #if warmboot is not needed this property can be deleted
-warmboot_support.BCM8887X=on
-warmboot_support.BCM8887X_ADAPTER=on
+#warmboot_support.BCM8887X=on
+#warmboot_support.BCM8887X_ADAPTER=on
 
 #size of memory block pre-allocated for sw-state use when working with warmboot_support=on
 sw_state_max_size.BCM8887X=1650000000
@@ -210,8 +224,8 @@ stable_filename.2.BCM8887X=/dev/shm/warmboot_data_2
 stable_size.BCM8887X=1700000000
 stable_size.BCM8887X_ADAPTER=1700000000
 
-#disable counter thread
-bcm_stat_interval.BCM8887X_ADAPTER=0
+#counter stat interval
+bcm_stat_interval.BCM8887X_ADAPTER=1000000
 
 #########################
 #########################

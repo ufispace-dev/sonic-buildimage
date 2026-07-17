@@ -1,6 +1,6 @@
-From d9a8fcc14313a5c3c5cc3457f97cca654cc4a3d7 Mon Sep 17 00:00:00 2001
+From ee9c2f89d85a07486c768675ef34c961f32caf6d Mon Sep 17 00:00:00 2001
 From: "feng.cf.lee" <feng.cf.lee@ufispace.com>
-Date: Mon, 2 Feb 2026 11:31:20 +0800
+Date: Fri, 26 Jun 2026 15:49:18 +0800
 Subject: [PATCH] [sonic-buildimage] Add support for PoE feature
 
 Add target for poesyncd container
@@ -23,7 +23,7 @@ Note: Originally authored by Serhiy Boiko <serhiy.boiko@plvision.eu>
  .../x86_64-kvm_x86_64-r0/poe_vs/sai.profile   |   3 +
  .../docker-database/database_config.json.j2   |  16 ++
  .../docker-orchagent/critical_processes.j2    |   1 +
- dockers/docker-orchagent/supervisord.conf.j2  |  32 +++
+ .../supervisord.conf.common.j2                |  32 +++
  files/build_templates/init_cfg.json.j2        |   1 +
  .../per_namespace/poesyncd.service.j2         |  20 ++
  .../build_templates/sonic_debian_extension.j2 |   2 +
@@ -38,11 +38,10 @@ Note: Originally authored by Serhiy Boiko <serhiy.boiko@plvision.eu>
  platform/vs/docker-poesyncd-vs/start.sh       |  14 ++
  .../vs/docker-poesyncd-vs/supervisord.conf    |  50 +++++
  .../vs/docker-sonic-vs/database_config.json   |  15 ++
- .../vs/docker-sonic-vs/supervisord.conf.j2    |  20 ++
  platform/vs/rules.mk                          |   1 +
  rules/config                                  |   3 +
  slave.mk                                      |   2 +
- 32 files changed, 802 insertions(+), 1 deletion(-)
+ 31 files changed, 782 insertions(+), 1 deletion(-)
  create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers.json.j2
  create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_def.j2
  create mode 100644 device/virtual/x86_64-kvm_x86_64-r0/poe_vs/buffers_defaults_t0.j2
@@ -64,17 +63,17 @@ Note: Originally authored by Serhiy Boiko <serhiy.boiko@plvision.eu>
  create mode 100644 platform/vs/docker-poesyncd-vs/supervisord.conf
 
 diff --git a/Makefile.work b/Makefile.work
-index aa3bb9368..267acfa4f 100644
+index f3d4339fb..5f0e5c9b3 100644
 --- a/Makefile.work
 +++ b/Makefile.work
-@@ -568,6 +568,7 @@ SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
+@@ -664,6 +664,7 @@ SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
                             INCLUDE_DHCP_RELAY=$(INCLUDE_DHCP_RELAY) \
                             INCLUDE_DHCP_SERVER=$(INCLUDE_DHCP_SERVER) \
                             INCLUDE_MACSEC=$(INCLUDE_MACSEC) \
 +                           INCLUDE_POE=$(INCLUDE_POE) \
+                            INCLUDE_STP=$(INCLUDE_STP) \
                             INCLUDE_ICCPD=$(INCLUDE_ICCPD) \
                             SONIC_INCLUDE_RESTAPI=$(INCLUDE_RESTAPI) \
-                            SONIC_INCLUDE_MUX=$(INCLUDE_MUX) \
 diff --git a/device/virtual/x86_64-kvm_x86_64-r0/README.md b/device/virtual/x86_64-kvm_x86_64-r0/README.md
 index 0347432d6..5aa48fa0a 100644
 --- a/device/virtual/x86_64-kvm_x86_64-r0/README.md
@@ -573,11 +572,11 @@ index 000000000..0a2df177f
 +SAI_VS_HOSTIF_USE_TAP_DEVICE=true
 +SAI_VS_INTERFACE_LANE_MAP_FILE=/usr/share/sonic/hwsku/lanemap.ini
 diff --git a/dockers/docker-database/database_config.json.j2 b/dockers/docker-database/database_config.json.j2
-index b97589d37..f0296c931 100644
+index 6d73a538e..03eec1af0 100644
 --- a/dockers/docker-database/database_config.json.j2
 +++ b/dockers/docker-database/database_config.json.j2
-@@ -147,6 +147,22 @@
-             "instance" : "redis_bmp"
+@@ -155,6 +155,22 @@
+             "instance" : "redis"
          }
  {% endif %}
 +        ,
@@ -611,18 +610,18 @@ index b9bad7408..ff835cf92 100644
  program:intfmgrd
  program:portmgrd
  program:fabricmgrd
-diff --git a/dockers/docker-orchagent/supervisord.conf.j2 b/dockers/docker-orchagent/supervisord.conf.j2
-index a377e07ee..e331cdab0 100644
---- a/dockers/docker-orchagent/supervisord.conf.j2
-+++ b/dockers/docker-orchagent/supervisord.conf.j2
-@@ -59,6 +59,23 @@ environment=ASAN_OPTIONS="log_path=/var/log/asan/gearsyncd-asan.log{{ asan_extra
+diff --git a/dockers/docker-orchagent/supervisord.conf.common.j2 b/dockers/docker-orchagent/supervisord.conf.common.j2
+index a8b98a1a5..7d33d2e25 100644
+--- a/dockers/docker-orchagent/supervisord.conf.common.j2
++++ b/dockers/docker-orchagent/supervisord.conf.common.j2
+@@ -42,6 +42,23 @@ environment=ASAN_OPTIONS="log_path=/var/log/asan/gearsyncd-asan.log{{ asan_extra
  {% endif %}
  {%- endif %}
  
 +{% if is_fabric_asic == 0 %}
 +[program:poesyncd]
 +command=/usr/bin/poesyncd -p /usr/share/sonic/hwsku/poe_config.json
-+priority=3
++priority={{ swss_priority_base + 3 }}
 +autostart=false
 +autorestart=false
 +startsecs=0
@@ -639,14 +638,14 @@ index a377e07ee..e331cdab0 100644
  {% if is_fabric_asic == 0 %}
  [program:portsyncd]
  command=/usr/bin/portsyncd
-@@ -212,6 +229,21 @@ environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log{{ asan_extra_
+@@ -217,6 +234,21 @@ environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log{{ asan_extra_
  {% endif %}
  {%- endif %}
  
 +{% if is_fabric_asic == 0 %}
 +[program:poemgrd]
 +command=/usr/bin/poemgrd
-+priority=10
++priority={{ swss_priority_base + 10 }}
 +autostart=false
 +autorestart=false
 +stdout_logfile=syslog
@@ -660,12 +659,12 @@ index a377e07ee..e331cdab0 100644
 +
  [program:fabricmgrd]
  command=/usr/bin/fabricmgrd
- priority=10
+ priority={{ swss_priority_base + 10 }}
 diff --git a/files/build_templates/init_cfg.json.j2 b/files/build_templates/init_cfg.json.j2
-index 174c15f03..1747fc804 100644
+index f8788df9e..cac4f5b00 100644
 --- a/files/build_templates/init_cfg.json.j2
 +++ b/files/build_templates/init_cfg.json.j2
-@@ -73,6 +73,7 @@
+@@ -90,6 +90,7 @@
  {% do features.append(("dhcp_relay", "{% if not (DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['type'] is defined and DEVICE_METADATA['localhost']['type'] is not in ['ToRRouter', 'EPMS', 'MgmtTsToR', 'MgmtToRRouter', 'BmcMgmtToRRouter']) %}enabled{% else %}disabled{% endif %}", false, "enabled")) %}
  {%- if include_dhcp_server == "y" %}{% do features.append(("dhcp_server", "disabled", false, "enabled")) %}{% endif %}
  {%- if sonic_asic_platform == "vs" %}{% do features.append(("gbsyncd", "enabled", false, "enabled")) %}{% endif %}
@@ -700,10 +699,10 @@ index 000000000..dc5ce3aac
 +[Install]
 +WantedBy=sonic.target
 diff --git a/files/build_templates/sonic_debian_extension.j2 b/files/build_templates/sonic_debian_extension.j2
-index 3447eb0e4..a76b3903e 100644
+index 72afc99d4..d9afd1126 100644
 --- a/files/build_templates/sonic_debian_extension.j2
 +++ b/files/build_templates/sonic_debian_extension.j2
-@@ -1040,6 +1040,8 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
+@@ -1125,6 +1125,8 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
  sudo LANG=C cp $SCRIPTS_DIR/syncd_common.sh $FILESYSTEM_ROOT/usr/local/bin/syncd_common.sh
  sudo LANG=C cp $SCRIPTS_DIR/gbsyncd.sh $FILESYSTEM_ROOT/usr/local/bin/gbsyncd.sh
  sudo LANG=C cp $SCRIPTS_DIR/gbsyncd-platform.sh $FILESYSTEM_ROOT/usr/bin/gbsyncd-platform.sh
@@ -820,19 +819,19 @@ index 000000000..797e4aade
 +        ;;
 +esac
 diff --git a/files/scripts/swss.sh b/files/scripts/swss.sh
-index da2bc2221..4f933ccfd 100755
+index b1ae5d26b..961854ea7 100755
 --- a/files/scripts/swss.sh
 +++ b/files/scripts/swss.sh
-@@ -406,7 +406,8 @@ start() {
+@@ -408,7 +408,8 @@ start() {
          $SONIC_DB_CLI GB_ASIC_DB FLUSHDB
          $SONIC_DB_CLI GB_COUNTERS_DB FLUSHDB
          $SONIC_DB_CLI RESTAPI_DB FLUSHDB
--        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*', 'MUX_CABLE_TABLE*', 'ADVERTISE_NETWORK_TABLE*', 'VXLAN_TUNNEL_TABLE*', 'VNET_ROUTE*', 'MACSEC_PORT_TABLE*', 'MACSEC_INGRESS_SA_TABLE*', 'MACSEC_EGRESS_SA_TABLE*', 'MACSEC_INGRESS_SC_TABLE*', 'MACSEC_EGRESS_SC_TABLE*', 'VRF_OBJECT_TABLE*', 'VNET_MONITOR_TABLE*', 'BFD_SESSION_TABLE*', 'SYSTEM_NEIGH_TABLE*', 'FABRIC_PORT_TABLE*', 'TUNNEL_DECAP_TABLE*', 'TUNNEL_DECAP_TERM_TABLE*', 'HIGH_FREQUENCY_TELEMETRY_SESSION_TABLE*' "
+-        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*', 'MUX_CABLE_TABLE*', 'ADVERTISE_NETWORK_TABLE*', 'VXLAN_TUNNEL_TABLE*', 'VNET_ROUTE*', 'MACSEC_PORT_TABLE*', 'MACSEC_INGRESS_SA_TABLE*', 'MACSEC_EGRESS_SA_TABLE*', 'MACSEC_INGRESS_SC_TABLE*', 'MACSEC_EGRESS_SC_TABLE*', 'VRF_OBJECT_TABLE*', 'VNET_MONITOR_TABLE*', 'BFD_SESSION_TABLE*', 'SYSTEM_NEIGH_TABLE*', 'FABRIC_PORT_TABLE*', 'TUNNEL_DECAP_TABLE*', 'TUNNEL_DECAP_TERM_TABLE*', 'HIGH_FREQUENCY_TELEMETRY_SESSION_TABLE*', 'PROCESS_HEALTH*' "
 +        $SONIC_DB_CLI POE_ASIC_DB FLUSHDB
-+        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*', 'MUX_CABLE_TABLE*', 'ADVERTISE_NETWORK_TABLE*', 'VXLAN_TUNNEL_TABLE*', 'VNET_ROUTE*', 'MACSEC_PORT_TABLE*', 'MACSEC_INGRESS_SA_TABLE*', 'MACSEC_EGRESS_SA_TABLE*', 'MACSEC_INGRESS_SC_TABLE*', 'MACSEC_EGRESS_SC_TABLE*', 'VRF_OBJECT_TABLE*', 'VNET_MONITOR_TABLE*', 'BFD_SESSION_TABLE*', 'SYSTEM_NEIGH_TABLE*', 'FABRIC_PORT_TABLE*', 'TUNNEL_DECAP_TABLE*', 'TUNNEL_DECAP_TERM_TABLE*', 'HIGH_FREQUENCY_TELEMETRY_SESSION_TABLE*', 'POE_DEVICE_TABLE*', 'POE_PSE_TABLE*', 'POE_PORT_TABLE*' "
++        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*', 'MUX_CABLE_TABLE*', 'ADVERTISE_NETWORK_TABLE*', 'VXLAN_TUNNEL_TABLE*', 'VNET_ROUTE*', 'MACSEC_PORT_TABLE*', 'MACSEC_INGRESS_SA_TABLE*', 'MACSEC_EGRESS_SA_TABLE*', 'MACSEC_INGRESS_SC_TABLE*', 'MACSEC_EGRESS_SC_TABLE*', 'VRF_OBJECT_TABLE*', 'VNET_MONITOR_TABLE*', 'BFD_SESSION_TABLE*', 'SYSTEM_NEIGH_TABLE*', 'FABRIC_PORT_TABLE*', 'TUNNEL_DECAP_TABLE*', 'TUNNEL_DECAP_TERM_TABLE*', 'HIGH_FREQUENCY_TELEMETRY_SESSION_TABLE*', 'PROCESS_HEALTH*', 'POE_DEVICE_TABLE*', 'POE_PSE_TABLE*', 'POE_PORT_TABLE*' "
          $SONIC_DB_CLI APPL_STATE_DB FLUSHDB
-         clean_up_chassis_db_tables
-         rm -rf /tmp/cache
+         # Flush DPU remote databases (DPU device only)
+         # Only run if this is a DPU device (type=SmartSwitchDPU or switch_type=dpu)
 diff --git a/platform/template/docker-poesyncd-base.mk b/platform/template/docker-poesyncd-base.mk
 new file mode 100644
 index 000000000..37131d421
@@ -1064,44 +1063,6 @@ index a4e2c6257..3ee5936ec 100644
          }
      },
      "VERSION" : "1.0"
-diff --git a/platform/vs/docker-sonic-vs/supervisord.conf.j2 b/platform/vs/docker-sonic-vs/supervisord.conf.j2
-index a394d29d4..9035c72b6 100644
---- a/platform/vs/docker-sonic-vs/supervisord.conf.j2
-+++ b/platform/vs/docker-sonic-vs/supervisord.conf.j2
-@@ -78,6 +78,15 @@ stdout_syslog=true
- stderr_logfile=NONE
- stderr_syslog=true
- 
-+[program:poesyncd]
-+command=/usr/bin/poesyncd -p /usr/share/sonic/hwsku/poe_config.json
-+startsecs=0
-+priority=5
-+autostart=false
-+autorestart=false
-+stdout_logfile=syslog
-+stderr_logfile=syslog
-+
- [program:portsyncd]
- command=/usr/bin/portsyncd
- priority=5
-@@ -156,6 +165,17 @@ stderr_syslog=true
- environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log{{ asan_extra_options }}"
- {% endif %}
- 
-+[program:poemgrd]
-+command=/usr/bin/poemgrd
-+priority=10
-+autostart=false
-+autorestart=false
-+stdout_logfile=syslog
-+stderr_logfile=syslog
-+{% if ENABLE_ASAN == "y" %}
-+environment=ASAN_OPTIONS="log_path=/var/log/asan/poemgrd-asan.log{{ asan_extra_options }}"
-+{% endif %}
-+
- [program:intfmgrd]
- command=/usr/bin/intfmgrd
- priority=11
 diff --git a/platform/vs/rules.mk b/platform/vs/rules.mk
 index c03e386b8..dbf0fbc79 100644
 --- a/platform/vs/rules.mk
@@ -1115,10 +1076,10 @@ index c03e386b8..dbf0fbc79 100644
  include $(PLATFORM_PATH)/docker-ptf-sai.mk
  include $(PLATFORM_PATH)/libsaithrift-dev.mk
 diff --git a/rules/config b/rules/config
-index 516efe5cb..f573b16ca 100644
+index c660c2d31..1e62b8e17 100644
 --- a/rules/config
 +++ b/rules/config
-@@ -172,6 +172,9 @@ INCLUDE_MACSEC = y
+@@ -239,6 +239,9 @@ INCLUDE_MACSEC = y
  # INCLUDE_GBSYNCD - build docker-gbsyncd-* for gearbox support
  INCLUDE_GBSYNCD ?= y
  
@@ -1129,10 +1090,10 @@ index 516efe5cb..f573b16ca 100644
  INCLUDE_TEAMD ?= y
  
 diff --git a/slave.mk b/slave.mk
-index 7aa74ef48..714445f80 100644
+index c09f00e92..85356b154 100644
 --- a/slave.mk
 +++ b/slave.mk
-@@ -473,6 +473,7 @@ $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
+@@ -505,6 +505,7 @@ $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
  $(info "INCLUDE_KUBERNETES_MASTER"       : "$(INCLUDE_KUBERNETES_MASTER)")
  $(info "INCLUDE_MACSEC"                  : "$(INCLUDE_MACSEC)")
  $(info "INCLUDE_MUX"                     : "$(INCLUDE_MUX)")
@@ -1140,10 +1101,10 @@ index 7aa74ef48..714445f80 100644
  $(info "INCLUDE_TEAMD"                   : "$(INCLUDE_TEAMD)")
  $(info "INCLUDE_DASH_HA"                 : "$(INCLUDE_DASH_HA)")
  $(info "INCLUDE_ROUTER_ADVERTISER"       : "$(INCLUDE_ROUTER_ADVERTISER)")
-@@ -1543,6 +1544,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
- 	export include_bootchart="$(INCLUDE_BOOTCHART)"
+@@ -1776,6 +1777,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
  	export enable_bootchart="$(ENABLE_BOOTCHART)"
  	export enable_multidb="$(ENABLE_MULTIDB)"
+ 	export ENABLE_FRR_SNMP_AGENT="$(ENABLE_FRR_SNMP_AGENT)"
 +	export include_poe="$(INCLUDE_POE)"
  	$(foreach docker, $($*_DOCKERS),\
  		export docker_image="$(docker)"
