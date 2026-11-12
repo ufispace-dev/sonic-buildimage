@@ -1617,6 +1617,70 @@
             "ipmitool": {
                 "attr_list": [
                     {
+                        "attr_name": "fantray1_model_name",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 3 2>/dev/null | grep 'Name'|| echo 'Name : N/A'); _rv2=$(echo $_rv | cut -d':' -f 2 | awk '{$1=$1};1'); echo 'Name : '$_rv2",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Name",
+                        "field_pos": "2"
+                    },
+                    {
+                        "attr_name": "fantray2_model_name",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 4 2>/dev/null | grep 'Name'|| echo 'Name : N/A'); _rv2=$(echo $_rv | cut -d':' -f 2 | awk '{$1=$1};1'); echo 'Name : '$_rv2",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Name",
+                        "field_pos": "2"
+                    },
+                    {
+                        "attr_name": "fantray3_model_name",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 5 2>/dev/null | grep 'Name'|| echo 'Name : N/A'); _rv2=$(echo $_rv | cut -d':' -f 2 | awk '{$1=$1};1'); echo 'Name : '$_rv2",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Name",
+                        "field_pos": "2"
+                    },
+                    {
+                        "attr_name": "fantray4_model_name",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 6 2>/dev/null | grep 'Name'|| echo 'Name : N/A'); _rv2=$(echo $_rv | cut -d':' -f 2 | awk '{$1=$1};1'); echo 'Name : '$_rv2",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Name",
+                        "field_pos": "2"
+                    },
+                    {
+                        "attr_name": "fantray1_serial_num",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 3 2>/dev/null | tr -s ' ' | cut -d' ' -f3-5 | grep 'Serial') && echo $_rv || echo 'Serial : N/A'",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Serial",
+                        "field_pos": "2"
+                    },
+                    {
+                        "attr_name": "fantray2_serial_num",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 4 2>/dev/null | tr -s ' ' | cut -d' ' -f3-5 | grep 'Serial') && echo $_rv || echo 'Serial : N/A'",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Serial",
+                        "field_pos": "2"
+                    },
+                    {
+                        "attr_name": "fantray3_serial_num",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 5 2>/dev/null | tr -s ' ' | cut -d' ' -f3-5 | grep 'Serial') && echo $_rv || echo 'Serial : N/A'",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Serial",
+                        "field_pos": "2"
+                    },
+                    {
+                        "attr_name": "fantray4_serial_num",
+                        "bmc_cmd": "_rv=$(ipmitool fru print 6 2>/dev/null | tr -s ' ' | cut -d' ' -f3-5 | grep 'Serial') && echo $_rv || echo 'Serial : N/A'",
+                        "raw": "0",
+                        "separator": ":",
+                        "field_name": "Serial",
+                        "field_pos": "2"
+                    },
+                    {
                         "attr_name": "fan1_present",
                         "bmc_cmd": "ipmitool sdr get -c FAN0_PRSNT_H",
                         "raw": "0",

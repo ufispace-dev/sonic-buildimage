@@ -40,13 +40,13 @@
         {
             "bmc":
             {
-                "valmap": {"0": "UNKNOWN", "1":"INTAKE", "2":"EXHAUST"}
+                "valmap": {"0": "unknown", "1":"intake", "2":"exhaust"}
             }
         },
         "psu_support_list":
         [
-            {"Manufacturer": "DELTA","Name": "DTQ3000AN12C12", "MaxSpd": "PSU_AC_FAN_MAX_SPEED", "Type":"AC", "Dir": "EXHAUST"},
-            {"Manufacturer": "DELTA","Name": "DTQ3001DS12L1P", "MaxSpd": "PSU_DC_FAN_MAX_SPEED", "Type":"DC", "Dir": "EXHAUST"}
+            {"Manufacturer": "DELTA","Name": "DTQ3000AN12C12", "MaxSpd": "PSU_AC_FAN_MAX_SPEED", "Type":"AC", "Dir": "exhaust"},
+            {"Manufacturer": "DELTA","Name": "DTQ3001DS12L1P", "MaxSpd": "PSU_DC_FAN_MAX_SPEED", "Type":"DC", "Dir": "exhaust"}
         ],
 
         "valmap": {"PSU_AC_FAN_MAX_SPEED": "25000", "PSU_DC_FAN_MAX_SPEED":"32500", "DEFAULT_TYPE": "AC"}
@@ -58,7 +58,7 @@
         {
             "bmc":
             {
-                "valmap": {"0": "UNKNOWN", "1":"INTAKE", "2":"EXHAUST"}
+                "valmap": {"0": "unknown", "1":"intake", "2":"exhaust"}
             }
         },
 
