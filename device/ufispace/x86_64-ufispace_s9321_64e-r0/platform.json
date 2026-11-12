@@ -26,76 +26,188 @@
         ],
         "fans": [
             {
-                "name": "Fantray1_1"
+                "name": "Fantray1_1",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "Fantray1_2"
+                "name": "Fantray1_2",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "Fantray2_1"
+                "name": "Fantray2_1",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "Fantray2_2"
+                "name": "Fantray2_2",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "Fantray3_1"
+                "name": "Fantray3_1",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "Fantray3_2"
+                "name": "Fantray3_2",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "Fantray4_1"
+                "name": "Fantray4_1",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "Fantray4_2"
+                "name": "Fantray4_2",
+                "status_led": {
+                    "controllable": false
+                },
+                "speed": {
+                    "controllable": false
+                }
             }
         ],
         "fan_drawers":[
             {
                 "name": "Fantray1",
+                "status_led": {
+                    "controllable": false
+                },
+                "max_consumed_power": false,
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "Fantray1_1"
+                        "name": "Fantray1_1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "Fantray1_2"
+                        "name": "Fantray1_2",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "Fantray2",
+                "status_led": {
+                    "controllable": false
+                },
+                "max_consumed_power": false,
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "Fantray2_1"
+                        "name": "Fantray2_1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "Fantray2_2"
+                        "name": "Fantray2_2",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "Fantray3",
+                "status_led": {
+                    "controllable": false
+                },
+                "max_consumed_power": false,
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "Fantray3_1"
+                        "name": "Fantray3_1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "Fantray3_2"
+                        "name": "Fantray3_2",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "Fantray4",
+                "status_led": {
+                    "controllable": false
+                },
+                "max_consumed_power": false,
                 "num_fans" : 2,
                 "fans": [
                     {
-                        "name": "Fantray4_1"
+                        "name": "Fantray4_1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "Fantray4_2"
+                        "name": "Fantray4_2",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
                 ]
             }

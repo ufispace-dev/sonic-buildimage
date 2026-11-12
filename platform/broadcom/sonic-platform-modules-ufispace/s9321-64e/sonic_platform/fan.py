@@ -126,7 +126,7 @@ class Fan(PddfFan):
             A string, either FAN_DIRECTION_INTAKE or FAN_DIRECTION_EXHAUST
             depending on fan direction
         """
-        dir = "EXHAUST"
+        dir = self.FAN_DIRECTION_EXHAUST
         if self.is_psu_fan:
             mfr = self.get_mfr_id()
             model = self.get_model()
@@ -137,7 +137,7 @@ class Fan(PddfFan):
                         dir = dev['Dir']
                         break
         else:
-            dir = "EXHAUST"
+            dir = self.FAN_DIRECTION_EXHAUST
 
         return dir
 
@@ -166,3 +166,21 @@ class Fan(PddfFan):
                  to 100 (full speed)
         """
         return self.get_speed()
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+
+        Returns:
+            string: Model/part number of device
+        """
+        return 'N/A'
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the device
+
+        Returns:
+            string: Serial number of device
+        """
+        return 'N/A'
